@@ -142,14 +142,11 @@ function renderAbout() {
           </div>
           <article class="personal-info-card glass-surface">
             ${personalInfo.map(item => `
-              <div class="info-item">
+              <div class="info-item" aria-label="${item.label}: ${item.value}">
                 <span class="info-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${item.icon}</svg>
                 </span>
-                <span class="info-detail">
-                  <span class="info-label">${item.label}</span>
-                  <strong class="info-value">${item.value}</strong>
-                </span>
+                <strong class="info-value">${item.value}</strong>
               </div>
             `).join('')}
           </article>

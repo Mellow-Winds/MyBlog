@@ -334,18 +334,6 @@ body[data-material-mode="liquid-glass"] {
   font-weight: 600;
 }
 
-.info-detail {
-  display: grid;
-  gap: 3px;
-  min-width: 0;
-}
-
-.info-label {
-  color: var(--muted);
-  font-size: 0.82rem;
-  font-weight: 600;
-}
-
 .info-value {
   overflow: hidden;
   color: var(--ink);

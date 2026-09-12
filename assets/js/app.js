@@ -234,13 +234,21 @@ document.addEventListener('pointerdown', event => {
 });
 
 document.addEventListener('click', event => {
-  if (event.detail === 0) rippleAt(event);
+  const dynamicRippleTarget = event.target.closest('[data-study-term], [data-chapter-index]');
+  if (event.detail === 0 && !dynamicRippleTarget) rippleAt(event);
 
   const studyTerm = event.target.closest('[data-study-term]');
   if (studyTerm) {
     contentState.study.term = Number(studyTerm.dataset.studyTerm);
     contentState.study.item = 0;
     renderView('study');
+    rippleAt({
+      target: document.getElementById(`study-term-${contentState.study.term}`),
+      detail: event.detail,
+      type: event.type,
+      clientX: event.clientX,
+      clientY: event.clientY
+    });
     document.getElementById(`study-term-${contentState.study.term}`)?.focus();
     return;
   }
@@ -250,7 +258,15 @@ document.addEventListener('click', event => {
     const page = chapterButton.dataset.chapterIndex;
     contentState[page].item = Number(chapterButton.dataset.index);
     renderView(page);
-    contentRoot.querySelector(`[data-chapter-index="${page}"][data-index="${contentState[page].item}"]`)?.focus();
+    const nextChapterButton = contentRoot.querySelector(`[data-chapter-index="${page}"][data-index="${contentState[page].item}"]`);
+    rippleAt({
+      target: nextChapterButton,
+      detail: event.detail,
+      type: event.type,
+      clientX: event.clientX,
+      clientY: event.clientY
+    });
+    nextChapterButton?.focus();
   }
 });
 

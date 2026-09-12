@@ -113,7 +113,6 @@ window.MyBlogReader = (() => {
   const md = window.markdownit({ html: false, linkify: false, typographer: false, highlight: (source, info) => highlightCode(source, info) });
   const esc = text => md.utils.escapeHtml(String(text));
   const routeFor = (grade, subject, file) => '#study/' + [grade, subject, file].map(encodeURIComponent).join('/');
-  const fileIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h9l5 5v13H5Z M14 3v5h5 M8 12h8 M8 16h6"/></svg>';
 
   let request;
   let loadedKey = '';
@@ -124,32 +123,39 @@ window.MyBlogReader = (() => {
   const viewState = { filter: 'all', sort: 'name' };
   const fileTools = document.querySelector('.file-tools');
   const fileList = document.querySelector('.course-files');
+  const toolZones = [...document.querySelectorAll('.file-tool-zone')];
+  let activeMenu = null;
+  let closeTimer = 0;
 
   const fileType = file => file?.type === 'pdf' || /\.pdf$/i.test(file?.path || '') ? 'pdf' : 'md';
-
-  function createToolMenus() {
-    if (!fileTools || fileTools.querySelector('.file-popover')) return;
-    fileTools.insertAdjacentHTML('beforeend', `
-      <div class="file-popover" data-reader-popover="filter" hidden>
-        <button type="button" data-reader-filter-option="all" data-ripple>全部</button>
-        <button type="button" data-reader-filter-option="md" data-ripple>MD</button>
-        <button type="button" data-reader-filter-option="pdf" data-ripple>PDF</button>
-      </div>
-      <div class="file-popover" data-reader-popover="sort" hidden>
-        <button type="button" data-reader-sort-option="name" data-ripple>按名称</button>
-        <button type="button" data-reader-sort-option="type" data-ripple>按类型</button>
-      </div>`);
-  }
 
   function setPopover(kind, open) {
     const button = fileTools?.querySelector(`[data-reader-${kind}]`);
     const popover = fileTools?.querySelector(`[data-reader-popover="${kind}"]`);
     if (!button || !popover) return;
-    popover.hidden = !open;
+    popover.dataset.state = open ? 'open' : 'closed';
+    popover.setAttribute('aria-hidden', String(!open));
     button.setAttribute('aria-expanded', String(open));
+    if (open) activeMenu = kind;
+    else if (activeMenu === kind) activeMenu = null;
   }
 
-  function closePopovers() { setPopover('filter', false); setPopover('sort', false); }
+  function openPopover(kind) {
+    window.clearTimeout(closeTimer);
+    if (activeMenu && activeMenu !== kind) setPopover(activeMenu, false);
+    setPopover(kind, true);
+  }
+
+  function closePopovers() {
+    window.clearTimeout(closeTimer);
+    setPopover('filter', false);
+    setPopover('sort', false);
+  }
+
+  function scheduleClose() {
+    window.clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(closePopovers, 280);
+  }
 
   function renderToolState() {
     fileTools?.querySelectorAll('[data-reader-filter-option]').forEach(button => button.setAttribute('aria-checked', String(button.dataset.readerFilterOption === viewState.filter)));
@@ -180,7 +186,7 @@ window.MyBlogReader = (() => {
       fileList.innerHTML = shown.length
         ? shown.map(file => {
           const type = fileType(file);
-          return `<a class="nav-link file-link" href="${esc(routeFor(grade.name, subject.name, file.path))}" data-reader-file="${esc(file.path)}" data-ripple title="${esc(file.path)}"><span class="file-type file-type-${type}">${type.toUpperCase()}</span>${fileIcon}<span class="file-name">${esc(file.name)}</span></a>`;
+          return `<a class="nav-link file-link" href="${esc(routeFor(grade.name, subject.name, file.path))}" data-reader-file="${esc(file.path)}" data-ripple title="${esc(file.path)}"><span class="file-type file-type-${type}">${type.toUpperCase()}</span><span class="file-name">${esc(file.name)}</span></a>`;
         }).join('')
         : '<span class="file-empty">暂无文件</span>';
       fileList.scrollTop = activeContext?.courseKey === `${grade.name}/${subject.name}` ? scroll : 0;
@@ -325,7 +331,6 @@ window.MyBlogReader = (() => {
   async function show(grade, subject, requestedPath) {
     if (!grade || !subject || !fileList) return;
     activeContext = { grade, subject, requestedPath, courseKey: `${grade.name}/${subject.name}` };
-    createToolMenus();
     renderToolState();
     const { selected } = renderFileList(grade, subject, requestedPath);
     const article = document.getElementById('markdown-content');
@@ -414,25 +419,23 @@ window.MyBlogReader = (() => {
     }
   }
 
-  createToolMenus();
   renderToolState();
-  fileTools?.addEventListener('pointerover', event => {
-    const button = event.target.closest('.file-tool');
-    if (!button) return;
-    clearTimeout(fileTools._hideTimer);
-    setPopover(button.hasAttribute('data-reader-filter') ? 'filter' : 'sort', true);
-  });
-  fileTools?.addEventListener('pointerleave', () => { fileTools._hideTimer = window.setTimeout(closePopovers, 180); });
-  fileTools?.addEventListener('focusin', event => {
-    const button = event.target.closest('.file-tool');
-    if (button) setPopover(button.hasAttribute('data-reader-filter') ? 'filter' : 'sort', true);
+  toolZones.forEach(zone => {
+    const kind = zone.dataset.readerTool;
+    zone.addEventListener('pointerenter', () => openPopover(kind));
+    zone.addEventListener('pointerleave', scheduleClose);
+    zone.addEventListener('focusin', () => openPopover(kind));
+    zone.addEventListener('focusout', event => {
+      if (!zone.contains(event.relatedTarget)) scheduleClose();
+    });
   });
   fileTools?.addEventListener('click', event => {
     const button = event.target.closest('.file-tool');
     if (button) {
       const kind = button.hasAttribute('data-reader-filter') ? 'filter' : 'sort';
       const popover = fileTools.querySelector(`[data-reader-popover="${kind}"]`);
-      setPopover(kind, popover.hidden);
+      if (popover.dataset.state === 'open') scheduleClose();
+      else openPopover(kind);
       return;
     }
     const filterOption = event.target.closest('[data-reader-filter-option]');
@@ -441,11 +444,14 @@ window.MyBlogReader = (() => {
     if (sortOption) viewState.sort = sortOption.dataset.readerSortOption;
     if (filterOption || sortOption) {
       renderToolState();
-      closePopovers();
+      openPopover(filterOption ? 'filter' : 'sort');
       if (activeContext) renderFileList(activeContext.grade, activeContext.subject, activeContext.requestedPath);
     }
   });
   document.addEventListener('keydown', event => { if (event.key === 'Escape') closePopovers(); });
+  document.addEventListener('pointerdown', event => {
+    if (activeMenu && !fileTools?.contains(event.target)) closePopovers();
+  });
   document.addEventListener('click', event => {
     const jump = event.target.closest('[data-reader-heading]');
     if (jump) {

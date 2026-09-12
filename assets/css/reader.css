@@ -57,12 +57,16 @@ body.course-page .course-context {
 .reader-retry { border-radius: 999px; }
 .reader-retry { width: auto; padding-inline: 20px; font: inherit; }
 .file-tools {
-  position: relative;
   display: flex;
   justify-content: flex-end;
   gap: 6px;
   min-height: 46px;
   padding: 10px 2px 0;
+}
+.file-tool-zone {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 2px;
 }
 .file-tool {
   position: relative;
@@ -85,7 +89,7 @@ body.course-page .course-context {
 .file-popover {
   position: absolute;
   z-index: 5;
-  top: 48px;
+  top: calc(100% - 2px);
   right: 0;
   display: grid;
   min-width: 112px;
@@ -96,6 +100,19 @@ body.course-page .course-context {
   box-shadow: var(--glass-shadow);
   -webkit-backdrop-filter: blur(24px) saturate(145%);
   backdrop-filter: blur(24px) saturate(145%);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px) scale(.98);
+  transform-origin: top right;
+  visibility: hidden;
+  transition: opacity 240ms var(--ease), transform 240ms var(--ease), visibility 0s linear 240ms;
+}
+.file-popover[data-state="open"] {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  visibility: visible;
+  transition-delay: 0s;
 }
 .file-popover button {
   position: relative;
@@ -120,7 +137,6 @@ body.course-page .course-context {
   padding: 14px 2px 20px;
 }
 .course-files .file-link { min-height: 46px; margin-bottom: 4px; border-radius: 14px; padding: 10px 12px; gap: 10px; }
-.file-link svg { flex: 0 0 20px; width: 20px; height: 20px; }
 .file-link .file-name { min-width: 0; overflow-wrap: anywhere; }
 .file-type {
   display: inline-grid;

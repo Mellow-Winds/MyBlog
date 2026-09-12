@@ -1,10 +1,11 @@
 import { createServer } from 'node:http';
 import { extname, join, normalize, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readFile, readdir, stat } from 'node:fs/promises';
+import { readFile, readdir, stat, writeFile } from 'node:fs/promises';
 
 const projectRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const learningRoot = join(projectRoot, 'docs_learning');
+const learningJsonPath = join(learningRoot, 'learning.json');
 const port = Number(process.env.MYBLOG_PORT || 4173);
 
 const contentTypes = {
@@ -35,36 +36,77 @@ async function readContentFiles(directory, prefix = '') {
   return files.sort((a, b) => a.path.localeCompare(b.path, 'zh-CN', { numeric: true }));
 }
 
-async function readStudyCatalog() {
-  const grades = [];
+const defaultTermMeta = new Map([
+  ['大一上', { year: 'freshman', session: 'first_session' }],
+  ['大一下', { year: 'freshman', session: 'second_session' }],
+  ['大二上', { year: 'sophomore', session: 'first_session' }]
+]);
+const termOrder = ['大一上', '大一下', '大二上'];
+
+function compareTerms(left, right) {
+  const leftIndex = termOrder.indexOf(left);
+  const rightIndex = termOrder.indexOf(right);
+  if (leftIndex >= 0 && rightIndex >= 0) return leftIndex - rightIndex;
+  if (leftIndex >= 0) return -1;
+  if (rightIndex >= 0) return 1;
+  return left.localeCompare(right, 'zh-CN', { numeric: true });
+}
+
+async function readLearningDocument() {
+  try {
+    return JSON.parse(await readFile(learningJsonPath, 'utf8'));
+  } catch {
+    return { version: 1, catalog: [] };
+  }
+}
+
+async function syncLearningJson() {
+  const previous = await readLearningDocument();
+  const previousCatalog = Array.isArray(previous.catalog) ? previous.catalog : [];
+  const previousGrades = new Map(previousCatalog.map(grade => [grade.folder || grade.name, grade]));
+  const catalog = [];
   let gradeEntries = [];
 
   try {
     gradeEntries = await readdir(learningRoot, { withFileTypes: true });
   } catch {
-    return grades;
+    return previous;
   }
 
   for (const gradeEntry of gradeEntries) {
     if (!gradeEntry.isDirectory() || gradeEntry.name.startsWith('.')) continue;
 
     const gradePath = join(learningRoot, gradeEntry.name);
-    const subjects = [];
+    const previousGrade = previousGrades.get(gradeEntry.name) || {};
+    const previousCourses = new Map((previousGrade.course || []).map(course => [course.name, course]));
+    const courses = [];
     const subjectEntries = await readdir(gradePath, { withFileTypes: true });
     for (const subjectEntry of subjectEntries) {
       if (!subjectEntry.isDirectory() || subjectEntry.name.startsWith('.')) continue;
       const files = await readContentFiles(join(gradePath, subjectEntry.name));
-      subjects.push({
+      const previousCourse = previousCourses.get(subjectEntry.name) || {};
+      courses.push({
         name: subjectEntry.name,
-        contentCount: files.length,
-        files
+        teacher: previousCourse.teacher || 'xxx',
+        files: files.map(file => ({ name: file.name, path: file.path, version: file.version }))
       });
     }
 
-    grades.push({ name: gradeEntry.name, subjects });
+    const meta = defaultTermMeta.get(gradeEntry.name) || {};
+    catalog.push({
+      year: previousGrade.year || meta.year || gradeEntry.name,
+      session: previousGrade.session || meta.session || 'session',
+      name: previousGrade.name || gradeEntry.name,
+      folder: gradeEntry.name,
+      course: courses.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', { numeric: true }))
+    });
   }
 
-  return grades;
+  const next = { version: 1, catalog: catalog.sort((a, b) => compareTerms(a.folder, b.folder)) };
+  if (JSON.stringify(previous) !== JSON.stringify(next)) {
+    await writeFile(learningJsonPath, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
+  }
+  return next;
 }
 
 function safeProjectPath(urlPath) {
@@ -79,11 +121,12 @@ const server = createServer(async (request, response) => {
   try {
     const requestUrl = new URL(request.url, `http://${request.headers.host}`);
     if (requestUrl.pathname === '/__myblog/study-catalog') {
+      const learningDocument = await syncLearningJson();
       response.writeHead(200, {
         'Cache-Control': 'no-store',
         'Content-Type': 'application/json; charset=utf-8'
       });
-      response.end(JSON.stringify(await readStudyCatalog()));
+      response.end(JSON.stringify(learningDocument));
       return;
     }
 
@@ -121,4 +164,13 @@ server.on('listening', () => {
   console.log(`MyBlog local preview: http://127.0.0.1:${activePort}/`);
   console.log('docs_learning changes are checked automatically by the page.');
 });
-server.listen(activePort, '127.0.0.1');
+async function start() {
+  try {
+    await syncLearningJson();
+  } catch (error) {
+    console.error(`Unable to sync docs_learning/learning.json: ${error.message}`);
+  }
+  server.listen(activePort, '127.0.0.1');
+}
+
+start();

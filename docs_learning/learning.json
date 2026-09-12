@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "catalog": [
+    {
+      "year": "freshman",
+      "session": "first_session",
+      "name": "大一上",
+      "folder": "大一上",
+      "course": [
+        {
+          "name": "课程2",
+          "teacher": "xxx",
+          "files": []
+        },
+        {
+          "name": "课程3",
+          "teacher": "xxx",
+          "files": []
+        },
+        {
+          "name": "课程4",
+          "teacher": "xxx",
+          "files": []
+        },
+        {
+          "name": "课程5",
+          "teacher": "xxx",
+          "files": []
+        },
+        {
+          "name": "马克思主义原理",
+          "teacher": "xxx",
+          "files": [
+            {
+              "name": "马原复习",
+              "path": "马原复习.md",
+              "version": "1789201709142.6665-10265"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "year": "freshman",
+      "session": "second_session",
+      "name": "大一下",
+      "folder": "大一下",
+      "course": [
+        {
+          "name": "课程1",
+          "teacher": "xxx",
+          "files": []
+        },
+        {
+          "name": "课程2",
+          "teacher": "xxx",
+          "files": []
+        },
+        {
+          "name": "课程3",
+          "teacher": "xxx",
+          "files": []
+        },
+        {
+          "name": "课程4",
+          "teacher": "xxx",
+          "files": []
+        },
+        {
+          "name": "课程5",
+          "teacher": "xxx",
+          "files": []
+        }
+      ]
+    },
+    {
+      "year": "sophomore",
+      "session": "first_session",
+      "name": "大二上",
+      "folder": "大二上",
+      "course": [
+        {
+          "name": "课程1",
+          "teacher": "xxx",
+          "files": []
+        },
+        {
+          "name": "课程2",
+          "teacher": "xxx",
+          "files": []
+        },
+        {
+          "name": "课程3",
+          "teacher": "xxx",
+          "files": []
+        },
+        {
+          "name": "课程4",
+          "teacher": "xxx",
+          "files": []
+        },
+        {
+          "name": "课程5",
+          "teacher": "xxx",
+          "files": []
+        }
+      ]
+    }
+  ]
+}

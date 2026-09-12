@@ -293,6 +293,21 @@ body.course-page .site-nav {
   margin: 0 auto;
 }
 
+#content-root.view-enter {
+  animation: content-view-enter 420ms var(--ease) both;
+}
+
+@keyframes content-view-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .content-view {
   min-width: 0;
 }
@@ -448,10 +463,20 @@ body.course-page .site-nav {
 }
 
 .course-card span {
-  margin-top: auto;
   color: var(--muted);
   font-size: var(--text-xs);
 }
+
+.course-card .course-teacher,
+.course-card .course-count {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.course-card .course-teacher { margin-top: auto; }
+.course-card .course-teacher svg { flex: 0 0 18px; width: 18px; height: 18px; }
+.course-card .course-count { margin-top: var(--space-1); }
 
 .course-view {
   min-height: 100%;

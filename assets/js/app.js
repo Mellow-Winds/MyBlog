@@ -15,13 +15,7 @@ const contentState = {
   memories: { item: 0 }
 };
 
-const defaultStudyCatalog = [
-  { name: '大一上', subjects: ['课程1', '课程2', '课程3', '课程4', '课程5'].map(name => ({ name, contentCount: 0 })) },
-  { name: '大一下', subjects: ['课程1', '课程2', '课程3', '课程4', '课程5'].map(name => ({ name, contentCount: 0 })) },
-  { name: '大二上', subjects: ['课程1', '课程2', '课程3', '课程4', '课程5'].map(name => ({ name, contentCount: 0 })) }
-];
-
-let studyCatalog = defaultStudyCatalog;
+let studyCatalog = [];
 
 const pageMeta = {
   about: { title: '关于我' },
@@ -138,48 +132,33 @@ function currentRoute() {
   };
 }
 
-function githubRepository() {
-  const host = window.location.hostname;
-  if (!host.endsWith('.github.io')) return null;
-
-  const owner = host.slice(0, -'.github.io'.length);
-  const pathParts = window.location.pathname.split('/').filter(Boolean);
-  const repo = pathParts[0] || `${owner}.github.io`;
-  return { owner, repo };
-}
-
 function isLocalServer() {
   return window.location.protocol === 'http:' && ['127.0.0.1', 'localhost', '::1'].includes(window.location.hostname);
 }
 
-function catalogFromTree(tree) {
-  const root = 'docs_learning/';
-  const grades = new Map();
-
-  tree
-    .filter(entry => entry.type === 'blob' && entry.path.startsWith(root))
-    .forEach(entry => {
-      const parts = entry.path.slice(root.length).split('/');
-      const [gradeName, subjectName] = parts;
-      if (!gradeName) return;
-
-      if (!grades.has(gradeName)) grades.set(gradeName, new Map());
-      if (parts.length < 3 || subjectName === '.gitkeep') return;
-
-      const subjects = grades.get(gradeName);
-      if (!subjects.has(subjectName)) subjects.set(subjectName, { name: subjectName, contentCount: 0, files: [] });
-      if (/\.md$/i.test(parts[parts.length - 1]) && !parts.some(part => part.startsWith('.'))) {
-        const subject = subjects.get(subjectName);
-        subject.files.push({ name: parts[parts.length - 1].replace(/\.md$/i, ''), path: parts.slice(2).join('/'), version: entry.sha });
-        subject.contentCount = subject.files.length;
-      }
-    });
-
-  return [...grades.entries()]
-    .map(([name, subjects]) => ({
-      name,
-      subjects: [...subjects.values()].map(subject => ({ ...subject, files: subject.files.sort((a, b) => a.path.localeCompare(b.path, 'zh-CN', { numeric: true })) }))
-    }));
+function catalogFromLearningJson(document) {
+  const entries = Array.isArray(document?.catalog) ? document.catalog : [];
+  return entries.map(entry => ({
+    name: entry.name,
+    year: entry.year,
+    session: entry.session,
+    subjects: (Array.isArray(entry.course) ? entry.course : []).map(course => {
+      const files = (Array.isArray(course.files) ? course.files : []).map(file => {
+        const item = typeof file === 'string' ? { name: file, path: file } : file;
+        return {
+          name: String(item.name || item.path || '').replace(/\.md$/i, ''),
+          path: String(item.path || item.name || ''),
+          version: item.version || document.version
+        };
+      });
+      return {
+        name: course.name,
+        teacher: course.teacher || 'xxx',
+        contentCount: files.length,
+        files
+      };
+    })
+  }));
 }
 
 function catalogSignature(catalog) {
@@ -207,29 +186,12 @@ async function loadStudyCatalog() {
     if (isLocalServer()) {
       const localResponse = await fetch('/__myblog/study-catalog', { cache: 'no-store' });
       if (!localResponse.ok) return;
-      applyStudyCatalog(await localResponse.json());
+      applyStudyCatalog(catalogFromLearningJson(await localResponse.json()));
       return;
     }
 
-    const repository = githubRepository();
-    if (!repository) return;
-
-    const repoResponse = await fetch(`https://api.github.com/repos/${repository.owner}/${repository.repo}`, {
-      cache: 'no-store',
-      headers: { Accept: 'application/vnd.github+json' }
-    });
-    if (!repoResponse.ok) return;
-
-    const repo = await repoResponse.json();
-    const treeResponse = await fetch(
-      `https://api.github.com/repos/${repository.owner}/${repository.repo}/git/trees/${encodeURIComponent(repo.default_branch)}?recursive=1`,
-      { cache: 'no-store', headers: { Accept: 'application/vnd.github+json' } }
-    );
-    if (!treeResponse.ok) return;
-
-    const tree = await treeResponse.json();
-    const nextCatalog = catalogFromTree(tree.tree || []);
-    applyStudyCatalog(nextCatalog);
+    const response = await fetch('docs_learning/learning.json', { cache: 'no-store' });
+    if (response.ok) applyStudyCatalog(catalogFromLearningJson(await response.json()));
   } catch {
     // The local fallback remains available when a catalog source is unavailable.
   }
@@ -253,7 +215,11 @@ function renderStudy() {
         ${(currentGrade?.subjects || []).map(subject => `
           <a class="course-card glass-surface" href="#study/${encodeRoutePart(currentGrade.name)}/${encodeRoutePart(subject.name)}" data-course-link data-ripple>
             <strong>${escapeHtml(subject.name)}</strong>
-            <span>${subject.contentCount}个内容</span>
+            <span class="course-teacher">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="3"></circle><path d="M5 21c.7-4 3-6 7-6s6.3 2 7 6"></path></svg>
+              <span>老师：${escapeHtml(subject.teacher || 'xxx')}</span>
+            </span>
+            <span class="course-count">${subject.contentCount}个内容</span>
           </a>
         `).join('')}
       </div>
@@ -338,6 +304,7 @@ function renderView(page, params = []) {
     return;
   }
 
+
   if (page === 'jinling') {
     contentRoot.innerHTML = renderIndexedPage(
       'jinling',
@@ -387,6 +354,14 @@ function syncActiveNav() {
 
   setActiveNav(currentLink || navLinks[0]);
   renderView(page, isCoursePage ? route.params : []);
+  animateContentEntry();
+}
+
+function animateContentEntry() {
+  if (!contentRoot) return;
+  contentRoot.classList.remove('view-enter');
+  void contentRoot.offsetWidth;
+  contentRoot.classList.add('view-enter');
 }
 
 function reducedMotion() {
@@ -455,6 +430,7 @@ document.addEventListener('click', event => {
     contentState.study.grade = Number(studyTerm.dataset.studyTerm);
     contentState.study.item = 0;
     renderView('study');
+    animateContentEntry();
     rippleAt({
       target: document.getElementById(`study-term-${contentState.study.grade}`),
       detail: event.detail,
@@ -477,6 +453,7 @@ document.addEventListener('click', event => {
     const page = chapterButton.dataset.chapterIndex;
     contentState[page].item = Number(chapterButton.dataset.index);
     renderView(page);
+    animateContentEntry();
     const nextChapterButton = contentRoot.querySelector(`[data-chapter-index="${page}"][data-index="${contentState[page].item}"]`);
     rippleAt({
       target: nextChapterButton,

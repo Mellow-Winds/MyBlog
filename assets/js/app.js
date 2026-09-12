@@ -25,6 +25,15 @@ const pageMeta = {
   articles: { title: '文章检索' }
 };
 
+const personalInfo = [
+  { label: 'Email', value: 'test@test.com', icon: '<rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m4 7 8 6 8-6"></path>' },
+  { label: 'QQ', value: '123456', icon: '<path fill="currentColor" stroke="none" d="M21.395 15.035a40 40 0 0 0-.803-2.264l-1.079-2.695c.001-.032.014-.562.014-.836C19.526 4.632 17.351 0 12 0S4.474 4.632 4.474 9.241c0 .274.013.804.014.836l-1.08 2.695a39 39 0 0 0-.802 2.264c-1.021 3.283-.69 4.643-.438 4.673.54.065 2.103-2.472 2.103-2.472 0 1.469.756 3.387 2.394 4.771-.612.188-1.363.479-1.845.835-.434.32-.379.646-.301.778.343.578 5.883.369 7.482.189 1.6.18 7.14.389 7.483-.189.078-.132.132-.458-.301-.778-.483-.356-1.233-.646-1.846-.836 1.637-1.384 2.393-3.302 2.393-4.771 0 0 1.563 2.537 2.103 2.472.251-.03.581-1.39-.438-4.673"></path>' },
+  { label: '学校', value: '测试学校', icon: '<path d="m3 9 9-5 9 5-9 5-9-5Z"></path><path d="M6 11v5.5c3.5 2.2 8.5 2.2 12 0V11M21 9v7"></path>' },
+  { label: '专业', value: '测试专业', icon: '<rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h4"></path>' }
+];
+
+const featuredArticles = ['文章1', '文章2', '文章3'];
+
 const mediaMatches = query => (
   typeof window.matchMedia === 'function' && window.matchMedia(query).matches
 );
@@ -119,6 +128,47 @@ function renderStudy() {
     </section>`;
 }
 
+function renderAbout() {
+  return `
+    <section class="content-view home-view" data-page-view="about">
+      <section class="home-section" aria-labelledby="personal-heading">
+        <h2 class="home-section-title" id="personal-heading">个人信息</h2>
+        <div class="profile-layout">
+          <div class="avatar-placeholder" aria-label="头像预留位">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="3.5"></circle>
+              <path d="M5 20c.8-3.4 3.2-5.3 7-5.3s6.2 1.9 7 5.3"></path>
+            </svg>
+          </div>
+          <article class="personal-info-card glass-surface">
+            ${personalInfo.map(item => `
+              <div class="info-item">
+                <span class="info-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${item.icon}</svg>
+                </span>
+                <span class="info-detail">
+                  <span class="info-label">${item.label}</span>
+                  <strong class="info-value">${item.value}</strong>
+                </span>
+              </div>
+            `).join('')}
+          </article>
+        </div>
+      </section>
+
+      <section class="home-section" aria-labelledby="featured-heading">
+        <h2 class="home-section-title" id="featured-heading">文章精选</h2>
+        <div class="article-grid">
+          ${featuredArticles.map(title => `
+            <article class="article-card glass-surface">
+              <h3>${title}</h3>
+            </article>
+          `).join('')}
+        </div>
+      </section>
+    </section>`;
+}
+
 function renderIndexedPage(page, title, indexTitle, items) {
   const state = contentState[page];
 
@@ -133,6 +183,11 @@ function renderIndexedPage(page, title, indexTitle, items) {
 
 function renderView(page) {
   if (!contentRoot) return;
+
+  if (page === 'about') {
+    contentRoot.innerHTML = renderAbout();
+    return;
+  }
 
   if (page === 'study') {
     contentRoot.innerHTML = renderStudy();

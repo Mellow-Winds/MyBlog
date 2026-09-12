@@ -6,10 +6,14 @@
   --muted: rgba(26, 27, 33, .66);
   --glass: rgba(249, 249, 255, .42);
   --glass-strong: rgba(249, 249, 255, .58);
+  --glass-color: var(--glass);
+  --glass-highlight: linear-gradient(135deg, rgba(255, 255, 255, .34), transparent 46%, rgba(255, 255, 255, .08));
   --glass-edge: rgba(255, 255, 255, .66);
   --glass-shadow: 0 18px 42px rgba(20, 33, 43, .18),
     inset 0 1px 0 rgba(255, 255, 255, .74),
     inset 1px 0 0 rgba(255, 255, 255, .22);
+  --material-blur: 24px;
+  --material-saturate: 145%;
   --hover: rgba(255, 255, 255, .22);
   --ease: cubic-bezier(.2, 0, 0, 1);
   --space-1: 4px;
@@ -54,6 +58,8 @@ body {
     radial-gradient(circle at 8% 88%, rgba(211, 228, 253, .98), transparent 46%),
     linear-gradient(128deg, rgba(211, 228, 253, .88), rgba(249, 249, 255, .96) 52%, rgba(74, 144, 217, .22)),
     var(--surface);
+  background-attachment: fixed;
+  background-size: cover;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
   font-size: var(--text-base);
   line-height: 1.6;
@@ -101,16 +107,27 @@ a:focus-visible {
   outline-offset: 4px;
 }
 
+/* MD_Demo's material contract: the page chooses a material explicitly, while
+   the surfaces below own translucency, highlight, blur and depth. */
+body[data-material-mode="liquid-glass"] {
+  --glass-color: rgba(249, 249, 255, .42);
+  --glass-highlight: linear-gradient(135deg, rgba(255, 255, 255, .24), transparent 46%, rgba(255, 255, 255, .08));
+  --glass-edge: rgba(255, 255, 255, .66);
+  --glass-shadow: 0 18px 42px rgba(20, 33, 43, .18),
+    inset 0 1px 0 rgba(255, 255, 255, .74),
+    inset 1px 0 0 rgba(255, 255, 255, .22);
+}
+
 .glass-surface {
   position: relative;
   z-index: 1;
   border: 1px solid var(--glass-edge);
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, .34), transparent 46%, rgba(255, 255, 255, .08)),
-    var(--glass);
+    var(--glass-highlight),
+    var(--glass-color);
   box-shadow: var(--glass-shadow);
-  -webkit-backdrop-filter: blur(28px) saturate(140%);
-  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--material-blur)) saturate(var(--material-saturate));
+  backdrop-filter: blur(var(--material-blur)) saturate(var(--material-saturate));
 }
 
 .sidebar,
@@ -126,10 +143,10 @@ a:focus-visible {
   padding: 0 10px var(--space-3);
   overflow: auto;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, .28), transparent 46%, rgba(255, 255, 255, .06)),
+    var(--glass-highlight),
     rgba(249, 249, 255, .36);
-  -webkit-backdrop-filter: blur(32px) saturate(145%);
-  backdrop-filter: blur(32px) saturate(145%);
+  -webkit-backdrop-filter: blur(var(--material-blur)) saturate(135%);
+  backdrop-filter: blur(var(--material-blur)) saturate(135%);
 }
 
 .brand {
@@ -240,7 +257,7 @@ a:focus-visible {
 .main-stage {
   height: calc(100dvh - 28px);
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, .22), transparent 46%, rgba(255, 255, 255, .06)),
+    var(--glass-highlight),
     rgba(249, 249, 255, .22);
 }
 
@@ -346,11 +363,37 @@ a:focus-visible {
   }
 }
 
+@media (forced-colors: active) {
+  body {
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  body::before,
+  body::after {
+    display: none;
+  }
+
+  .glass-surface {
+    border-color: CanvasText;
+    background: Canvas;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .main-stage::before {
+    display: none;
+  }
+}
+
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass-surface {
     border-color: var(--ink);
     background: var(--surface);
     box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 
   .main-stage::before {

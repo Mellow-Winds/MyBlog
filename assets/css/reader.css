@@ -18,12 +18,11 @@ body.course-page .sidebar-heading {
 body.course-page .brand {
   flex: 1;
   min-width: 0;
-  gap: 10px;
+  gap: 0;
   padding: 0;
   border: 0;
 }
-body.course-page .brand-mark { flex-basis: 56px; width: 56px; height: 56px; border-radius: 14px; }
-body.course-page .brand-mark img { width: 52px; height: 52px; object-fit: contain; border-radius: 11px; }
+body.course-page .brand-mark { display: none; }
 body.course-page .brand-copy { gap: 3px; }
 body.course-page .brand-copy strong { font-size: 20px; line-height: 1.3; }
 body.course-page .course-context {
@@ -71,9 +70,10 @@ body.course-page .course-context {
 
 .course-view {
   display: grid;
-  grid-template-columns: minmax(190px, 220px) minmax(0, 1fr);
-  gap: var(--space-8);
+  grid-template-columns: minmax(190px, 220px) minmax(0, min(760px, calc(100% - 268px)));
+  gap: 48px;
   align-items: start;
+  justify-content: center;
   width: 100%;
 }
 .reader-outline { padding: 12px; }

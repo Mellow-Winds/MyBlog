@@ -1,6 +1,127 @@
 /* Reuses MD_Demo's markdown-it renderer with raw HTML disabled. */
 window.MyBlogReader = (() => {
-  const md = window.markdownit({ html: false, linkify: false, typographer: false });
+  const languageAliases = {
+    javascript: 'js', typescript: 'ts', jsx: 'jsx', tsx: 'tsx',
+    python: 'python', py: 'python', shell: 'bash', sh: 'bash', zsh: 'bash',
+    html: 'html', xml: 'html', svg: 'html',
+    yml: 'yaml', md: 'markdown', text: 'text', plaintext: 'text'
+  };
+  const keywordSets = {
+    js: new Set('as async await break case catch class const continue debugger default delete do else export extends finally for from function get if implements import in instanceof interface let new null of package private protected public return set static super switch this throw try typeof undefined var void while with yield true false'.split(' ')),
+    ts: new Set('as async await break case catch class const continue debugger default delete do else export extends finally for from function if implements import in instanceof interface keyof let namespace never new null of private protected public readonly return static super switch this throw type typeof unknown var void while with yield true false'.split(' ')),
+    python: new Set('and as assert async await break case class continue def del elif else except finally for from global if import in is lambda match nonlocal not or pass raise return try while with yield True False None'.split(' ')),
+    bash: new Set('case do done elif else esac fi for function if in select then time until while do'.split(' ')),
+    json: new Set('true false null'.split(' '))
+  };
+  const escCode = value => String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+  const span = (className, value) => `<span class="tok-${className}">${escCode(value)}</span>`;
+
+  function normalizedLanguage(info) {
+    const raw = String(info || '').trim().toLowerCase().split(/[\s:]/)[0];
+    return languageAliases[raw] || raw || 'text';
+  }
+
+  function highlightMarkup(source) {
+    let cursor = 0;
+    let html = '';
+    const markup = /<!--[\s\S]*?-->|<\/?[A-Za-z][^>]*>/g;
+    for (const match of source.matchAll(markup)) {
+      html += escCode(source.slice(cursor, match.index));
+      const token = match[0];
+      if (token.startsWith('<!--')) html += span('comment', token);
+      else {
+        const tag = token.match(/^(<\/?)([A-Za-z][\w:-]*)([\s\S]*?)(\/?>)$/);
+        if (!tag) html += escCode(token);
+        else {
+          html += escCode(tag[1]) + span('tag', tag[2]);
+          const attributes = tag[3];
+          let attributeCursor = 0;
+          const attributePattern = /([A-Za-z_:][\w:.-]*)(\s*=\s*)("[^"]*"|'[^']*'|[^\s>]+)/g;
+          for (const attribute of attributes.matchAll(attributePattern)) {
+            html += escCode(attributes.slice(attributeCursor, attribute.index));
+            html += span('attribute', attribute[1]) + escCode(attribute[2]) + span('string', attribute[3]);
+            attributeCursor = attribute.index + attribute[0].length;
+          }
+          html += escCode(attributes.slice(attributeCursor));
+          html += escCode(tag[4]);
+        }
+      }
+      cursor = match.index + token.length;
+    }
+    return html + escCode(source.slice(cursor));
+  }
+
+  function highlightTokens(source, language) {
+    const keywords = keywordSets[language] || new Set();
+    const supportsHashComment = language === 'python' || language === 'bash' || language === 'yaml';
+    const isCss = language === 'css';
+    let html = '';
+    let index = 0;
+    while (index < source.length) {
+      const rest = source.slice(index);
+      const comment = rest.match(language === 'python' && rest.startsWith('###') ? /^###[\s\S]*?###/ : /^(?:\/\/[^\n]*|\/\*[\s\S]*?\*\/)/);
+      if (comment || (supportsHashComment && rest[0] === '#')) {
+        const value = comment ? comment[0] : rest.match(/^#[^\n]*/)[0];
+        html += span('comment', value);
+        index += value.length;
+        continue;
+      }
+      const quote = rest.match(/^(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)/);
+      if (quote) {
+        html += span('string', quote[0]);
+        index += quote[0].length;
+        continue;
+      }
+      const number = rest.match(/^(?:\b(?:0x[\da-f]+|0b[01]+|\d+(?:\.\d+)?)\b)/i);
+      if (number) {
+        html += span('number', number[0]);
+        index += number[0].length;
+        continue;
+      }
+      const word = rest.match(/^[A-Za-z_$][\w$]*/);
+      if (word) {
+        const value = word[0];
+        const after = rest.slice(value.length).match(/^\s*/)[0].length;
+        const next = rest.slice(value.length + after, value.length + after + 1);
+        let className = 'plain';
+        if (keywords.has(value)) className = 'keyword';
+        else if (next === '(') className = 'function';
+        else if (rest.slice(0, index).trimEnd().endsWith('.')) className = 'property';
+        else if (isCss && next === ':') className = 'property';
+        html += className === 'plain' ? escCode(value) : span(className, value);
+        index += value.length;
+        continue;
+      }
+      const operator = rest.match(/^(?:===|!==|=>|==|!=|<=|>=|&&|\|\||\+\+|--|\+=|-=|\*=|\/=|[+\-*\/%=!<>?:&|])/);
+      if (operator) {
+        html += span('operator', operator[0]);
+        index += operator[0].length;
+        continue;
+      }
+      html += escCode(source[index]);
+      index += 1;
+    }
+    return html;
+  }
+
+  function highlightCode(source, info) {
+    const language = normalizedLanguage(info);
+    if (language === 'html') return highlightMarkup(source);
+    if (language === 'css') return highlightTokens(source, language);
+    if (language === 'text' || language === 'markdown') return escCode(source);
+    return highlightTokens(source, language);
+  }
+
+  const md = window.markdownit({
+    html: false,
+    linkify: false,
+    typographer: false,
+    highlight: (source, info) => highlightCode(source, info)
+  });
   let request;
   let loadedKey = '';
   let listKey = '';
@@ -92,6 +213,12 @@ window.MyBlogReader = (() => {
       const source = await response.text();
       if (signal.aborted) return;
       article.innerHTML = md.render(source);
+      article.querySelectorAll('pre > code').forEach(code => {
+        const className = [...code.classList].find(name => name.startsWith('language-'));
+        const language = normalizedLanguage(className?.slice('language-'.length));
+        code.dataset.language = language;
+        code.parentElement.dataset.language = language;
+      });
       const slugs = new Map();
       outlineHeadings = [...article.querySelectorAll('h1,h2,h3,h4,h5,h6')];
       outlineHeadings.forEach((heading, index) => {

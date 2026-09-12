@@ -133,7 +133,6 @@ body[data-material-mode="liquid-glass"] {
 .sidebar,
 .main-stage {
   min-width: 0;
-  border-radius: 20px;
 }
 
 .sidebar {
@@ -147,6 +146,7 @@ body[data-material-mode="liquid-glass"] {
     rgba(249, 249, 255, .36);
   -webkit-backdrop-filter: blur(var(--material-blur)) saturate(135%);
   backdrop-filter: blur(var(--material-blur)) saturate(135%);
+  border-radius: 20px;
 }
 
 .brand {
@@ -256,20 +256,6 @@ body[data-material-mode="liquid-glass"] {
 
 .main-stage {
   height: calc(100dvh - 28px);
-  background:
-    var(--glass-highlight),
-    rgba(249, 249, 255, .22);
-}
-
-.main-stage::before {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    radial-gradient(circle at 78% 18%, rgba(74, 144, 217, .2), transparent 32%),
-    radial-gradient(circle at 20% 82%, rgba(211, 228, 253, .54), transparent 38%);
-  pointer-events: none;
-  content: "";
 }
 
 @media (max-width: 767px) {
@@ -354,10 +340,6 @@ body[data-material-mode="liquid-glass"] {
     backdrop-filter: none;
   }
 
-  .main-stage::before {
-    display: none;
-  }
-
   .nav-link.is-active {
     border-color: var(--ink);
     background: var(--container);
@@ -384,9 +366,6 @@ body[data-material-mode="liquid-glass"] {
     backdrop-filter: none;
   }
 
-  .main-stage::before {
-    display: none;
-  }
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -398,7 +377,4 @@ body[data-material-mode="liquid-glass"] {
     backdrop-filter: none;
   }
 
-  .main-stage::before {
-    display: none;
-  }
 }

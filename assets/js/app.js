@@ -38,7 +38,31 @@ function watchPreference(query) {
   }
 }
 
+const navLinks = [...document.querySelectorAll('.nav-link')];
+
+function setActiveNav(link) {
+  navLinks.forEach(item => {
+    const active = item === link;
+    item.classList.toggle('is-active', active);
+
+    if (active) {
+      item.setAttribute('aria-current', 'page');
+    } else {
+      item.removeAttribute('aria-current');
+    }
+  });
+}
+
+function syncActiveNav() {
+  const currentHash = window.location.hash || '#about';
+  const currentLink = navLinks.find(link => link.getAttribute('href') === currentHash);
+  setActiveNav(currentLink || navLinks[0]);
+}
+
 body.dataset.materialMode = 'liquid-glass';
 paintLiquidBackground();
 watchPreference('(prefers-contrast: more)');
 watchPreference('(forced-colors: active)');
+navLinks.forEach(link => link.addEventListener('click', () => setActiveNav(link)));
+window.addEventListener('hashchange', syncActiveNav);
+syncActiveNav();

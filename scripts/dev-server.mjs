@@ -55,7 +55,7 @@ async function readStudyCatalog() {
       });
     }
 
-    if (subjects.length) grades.push({ name: gradeEntry.name, subjects });
+    grades.push({ name: gradeEntry.name, subjects });
   }
 
   return grades;

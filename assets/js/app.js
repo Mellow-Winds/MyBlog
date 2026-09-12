@@ -160,12 +160,12 @@ function catalogFromTree(tree) {
     .filter(entry => entry.type === 'blob' && entry.path.startsWith(root))
     .forEach(entry => {
       const parts = entry.path.slice(root.length).split('/');
-      if (parts.length < 3) return;
-
       const [gradeName, subjectName] = parts;
-      if (!gradeName || !subjectName) return;
+      if (!gradeName) return;
 
       if (!grades.has(gradeName)) grades.set(gradeName, new Map());
+      if (parts.length < 3 || subjectName === '.gitkeep') return;
+
       const subjects = grades.get(gradeName);
       if (!subjects.has(subjectName)) subjects.set(subjectName, { name: subjectName, contentCount: 0 });
       if (parts[parts.length - 1] !== '.gitkeep') subjects.get(subjectName).contentCount += 1;

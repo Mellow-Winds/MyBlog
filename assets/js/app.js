@@ -1,6 +1,7 @@
 const body = document.body;
 const contentRoot = document.getElementById('content-root');
 const navLinks = [...document.querySelectorAll('.nav-link[href^="#"]')];
+const rippleDuration = 1000;
 const liquidGlassBackground = [
   'radial-gradient(circle at 88% 10%, rgba(74, 144, 217, .48), transparent 58%)',
   'radial-gradient(circle at 10% 88%, rgba(211, 228, 253, .82), transparent 60%)',
@@ -202,11 +203,11 @@ function rippleAt(event) {
   if (typeof ripple.animate === 'function') {
     ripple.animate(
       [{ transform: 'scale(0)', opacity: .12 }, { transform: 'scale(1)', opacity: 0 }],
-      { duration: 360, easing: 'cubic-bezier(.2, 0, 0, 1)' }
+      { duration: rippleDuration, easing: 'cubic-bezier(.2, 0, 0, 1)' }
     ).finished.finally(() => ripple.remove());
   } else {
     ripple.style.opacity = '0';
-    window.setTimeout(() => ripple.remove(), 360);
+    window.setTimeout(() => ripple.remove(), rippleDuration);
   }
 }
 

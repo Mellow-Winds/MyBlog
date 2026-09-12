@@ -10,7 +10,6 @@ const mediaMatches = query => (
 );
 
 const shouldUseSolidMaterial = () => (
-  mediaMatches('(prefers-reduced-transparency: reduce)') ||
   mediaMatches('(prefers-contrast: more)') ||
   mediaMatches('(forced-colors: active)')
 );
@@ -41,6 +40,5 @@ function watchPreference(query) {
 
 body.dataset.materialMode = 'liquid-glass';
 paintLiquidBackground();
-watchPreference('(prefers-reduced-transparency: reduce)');
 watchPreference('(prefers-contrast: more)');
 watchPreference('(forced-colors: active)');

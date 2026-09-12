@@ -334,7 +334,9 @@ body[data-material-mode="liquid-glass"] {
   }
 }
 
-@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+/* Keep the requested glass appearance independent of OS transparency settings.
+   Higher contrast and forced colors remain separate accessibility choices. */
+@media (prefers-contrast: more) {
   body {
     background: var(--surface);
   }

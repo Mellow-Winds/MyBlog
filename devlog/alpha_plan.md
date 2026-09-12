@@ -72,7 +72,7 @@
 - 移除右侧 `main` 的 `glass-surface`，保留双栏几何区域和响应式留白，避免空内容被误读为一张大卡片。
 - 导航点击后立即更新活动态和 `aria-current="page"`；刷新或直接访问带 hash 的地址时，会根据 hash 恢复当前项。
 - GitHub 导航文案统一为 `GitHub`，图标替换为 GitHub Octocat 的内联 SVG。
-- CSS 与脚本资源版本号更新为 `nav-shell-1`，用于避免 GitHub Pages 继续使用旧缓存。
+- CSS 与脚本资源版本号更新为 `content-nav-2`，用于避免 GitHub Pages 继续使用旧缓存。
 
 ### 2.6 Alpha 实施 03：章节导航占位与 Ripple（2026-09-12）
 

@@ -20,8 +20,8 @@ const studyTerms = [
 ];
 
 const pageMeta = {
-  about: { title: '关于我', description: '个人主页的入口，内容将在后续阶段补充。' },
-  articles: { title: '文章检索', description: '文章索引和检索功能将在后续阶段接入。' }
+  about: { title: '关于我' },
+  articles: { title: '文章检索' }
 };
 
 const mediaMatches = query => (
@@ -96,7 +96,6 @@ function chapterLayout(page, title, items, selected) {
       </nav>
       <article class="chapter-content" id="${page}-panel" tabindex="-1">
         <h2>${currentItem}</h2>
-        <p>这里是${currentItem}的占位内容。后续将在此处加入真实内容。</p>
       </article>
     </div>`;
 }
@@ -108,9 +107,7 @@ function renderStudy() {
   return `
     <section class="content-view" data-page-view="study">
       <header class="content-heading">
-        <span class="content-eyebrow">学在南雍</span>
         <h1>学在南雍</h1>
-        <p>按学期整理学习轨迹。</p>
       </header>
       <div class="section-tabs" role="tablist" aria-label="学期切换">
         ${studyTerms.map((term, index) => `
@@ -121,15 +118,13 @@ function renderStudy() {
     </section>`;
 }
 
-function renderIndexedPage(page, title, description, indexTitle, items) {
+function renderIndexedPage(page, title, indexTitle, items) {
   const state = contentState[page];
 
   return `
     <section class="content-view" data-page-view="${page}">
       <header class="content-heading">
-        <span class="content-eyebrow">${escapeHtml(title)}</span>
         <h1>${escapeHtml(title)}</h1>
-        <p>${escapeHtml(description)}</p>
       </header>
       ${chapterLayout(page, indexTitle, items, state.item)}
     </section>`;
@@ -147,7 +142,6 @@ function renderView(page) {
     contentRoot.innerHTML = renderIndexedPage(
       'jinling',
       '玩在金陵',
-      '记录在金陵的游览片段。',
       '游览导航',
       ['地点1', '地点2', '地点3', '地点4', '地点5']
     );
@@ -158,7 +152,6 @@ function renderView(page) {
     contentRoot.innerHTML = renderIndexedPage(
       'memories',
       '南雍杂忆',
-      '按时间整理南雍记忆。',
       '时间索引',
       ['2025年', '2026年']
     );
@@ -169,9 +162,7 @@ function renderView(page) {
   contentRoot.innerHTML = `
     <section class="content-view content-placeholder" data-page-view="${page}">
       <header class="content-heading">
-        <span class="content-eyebrow">${escapeHtml(meta.title)}</span>
         <h1>${escapeHtml(meta.title)}</h1>
-        <p>${escapeHtml(meta.description)}</p>
       </header>
     </section>`;
 }

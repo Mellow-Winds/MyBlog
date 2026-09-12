@@ -424,3 +424,5 @@ MyBlog/
 - 本地预览服务器启动时扫描 `docs_learning` 并校准 `learning.json`；本地运行期间目录接口也会重新校准，因此新增或删除课程、Markdown 文件后无需改动渲染代码。教师名等元数据从 JSON 保留。
 - GitHub Pages 直接读取已提交的 `docs_learning/learning.json`，不再依赖 GitHub API 递归扫描目录；发布新课程或文件时同步提交 JSON。
 - 学在南雍课程卡片从 JSON 显示老师 SVG 图标、教师字段与内容数量；页面视图切换增加轻量渐入，尊重减少动态效果偏好。
+- JSON 中每个学习大类使用 `weight` 控制顶部切换顺序，服务端按权重从小到大排序；权重相同才按名称兜底排序。
+- 前端目录解析兼容旧版本地服务器返回的 `subjects` 数组格式，避免旧预览端口未重启时因格式差异显示空白；新版数据仍以 `learning.json` 的 `catalog` 为准。

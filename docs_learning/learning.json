@@ -2,6 +2,7 @@
   "version": 1,
   "catalog": [
     {
+      "weight": 1,
       "year": "freshman",
       "session": "first_session",
       "name": "大一上",
@@ -41,6 +42,7 @@
       ]
     },
     {
+      "weight": 2,
       "year": "freshman",
       "session": "second_session",
       "name": "大一下",
@@ -74,6 +76,7 @@
       ]
     },
     {
+      "weight": 3,
       "year": "sophomore",
       "session": "first_session",
       "name": "大二上",

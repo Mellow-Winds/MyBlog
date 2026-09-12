@@ -37,19 +37,13 @@ async function readContentFiles(directory, prefix = '') {
 }
 
 const defaultTermMeta = new Map([
-  ['大一上', { year: 'freshman', session: 'first_session' }],
-  ['大一下', { year: 'freshman', session: 'second_session' }],
-  ['大二上', { year: 'sophomore', session: 'first_session' }]
+  ['大一上', { weight: 1, year: 'freshman', session: 'first_session' }],
+  ['大一下', { weight: 2, year: 'freshman', session: 'second_session' }],
+  ['大二上', { weight: 3, year: 'sophomore', session: 'first_session' }]
 ]);
-const termOrder = ['大一上', '大一下', '大二上'];
-
 function compareTerms(left, right) {
-  const leftIndex = termOrder.indexOf(left);
-  const rightIndex = termOrder.indexOf(right);
-  if (leftIndex >= 0 && rightIndex >= 0) return leftIndex - rightIndex;
-  if (leftIndex >= 0) return -1;
-  if (rightIndex >= 0) return 1;
-  return left.localeCompare(right, 'zh-CN', { numeric: true });
+  const weightDifference = (left.weight ?? Number.POSITIVE_INFINITY) - (right.weight ?? Number.POSITIVE_INFINITY);
+  return weightDifference || left.name.localeCompare(right.name, 'zh-CN', { numeric: true });
 }
 
 async function readLearningDocument() {
@@ -93,7 +87,9 @@ async function syncLearningJson() {
     }
 
     const meta = defaultTermMeta.get(gradeEntry.name) || {};
+    const configuredWeight = Number(previousGrade.weight);
     catalog.push({
+      weight: Number.isFinite(configuredWeight) ? configuredWeight : (meta.weight ?? 999),
       year: previousGrade.year || meta.year || gradeEntry.name,
       session: previousGrade.session || meta.session || 'session',
       name: previousGrade.name || gradeEntry.name,

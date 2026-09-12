@@ -137,7 +137,16 @@ function isLocalServer() {
 }
 
 function catalogFromLearningJson(document) {
-  const entries = Array.isArray(document?.catalog) ? document.catalog : [];
+  const entries = Array.isArray(document)
+    ? document.map(grade => ({
+      ...grade,
+      course: (Array.isArray(grade.subjects) ? grade.subjects : []).map(subject => ({
+        name: subject.name,
+        teacher: subject.teacher,
+        files: subject.files
+      }))
+    }))
+    : (Array.isArray(document?.catalog) ? document.catalog : []);
   return entries.map(entry => ({
     name: entry.name,
     year: entry.year,
@@ -148,7 +157,7 @@ function catalogFromLearningJson(document) {
         return {
           name: String(item.name || item.path || '').replace(/\.md$/i, ''),
           path: String(item.path || item.name || ''),
-          version: item.version || document.version
+          version: item.version || (Array.isArray(document) ? 'legacy' : document.version)
         };
       });
       return {

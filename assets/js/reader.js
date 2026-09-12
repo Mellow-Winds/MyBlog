@@ -330,7 +330,9 @@ window.MyBlogReader = (() => {
 
   async function show(grade, subject, requestedPath) {
     if (!grade || !subject || !fileList) return;
-    activeContext = { grade, subject, requestedPath, courseKey: `${grade.name}/${subject.name}` };
+    const courseKey = `${grade.name}/${subject.name}`;
+    if (activeContext && activeContext.courseKey !== courseKey) viewState.filter = 'all';
+    activeContext = { grade, subject, requestedPath, courseKey };
     renderToolState();
     const { selected } = renderFileList(grade, subject, requestedPath);
     const article = document.getElementById('markdown-content');

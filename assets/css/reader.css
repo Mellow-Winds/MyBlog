@@ -73,7 +73,6 @@ body.course-page .course-context {
   grid-template-columns: minmax(190px, 220px) minmax(0, min(760px, calc(100% - 268px)));
   gap: 48px;
   align-items: start;
-  justify-content: center;
   width: 100%;
 }
 .reader-outline { padding: 12px; }
@@ -148,6 +147,11 @@ body.course-page .course-context {
   body.course-page { grid-template-columns: minmax(220px, 240px) minmax(0,1fr); }
   .course-view { grid-template-columns: 1fr; gap: 24px; }
   .reader-outline { position: static; max-height: 200px; }
+}
+
+@media (min-width: 1101px) {
+  /* The outer body gap plus this inset equals the reader's 48px inner gap. */
+  body.course-page .main-stage { padding-left: 36px; padding-right: 64px; }
 }
 @media (max-width: 767px) {
   body.course-page { display: flex; flex-direction: column; height: 100dvh; min-height: 0; overflow: hidden; }

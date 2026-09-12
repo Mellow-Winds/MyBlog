@@ -167,14 +167,18 @@ function catalogFromTree(tree) {
       if (parts.length < 3 || subjectName === '.gitkeep') return;
 
       const subjects = grades.get(gradeName);
-      if (!subjects.has(subjectName)) subjects.set(subjectName, { name: subjectName, contentCount: 0 });
-      if (parts[parts.length - 1] !== '.gitkeep') subjects.get(subjectName).contentCount += 1;
+      if (!subjects.has(subjectName)) subjects.set(subjectName, { name: subjectName, contentCount: 0, files: [] });
+      if (/\.md$/i.test(parts[parts.length - 1]) && !parts.some(part => part.startsWith('.'))) {
+        const subject = subjects.get(subjectName);
+        subject.files.push({ name: parts[parts.length - 1].replace(/\.md$/i, ''), path: parts.slice(2).join('/'), version: entry.sha });
+        subject.contentCount = subject.files.length;
+      }
     });
 
   return [...grades.entries()]
     .map(([name, subjects]) => ({
       name,
-      subjects: [...subjects.values()]
+      subjects: [...subjects.values()].map(subject => ({ ...subject, files: subject.files.sort((a, b) => a.path.localeCompare(b.path, 'zh-CN', { numeric: true })) }))
     }));
 }
 
@@ -183,7 +187,7 @@ function catalogSignature(catalog) {
 }
 
 function applyStudyCatalog(nextCatalog) {
-  if (!nextCatalog.length || catalogSignature(nextCatalog) === catalogSignature(studyCatalog)) return;
+  if (!Array.isArray(nextCatalog) || catalogSignature(nextCatalog) === catalogSignature(studyCatalog)) return;
 
   const currentGradeName = studyCatalog[contentState.study.grade]?.name;
   const currentSubjectName = studyCatalog[contentState.study.grade]?.subjects[contentState.study.item]?.name;
@@ -192,7 +196,7 @@ function applyStudyCatalog(nextCatalog) {
   contentState.study.grade = nextGradeIndex >= 0 ? nextGradeIndex : 0;
 
   const currentGrade = studyCatalog[contentState.study.grade];
-  const nextSubjectIndex = currentGrade.subjects.findIndex(subject => subject.name === currentSubjectName);
+  const nextSubjectIndex = currentGrade?.subjects.findIndex(subject => subject.name === currentSubjectName) ?? -1;
   contentState.study.item = nextSubjectIndex >= 0 ? nextSubjectIndex : 0;
 
   if (currentRoute().page === 'study') syncActiveNav();
@@ -246,7 +250,7 @@ function renderStudy() {
         `).join('')}
       </div>
       <div class="course-grid" id="study-courses">
-        ${currentGrade.subjects.map(subject => `
+        ${(currentGrade?.subjects || []).map(subject => `
           <a class="course-card glass-surface" href="#study/${encodeRoutePart(currentGrade.name)}/${encodeRoutePart(subject.name)}" data-course-link data-ripple>
             <strong>${escapeHtml(subject.name)}</strong>
             <span>${subject.contentCount}个内容</span>
@@ -298,11 +302,8 @@ function renderCourseView(gradeName, subjectName) {
 
   return `
     <section class="content-view course-view" data-page-view="study-course" data-grade="${escapeHtml(grade.name)}" data-subject="${escapeHtml(subject.name)}">
-      <button type="button" class="course-back" data-study-back data-ripple>返回学在南雍</button>
-      <header class="content-heading">
-        <h1>${escapeHtml(subject.name)}</h1>
-      </header>
-      <article class="course-content-placeholder" aria-label="课程内容占位"></article>
+      <nav class="chapter-index reader-outline" aria-label="章节导航" hidden></nav>
+      <article class="prose" id="markdown-content" aria-label="正文" tabindex="0"></article>
     </section>`;
 }
 
@@ -328,7 +329,9 @@ function renderView(page, params = []) {
 
   if (page === 'study') {
     if (params.length >= 2) {
-      contentRoot.innerHTML = renderCourseView(params[0], params[1]);
+      if (!document.getElementById('markdown-content')) contentRoot.innerHTML = renderCourseView(params[0], params[1]);
+      const grade = studyCatalog.find(item => item.name === params[0]);
+      window.MyBlogReader.show(grade, grade?.subjects.find(item => item.name === params[1]), params[2]);
       return;
     }
     contentRoot.innerHTML = renderStudy();
@@ -373,6 +376,10 @@ function syncActiveNav() {
   const isCoursePage = page === 'study' && Boolean(grade && subject);
 
   body.classList.toggle('course-page', isCoursePage);
+  document.querySelector('.reader-back').hidden = !isCoursePage;
+  document.querySelector('.course-files').hidden = !isCoursePage;
+  if (!isCoursePage) window.MyBlogReader.reset();
+  if (isCoursePage) contentState.study.grade = studyCatalog.indexOf(grade);
   if (courseContext) {
     courseContext.hidden = !isCoursePage;
     courseContext.textContent = isCoursePage ? `${grade.name}-${subject.name}` : '';

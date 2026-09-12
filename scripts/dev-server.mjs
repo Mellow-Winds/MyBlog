@@ -17,18 +17,22 @@ const contentTypes = {
   '.svg': 'image/svg+xml'
 };
 
-async function countContentFiles(directory) {
-  let count = 0;
+async function readContentFiles(directory, prefix = '') {
+  const files = [];
   const entries = await readdir(directory, { withFileTypes: true });
 
   for (const entry of entries) {
     if (entry.name.startsWith('.')) continue;
     const entryPath = join(directory, entry.name);
-    if (entry.isDirectory()) count += await countContentFiles(entryPath);
-    if (entry.isFile()) count += 1;
+    const path = prefix + entry.name;
+    if (entry.isDirectory()) files.push(...await readContentFiles(entryPath, path + '/'));
+    if (entry.isFile() && /\.md$/i.test(entry.name)) {
+      const info = await stat(entryPath);
+      files.push({ name: entry.name.replace(/\.md$/i, ''), path, version: `${info.mtimeMs}-${info.size}` });
+    }
   }
 
-  return count;
+  return files.sort((a, b) => a.path.localeCompare(b.path, 'zh-CN', { numeric: true }));
 }
 
 async function readStudyCatalog() {
@@ -49,9 +53,11 @@ async function readStudyCatalog() {
     const subjectEntries = await readdir(gradePath, { withFileTypes: true });
     for (const subjectEntry of subjectEntries) {
       if (!subjectEntry.isDirectory() || subjectEntry.name.startsWith('.')) continue;
+      const files = await readContentFiles(join(gradePath, subjectEntry.name));
       subjects.push({
         name: subjectEntry.name,
-        contentCount: await countContentFiles(join(gradePath, subjectEntry.name))
+        contentCount: files.length,
+        files
       });
     }
 
@@ -101,7 +107,18 @@ const server = createServer(async (request, response) => {
   }
 });
 
-server.listen(port, '127.0.0.1', () => {
-  console.log(`MyBlog local preview: http://127.0.0.1:${port}/`);
+let activePort = port;
+server.on('error', error => {
+  if (error.code === 'EADDRINUSE' && activePort < port + 10) {
+    activePort += 1;
+    server.listen(activePort, '127.0.0.1');
+    return;
+  }
+  console.error(error.message);
+  process.exitCode = 1;
+});
+server.on('listening', () => {
+  console.log(`MyBlog local preview: http://127.0.0.1:${activePort}/`);
   console.log('docs_learning changes are checked automatically by the page.');
 });
+server.listen(activePort, '127.0.0.1');

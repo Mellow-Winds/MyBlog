@@ -14,6 +14,7 @@ const contentTypes = {
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.md': 'text/markdown; charset=utf-8',
+  '.pdf': 'application/pdf',
   '.png': 'image/png',
   '.svg': 'image/svg+xml'
 };
@@ -27,9 +28,10 @@ async function readContentFiles(directory, prefix = '') {
     const entryPath = join(directory, entry.name);
     const path = prefix + entry.name;
     if (entry.isDirectory()) files.push(...await readContentFiles(entryPath, path + '/'));
-    if (entry.isFile() && /\.md$/i.test(entry.name)) {
+    if (entry.isFile() && /\.(md|pdf)$/i.test(entry.name)) {
       const info = await stat(entryPath);
-      files.push({ name: entry.name.replace(/\.md$/i, ''), path, version: `${info.mtimeMs}-${info.size}` });
+      const type = extname(entry.name).slice(1).toLowerCase();
+      files.push({ name: entry.name.replace(/\.(md|pdf)$/i, ''), path, type, version: `${info.mtimeMs}-${info.size}` });
     }
   }
 
@@ -82,7 +84,7 @@ async function syncLearningJson() {
       courses.push({
         name: subjectEntry.name,
         teacher: previousCourse.teacher || 'xxx',
-        files: files.map(file => ({ name: file.name, path: file.path, version: file.version }))
+        files: files.map(file => ({ name: file.name, path: file.path, type: file.type, version: file.version }))
       });
     }
 
@@ -98,7 +100,7 @@ async function syncLearningJson() {
     });
   }
 
-  const next = { version: 1, catalog: catalog.sort((a, b) => compareTerms(a.folder, b.folder)) };
+  const next = { version: 1, catalog: catalog.sort(compareTerms) };
   if (JSON.stringify(previous) !== JSON.stringify(next)) {
     await writeFile(learningJsonPath, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
   }

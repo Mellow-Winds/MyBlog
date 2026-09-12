@@ -6,8 +6,9 @@
     <meta name="theme-color" content="#F9F9FF">
     <meta name="description" content="个人主页">
     <title>个人主页</title>
-    <link rel="stylesheet" href="assets/css/style.css?v=course-rows-1">
-    <link rel="stylesheet" href="assets/css/reader.css?v=reader-2">
+    <link rel="stylesheet" href="assets/css/style.css?v=course-reader-3">
+    <link rel="stylesheet" href="assets/css/reader.css?v=course-reader-3">
+    <link rel="stylesheet" href="assets/vendor/katex/katex.min.css?v=0.18.7">
   </head>
   <body data-material-mode="liquid-glass">
     <aside class="sidebar glass-surface" aria-label="个人主页导航">
@@ -24,6 +25,14 @@
           <span class="course-context" hidden></span>
         </span>
       </a>
+      </div>
+      <div class="file-tools" aria-label="文件列表工具" hidden>
+        <button type="button" class="file-tool" data-reader-filter aria-label="筛选文件" title="筛选文件">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>
+        </button>
+        <button type="button" class="file-tool" data-reader-sort aria-label="排序文件" title="排序文件">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5v14M5 8l3-3 3 3M16 19V5M13 16l3 3 3-3"></path></svg>
+        </button>
       </div>
       <nav class="course-files" aria-label="课程文件" tabindex="0" hidden></nav>
 
@@ -89,7 +98,8 @@
     </main>
 
     <script src="assets/js/markdown-it.min.js"></script>
-    <script src="assets/js/reader.js?v=reader-2"></script>
-    <script src="assets/js/app.js?v=course-rows-1"></script>
+    <script src="assets/vendor/katex/katex.min.js?v=0.18.7"></script>
+    <script src="assets/js/reader.js?v=course-reader-3"></script>
+    <script src="assets/js/app.js?v=course-reader-3"></script>
   </body>
 </html>

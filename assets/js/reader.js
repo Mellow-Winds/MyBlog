@@ -1,23 +1,19 @@
-/* Reuses MD_Demo's markdown-it renderer with raw HTML disabled. */
+/* Markdown reader: local markdown-it, local KaTeX, and a small reader toolbar. */
 window.MyBlogReader = (() => {
   const languageAliases = {
     javascript: 'js', typescript: 'ts', jsx: 'jsx', tsx: 'tsx',
     python: 'python', py: 'python', shell: 'bash', sh: 'bash', zsh: 'bash',
-    html: 'html', xml: 'html', svg: 'html',
+    html: 'html', xml: 'html', svg: 'html', css: 'css',
     yml: 'yaml', md: 'markdown', text: 'text', plaintext: 'text'
   };
   const keywordSets = {
     js: new Set('as async await break case catch class const continue debugger default delete do else export extends finally for from function get if implements import in instanceof interface let new null of package private protected public return set static super switch this throw try typeof undefined var void while with yield true false'.split(' ')),
-    ts: new Set('as async await break case catch class const continue debugger default delete do else export extends finally for from function if implements import in instanceof interface keyof let namespace never new null of private protected public readonly return static super switch this throw type typeof unknown var void while with yield true false'.split(' ')),
-    python: new Set('and as assert async await break case class continue def del elif else except finally for from global if import in is lambda match nonlocal not or pass raise return try while with yield True False None'.split(' ')),
-    bash: new Set('case do done elif else esac fi for function if in select then time until while do'.split(' ')),
+    ts: new Set('as async await break case catch class const continue def delete do else export extends finally for from function if implements import in instanceof interface keyof let namespace never new null of private protected public readonly return static super this throw type typeof unknown var void while with yield true false'.split(' ')),
+    python: new Set('and as assert async await break case class continue def del elif else except finally for from global if import in is lambda match nonlocal not or pass raise try while with yield True False None'.split(' ')),
+    bash: new Set('case do done elif else esac fi for function if in select then time until while'.split(' ')),
     json: new Set('true false null'.split(' '))
   };
-  const escCode = value => String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  const escCode = value => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const span = (className, value) => `<span class="tok-${className}">${escCode(value)}</span>`;
 
   function normalizedLanguage(info) {
@@ -46,8 +42,7 @@ window.MyBlogReader = (() => {
             html += span('attribute', attribute[1]) + escCode(attribute[2]) + span('string', attribute[3]);
             attributeCursor = attribute.index + attribute[0].length;
           }
-          html += escCode(attributes.slice(attributeCursor));
-          html += escCode(tag[4]);
+          html += escCode(attributes.slice(attributeCursor)) + escCode(tag[4]);
         }
       }
       cursor = match.index + token.length;
@@ -111,31 +106,103 @@ window.MyBlogReader = (() => {
   function highlightCode(source, info) {
     const language = normalizedLanguage(info);
     if (language === 'html') return highlightMarkup(source);
-    if (language === 'css') return highlightTokens(source, language);
     if (language === 'text' || language === 'markdown') return escCode(source);
     return highlightTokens(source, language);
   }
 
-  const md = window.markdownit({
-    html: false,
-    linkify: false,
-    typographer: false,
-    highlight: (source, info) => highlightCode(source, info)
-  });
+  const md = window.markdownit({ html: false, linkify: false, typographer: false, highlight: (source, info) => highlightCode(source, info) });
+  const esc = text => md.utils.escapeHtml(String(text));
+  const routeFor = (grade, subject, file) => '#study/' + [grade, subject, file].map(encodeURIComponent).join('/');
+  const fileIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h9l5 5v13H5Z M14 3v5h5 M8 12h8 M8 16h6"/></svg>';
+
   let request;
   let loadedKey = '';
   let listKey = '';
   let retry;
   let outlineHeadings = [];
-  const esc = text => md.utils.escapeHtml(String(text));
-  const routeFor = (grade, subject, file) => '#study/' + [grade, subject, file].map(encodeURIComponent).join('/');
-  const fileIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h9l5 5v13H5Z M14 3v5h5 M8 12h8 M8 16h6"/></svg>';
+  let activeContext = null;
+  const viewState = { filter: 'all', sort: 'name' };
+  const fileTools = document.querySelector('.file-tools');
+  const fileList = document.querySelector('.course-files');
+
+  const fileType = file => file?.type === 'pdf' || /\.pdf$/i.test(file?.path || '') ? 'pdf' : 'md';
+
+  function createToolMenus() {
+    if (!fileTools || fileTools.querySelector('.file-popover')) return;
+    fileTools.insertAdjacentHTML('beforeend', `
+      <div class="file-popover" data-reader-popover="filter" hidden>
+        <button type="button" data-reader-filter-option="all" data-ripple>全部</button>
+        <button type="button" data-reader-filter-option="md" data-ripple>MD</button>
+        <button type="button" data-reader-filter-option="pdf" data-ripple>PDF</button>
+      </div>
+      <div class="file-popover" data-reader-popover="sort" hidden>
+        <button type="button" data-reader-sort-option="name" data-ripple>按名称</button>
+        <button type="button" data-reader-sort-option="type" data-ripple>按类型</button>
+      </div>`);
+  }
+
+  function setPopover(kind, open) {
+    const button = fileTools?.querySelector(`[data-reader-${kind}]`);
+    const popover = fileTools?.querySelector(`[data-reader-popover="${kind}"]`);
+    if (!button || !popover) return;
+    popover.hidden = !open;
+    button.setAttribute('aria-expanded', String(open));
+  }
+
+  function closePopovers() { setPopover('filter', false); setPopover('sort', false); }
+
+  function renderToolState() {
+    fileTools?.querySelectorAll('[data-reader-filter-option]').forEach(button => button.setAttribute('aria-checked', String(button.dataset.readerFilterOption === viewState.filter)));
+    fileTools?.querySelectorAll('[data-reader-sort-option]').forEach(button => button.setAttribute('aria-checked', String(button.dataset.readerSortOption === viewState.sort)));
+  }
+
+  function visibleFiles(files) {
+    const filtered = viewState.filter === 'all' ? files : files.filter(file => fileType(file) === viewState.filter);
+    return [...filtered].sort((left, right) => {
+      if (viewState.sort === 'type') {
+        const typeDifference = fileType(left).localeCompare(fileType(right));
+        if (typeDifference) return typeDifference;
+      }
+      return String(left.name).localeCompare(String(right.name), 'zh-CN', { numeric: true, sensitivity: 'base' });
+    });
+  }
+
+  function renderFileList(grade, subject, requestedPath) {
+    if (!fileList) return null;
+    const files = subject?.files || [];
+    const selected = requestedPath ? files.find(file => file.path === requestedPath) : files[0];
+    const shown = visibleFiles(files);
+    const signature = JSON.stringify([grade.name, subject.name, viewState, files.map(file => [file.path, file.name, file.type, file.version])]);
+    const rebuilt = listKey !== signature;
+    if (rebuilt) {
+      const scroll = fileList.scrollTop;
+      const focusedPath = fileList.contains(document.activeElement) ? document.activeElement.dataset.readerFile : null;
+      fileList.innerHTML = shown.length
+        ? shown.map(file => {
+          const type = fileType(file);
+          return `<a class="nav-link file-link" href="${esc(routeFor(grade.name, subject.name, file.path))}" data-reader-file="${esc(file.path)}" data-ripple title="${esc(file.path)}"><span class="file-type file-type-${type}">${type.toUpperCase()}</span>${fileIcon}<span class="file-name">${esc(file.name)}</span></a>`;
+        }).join('')
+        : '<span class="file-empty">暂无文件</span>';
+      fileList.scrollTop = activeContext?.courseKey === `${grade.name}/${subject.name}` ? scroll : 0;
+      listKey = signature;
+      if (focusedPath) [...fileList.children].find(node => node.dataset.readerFile === focusedPath)?.focus({ preventScroll: true });
+    }
+    [...fileList.querySelectorAll('[data-reader-file]')].forEach(link => {
+      const active = link.dataset.readerFile === selected?.path;
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+    return { selected, rebuilt };
+  }
 
   function reset() {
     request?.abort();
     loadedKey = '';
     listKey = '';
     outlineHeadings = [];
+    activeContext = null;
+    closePopovers();
   }
 
   function updateOutline() {
@@ -143,50 +210,130 @@ window.MyBlogReader = (() => {
     if (!outlineHeadings.length || !main) return;
     const edge = main.getBoundingClientRect().top + 80;
     let active = outlineHeadings[0];
-    for (const heading of outlineHeadings) {
-      if (heading.getBoundingClientRect().top <= edge) active = heading;
+    for (const heading of outlineHeadings) if (heading.getBoundingClientRect().top <= edge) active = heading;
+    document.querySelectorAll('[data-reader-heading]').forEach(button => button.setAttribute('aria-current', button.dataset.readerHeading === active.id ? 'location' : 'false'));
+  }
+
+  function findUnescaped(source, needle, start) {
+    let index = source.indexOf(needle, start);
+    while (index >= 0) {
+      let slashes = 0;
+      for (let cursor = index - 1; cursor >= 0 && source[cursor] === '\\'; cursor -= 1) slashes += 1;
+      if (slashes % 2 === 0) return index;
+      index = source.indexOf(needle, index + needle.length);
     }
-    document.querySelectorAll('[data-reader-heading]').forEach(button => {
-      button.setAttribute('aria-current', button.dataset.readerHeading === active.id ? 'location' : 'false');
+    return -1;
+  }
+
+  function protectMath(source) {
+    const placeholders = [];
+    const add = (tex, display) => {
+      const token = `MYBLOG_MATH_${placeholders.length}_TOKEN`;
+      placeholders.push({ token, tex: tex.trim(), display });
+      return token;
+    };
+    let result = '';
+    let index = 0;
+    let fence = null;
+    while (index < source.length) {
+      const lineStart = index === 0 || source[index - 1] === '\n';
+      if (lineStart) {
+        const lineEnd = source.indexOf('\n', index) < 0 ? source.length : source.indexOf('\n', index);
+        const line = source.slice(index, lineEnd);
+        const marker = line.match(/^ {0,3}(`{3,}|~{3,})/);
+        if (marker) {
+          const character = marker[1][0];
+          if (!fence) fence = { character, length: marker[1].length };
+          else if (fence.character === character && marker[1].length >= fence.length) fence = null;
+          result += line;
+          if (lineEnd < source.length) result += '\n';
+          index = lineEnd < source.length ? lineEnd + 1 : lineEnd;
+          continue;
+        }
+      }
+      if (fence) { result += source[index++]; continue; }
+      if (source[index] === '`') {
+        let length = 1;
+        while (source[index + length] === '`') length += 1;
+        const closing = source.indexOf('`'.repeat(length), index + length);
+        if (closing >= 0) {
+          const end = closing + length;
+          result += source.slice(index, end);
+          index = end;
+          continue;
+        }
+      }
+      if (source.startsWith('$$', index)) {
+        const close = findUnescaped(source, '$$', index + 2);
+        if (close >= 0) {
+          result += `\n\n${add(source.slice(index + 2, close), true)}\n\n`;
+          index = close + 2;
+          continue;
+        }
+      }
+      if (source.startsWith('\\[', index)) {
+        const close = findUnescaped(source, '\\]', index + 2);
+        if (close >= 0) {
+          result += `\n\n${add(source.slice(index + 2, close), true)}\n\n`;
+          index = close + 2;
+          continue;
+        }
+      }
+      if (source.startsWith('\\(', index)) {
+        const close = findUnescaped(source, '\\)', index + 2);
+        if (close >= 0) {
+          result += add(source.slice(index + 2, close), false);
+          index = close + 2;
+          continue;
+        }
+      }
+      if (source[index] === '$' && source[index - 1] !== '\\' && !/\s/.test(source[index + 1] || '')) {
+        const close = findUnescaped(source, '$', index + 1);
+        if (close > index + 1 && !/\s/.test(source[close - 1] || '')) {
+          result += add(source.slice(index + 1, close), false);
+          index = close + 1;
+          continue;
+        }
+      }
+      result += source[index++];
+    }
+    return { source: result, placeholders };
+  }
+
+  function renderMath(tex, display) {
+    if (window.katex) return window.katex.renderToString(tex, { displayMode: display, throwOnError: false, output: 'htmlAndMathml' });
+    return `<span class="math-fallback">${esc(tex)}</span>`;
+  }
+
+  function renderMarkdown(source) {
+    const protectedSource = protectMath(source);
+    let html = md.render(protectedSource.source);
+    protectedSource.placeholders.forEach(({ token, tex, display }) => {
+      const rendered = renderMath(tex, display);
+      if (display) html = html.replace(new RegExp(`<p>\\s*${token}\\s*</p>`, 'g'), `<div class="math-block">${rendered}</div>`);
+      html = html.replaceAll(token, rendered);
     });
+    return html;
+  }
+
+  function animateArticle(article) {
+    article.classList.remove('reader-content-enter');
+    void article.offsetWidth;
+    article.classList.add('reader-content-enter');
   }
 
   async function show(grade, subject, requestedPath) {
-    if (!grade || !subject) return;
-    const files = subject.files || [];
-    const selected = requestedPath ? files.find(file => file.path === requestedPath) : files[0];
-    const list = document.querySelector('.course-files');
-    const signature = JSON.stringify([grade.name, subject.name, files.map(file => [file.path, file.name])]);
-    const rebuilt = listKey !== signature;
-    if (listKey !== signature) {
-      const scroll = list.scrollTop;
-      const focusedPath = list.contains(document.activeElement) ? document.activeElement.dataset.readerFile : null;
-      list.innerHTML = files.map(file => `<a class="nav-link file-link" href="${esc(routeFor(grade.name, subject.name, file.path))}" data-reader-file="${esc(file.path)}" data-ripple title="${esc(file.path)}">${fileIcon}<span>${esc(file.name)}</span></a>`).join('');
-      list.scrollTop = listKey.startsWith(JSON.stringify([grade.name, subject.name]).slice(0, -1)) ? scroll : 0;
-      listKey = signature;
-      if (focusedPath) [...list.children].find(node => node.dataset.readerFile === focusedPath)?.focus({ preventScroll: true });
-    }
-    for (const link of list.children) {
-      const active = link.dataset.readerFile === selected?.path;
-      link.classList.toggle('is-active', active);
-      if (active) link.setAttribute('aria-current', 'page');
-      else link.removeAttribute('aria-current');
-    }
-    if (rebuilt) {
-      const active = list.querySelector('[aria-current="page"]');
-      if (active) {
-        const itemRect = active.getBoundingClientRect();
-        const listRect = list.getBoundingClientRect();
-        if (itemRect.bottom > listRect.bottom) list.scrollTop += itemRect.bottom - listRect.bottom + 12;
-        else if (itemRect.top < listRect.top) list.scrollTop -= listRect.top - itemRect.top;
-      }
-    }
+    if (!grade || !subject || !fileList) return;
+    activeContext = { grade, subject, requestedPath, courseKey: `${grade.name}/${subject.name}` };
+    createToolMenus();
+    renderToolState();
+    const { selected } = renderFileList(grade, subject, requestedPath);
     const article = document.getElementById('markdown-content');
     const outline = document.querySelector('.reader-outline');
     const view = article.closest('.course-view');
     view.dataset.grade = grade.name;
     view.dataset.subject = subject.name;
-    const key = JSON.stringify([grade.name, subject.name, selected?.path, selected?.version, requestedPath && !selected]);
+    const key = JSON.stringify([grade.name, subject.name, selected?.path, selected?.version, requestedPath && !selected, fileType(selected)]);
     if (loadedKey === key) return;
     const previousPath = loadedKey ? JSON.parse(loadedKey).slice(0, 3) : [];
     const sameFile = JSON.stringify(previousPath) === JSON.stringify([grade.name, subject.name, selected?.path]);
@@ -199,7 +346,7 @@ window.MyBlogReader = (() => {
     outline.hidden = true;
     outlineHeadings = [];
     article.replaceChildren();
-    if (!sameFile) document.querySelector('.main-stage').scrollTop = 0;
+    if (!sameFile) main.scrollTop = 0;
     if (!selected) {
       if (requestedPath) article.innerHTML = '<p role="status">文件不存在或已移除。</p>';
       return;
@@ -208,11 +355,17 @@ window.MyBlogReader = (() => {
     const url = new URL(['docs_learning', grade.name, subject.name, ...selected.path.split('/')].map(encodeURIComponent).join('/'), document.baseURI);
     article.setAttribute('aria-busy', 'true');
     try {
+      if (fileType(selected) === 'pdf') {
+        article.innerHTML = `<iframe class="pdf-viewer" src="${esc(url.href)}#view=FitH" title="${esc(selected.name)}"></iframe><p class="pdf-fallback"><a href="${esc(url.href)}" target="_blank" rel="noopener">在新标签页打开 PDF</a></p>`;
+        animateArticle(article);
+        if (sameFile) main.scrollTop = previousScroll;
+        return;
+      }
       const response = await fetch(url, { cache: 'no-store', signal });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const source = await response.text();
       if (signal.aborted) return;
-      article.innerHTML = md.render(source);
+      article.innerHTML = renderMarkdown(source);
       article.querySelectorAll('pre > code').forEach(code => {
         const className = [...code.classList].find(name => name.startsWith('language-'));
         const language = normalizedLanguage(className?.slice('language-'.length));
@@ -226,7 +379,7 @@ window.MyBlogReader = (() => {
         const slug = heading.textContent.trim().toLowerCase().replace(/\s+/g, '-');
         if (!slugs.has(slug)) slugs.set(slug, heading.id);
       });
-      outline.innerHTML = '<div class="chapter-index-heading"><strong>章节导航</strong></div>' + outlineHeadings.map(heading => `<button type="button" data-reader-heading="${heading.id}" data-level="${heading.tagName.slice(1)}" data-ripple>${esc(heading.textContent)}</button>`).join('');
+      outline.innerHTML = '<div class="chapter-index-heading"><strong>章节导航</strong></div><div class="reader-outline-list">' + outlineHeadings.map(heading => `<button type="button" data-reader-heading="${heading.id}" data-level="${heading.tagName.slice(1)}" data-ripple aria-label="${esc(heading.textContent)}">${heading.innerHTML}</button>`).join('') + '</div>';
       outline.hidden = !outlineHeadings.length;
       article.querySelectorAll('a[href], img[src]').forEach(node => {
         const attribute = node.tagName === 'IMG' ? 'src' : 'href';
@@ -240,12 +393,16 @@ window.MyBlogReader = (() => {
         }
         const resolved = new URL(value, url);
         const base = new URL('./', url);
-        if (node.tagName === 'A' && resolved.origin === url.origin && /\.md$/i.test(resolved.pathname)) {
-          const linked = files.find(file => new URL(file.path.split('/').map(encodeURIComponent).join('/'), new URL(['docs_learning', grade.name, subject.name, ''].map(encodeURIComponent).join('/'), document.baseURI)).pathname === resolved.pathname);
+        if (node.tagName === 'A' && resolved.origin === url.origin && /\.(md|pdf)$/i.test(resolved.pathname)) {
+          const linked = subject.files.find(file => {
+            const linkedUrl = new URL(file.path.split('/').map(encodeURIComponent).join('/'), new URL(['docs_learning', grade.name, subject.name, ''].map(encodeURIComponent).join('/'), document.baseURI));
+            return linkedUrl.pathname === resolved.pathname;
+          });
           if (linked) { node.href = routeFor(grade.name, subject.name, linked.path); return; }
         }
         node.setAttribute(attribute, new URL(value, base).href);
       });
+      animateArticle(article);
       if (sameFile) main.scrollTop = previousScroll;
       updateOutline();
     } catch (error) {
@@ -257,6 +414,38 @@ window.MyBlogReader = (() => {
     }
   }
 
+  createToolMenus();
+  renderToolState();
+  fileTools?.addEventListener('pointerover', event => {
+    const button = event.target.closest('.file-tool');
+    if (!button) return;
+    clearTimeout(fileTools._hideTimer);
+    setPopover(button.hasAttribute('data-reader-filter') ? 'filter' : 'sort', true);
+  });
+  fileTools?.addEventListener('pointerleave', () => { fileTools._hideTimer = window.setTimeout(closePopovers, 180); });
+  fileTools?.addEventListener('focusin', event => {
+    const button = event.target.closest('.file-tool');
+    if (button) setPopover(button.hasAttribute('data-reader-filter') ? 'filter' : 'sort', true);
+  });
+  fileTools?.addEventListener('click', event => {
+    const button = event.target.closest('.file-tool');
+    if (button) {
+      const kind = button.hasAttribute('data-reader-filter') ? 'filter' : 'sort';
+      const popover = fileTools.querySelector(`[data-reader-popover="${kind}"]`);
+      setPopover(kind, popover.hidden);
+      return;
+    }
+    const filterOption = event.target.closest('[data-reader-filter-option]');
+    const sortOption = event.target.closest('[data-reader-sort-option]');
+    if (filterOption) viewState.filter = filterOption.dataset.readerFilterOption;
+    if (sortOption) viewState.sort = sortOption.dataset.readerSortOption;
+    if (filterOption || sortOption) {
+      renderToolState();
+      closePopovers();
+      if (activeContext) renderFileList(activeContext.grade, activeContext.subject, activeContext.requestedPath);
+    }
+  });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') closePopovers(); });
   document.addEventListener('click', event => {
     const jump = event.target.closest('[data-reader-heading]');
     if (jump) {

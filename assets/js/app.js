@@ -155,8 +155,9 @@ function catalogFromLearningJson(document) {
       const files = (Array.isArray(course.files) ? course.files : []).map(file => {
         const item = typeof file === 'string' ? { name: file, path: file } : file;
         return {
-          name: String(item.name || item.path || '').replace(/\.md$/i, ''),
+          name: String(item.name || item.path || '').replace(/\.(md|pdf)$/i, ''),
           path: String(item.path || item.name || ''),
+          type: String(item.type || item.path || '').toLowerCase().endsWith('.pdf') ? 'pdf' : 'md',
           version: item.version || (Array.isArray(document) ? 'legacy' : document.version)
         };
       });
@@ -353,6 +354,7 @@ function syncActiveNav() {
 
   body.classList.toggle('course-page', isCoursePage);
   document.querySelector('.reader-back').hidden = !isCoursePage;
+  document.querySelector('.file-tools').hidden = !isCoursePage;
   document.querySelector('.course-files').hidden = !isCoursePage;
   if (!isCoursePage) window.MyBlogReader.reset();
   if (isCoursePage) contentState.study.grade = studyCatalog.indexOf(grade);
@@ -363,13 +365,18 @@ function syncActiveNav() {
 
   setActiveNav(currentLink || navLinks[0]);
   renderView(page, isCoursePage ? route.params : []);
-  animateContentEntry();
+  animateContentEntry(isCoursePage);
 }
 
-function animateContentEntry() {
+function animateContentEntry(isCoursePage = false) {
   if (!contentRoot) return;
+  body.classList.remove('reader-enter');
   contentRoot.classList.remove('view-enter');
   void contentRoot.offsetWidth;
+  if (isCoursePage) {
+    body.classList.add('reader-enter');
+    return;
+  }
   contentRoot.classList.add('view-enter');
 }
 

@@ -9,16 +9,18 @@ const liquidGlassBackground = [
 ].join(', ');
 
 const contentState = {
-  study: { term: 0, item: 0 },
+  study: { grade: 0, item: 0 },
   jinling: { item: 0 },
   memories: { item: 0 }
 };
 
-const studyTerms = [
-  { label: '大一上', items: ['学科1', '学科2', '学科3', '学科4', '学科5'] },
-  { label: '大一下', items: ['学科1', '学科2', '学科3', '学科4', '学科5'] },
-  { label: '大二上', items: ['学科1', '学科2', '学科3', '学科4', '学科5'] }
+const defaultStudyCatalog = [
+  { name: '大一上', subjects: ['课程1', '课程2', '课程3', '课程4', '课程5'].map(name => ({ name, contentCount: 0 })) },
+  { name: '大一下', subjects: ['课程1', '课程2', '课程3', '课程4', '课程5'].map(name => ({ name, contentCount: 0 })) },
+  { name: '大二上', subjects: ['课程1', '课程2', '课程3', '课程4', '课程5'].map(name => ({ name, contentCount: 0 })) }
 ];
+
+let studyCatalog = defaultStudyCatalog;
 
 const pageMeta = {
   about: { title: '关于我' },
@@ -26,10 +28,10 @@ const pageMeta = {
 };
 
 const personalInfo = [
-  { label: 'Email', value: 'test@test.com', icon: '<rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m4 7 8 6 8-6"></path>' },
-  { label: 'QQ', value: '123456', icon: '<path fill="currentColor" stroke="none" d="M21.395 15.035a40 40 0 0 0-.803-2.264l-1.079-2.695c.001-.032.014-.562.014-.836C19.526 4.632 17.351 0 12 0S4.474 4.632 4.474 9.241c0 .274.013.804.014.836l-1.08 2.695a39 39 0 0 0-.802 2.264c-1.021 3.283-.69 4.643-.438 4.673.54.065 2.103-2.472 2.103-2.472 0 1.469.756 3.387 2.394 4.771-.612.188-1.363.479-1.845.835-.434.32-.379.646-.301.778.343.578 5.883.369 7.482.189 1.6.18 7.14.389 7.483-.189.078-.132.132-.458-.301-.778-.483-.356-1.233-.646-1.846-.836 1.637-1.384 2.393-3.302 2.393-4.771 0 0 1.563 2.537 2.103 2.472.251-.03.581-1.39-.438-4.673"></path>' },
-  { label: '学校', value: '测试学校', icon: '<path d="m3 9 9-5 9 5-9 5-9-5Z"></path><path d="M6 11v5.5c3.5 2.2 8.5 2.2 12 0V11M21 9v7"></path>' },
-  { label: '专业', value: '测试专业', icon: '<rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h4"></path>' }
+  { label: 'Email', value: 'mellowwinds@qq.com', icon: '<rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m4 7 8 6 8-6"></path>' },
+  { label: 'QQ', value: '2860339144', icon: '<path fill="currentColor" stroke="none" d="M21.395 15.035a40 40 0 0 0-.803-2.264l-1.079-2.695c.001-.032.014-.562.014-.836C19.526 4.632 17.351 0 12 0S4.474 4.632 4.474 9.241c0 .274.013.804.014.836l-1.08 2.695a39 39 0 0 0-.802 2.264c-1.021 3.283-.69 4.643-.438 4.673.54.065 2.103-2.472 2.103-2.472 0 1.469.756 3.387 2.394 4.771-.612.188-1.363.479-1.845.835-.434.32-.379.646-.301.778.343.578 5.883.369 7.482.189 1.6.18 7.14.389 7.483-.189.078-.132.132-.458-.301-.778-.483-.356-1.233-.646-1.846-.836 1.637-1.384 2.393-3.302 2.393-4.771 0 0 1.563 2.537 2.103 2.472.251-.03.581-1.39-.438-4.673"></path>' },
+  { label: '学校', value: '南京大学', icon: '<path d="m3 9 9-5 9 5-9 5-9-5Z"></path><path d="M6 11v5.5c3.5 2.2 8.5 2.2 12 0V11M21 9v7"></path>' },
+  { label: '专业', value: '软工经济', icon: '<rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h4"></path>' }
 ];
 
 const featuredArticles = ['文章1', '文章2', '文章3'];
@@ -110,9 +112,107 @@ function chapterLayout(page, title, items, selected) {
     </div>`;
 }
 
+function encodeRoutePart(value) {
+  return encodeURIComponent(value);
+}
+
+function decodeRoutePart(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function currentRoute() {
+  const parts = (window.location.hash || '#about')
+    .slice(1)
+    .split('/')
+    .filter(Boolean)
+    .map(decodeRoutePart);
+
+  return {
+    page: parts[0] || 'about',
+    params: parts.slice(1)
+  };
+}
+
+function githubRepository() {
+  const host = window.location.hostname;
+  if (!host.endsWith('.github.io')) return null;
+
+  const owner = host.slice(0, -'.github.io'.length);
+  const pathParts = window.location.pathname.split('/').filter(Boolean);
+  const repo = pathParts[0] || `${owner}.github.io`;
+  return { owner, repo };
+}
+
+function catalogFromTree(tree) {
+  const root = 'docs_learning/';
+  const grades = new Map();
+
+  tree
+    .filter(entry => entry.type === 'blob' && entry.path.startsWith(root))
+    .forEach(entry => {
+      const parts = entry.path.slice(root.length).split('/');
+      if (parts.length < 3) return;
+
+      const [gradeName, subjectName] = parts;
+      if (!gradeName || !subjectName) return;
+
+      if (!grades.has(gradeName)) grades.set(gradeName, new Map());
+      const subjects = grades.get(gradeName);
+      if (!subjects.has(subjectName)) subjects.set(subjectName, { name: subjectName, contentCount: 0 });
+      if (parts[parts.length - 1] !== '.gitkeep') subjects.get(subjectName).contentCount += 1;
+    });
+
+  return [...grades.entries()]
+    .map(([name, subjects]) => ({
+      name,
+      subjects: [...subjects.values()]
+    }));
+}
+
+async function loadStudyCatalog() {
+  const repository = githubRepository();
+  if (!repository) return;
+
+  try {
+    const repoResponse = await fetch(`https://api.github.com/repos/${repository.owner}/${repository.repo}`, {
+      headers: { Accept: 'application/vnd.github+json' }
+    });
+    if (!repoResponse.ok) return;
+
+    const repo = await repoResponse.json();
+    const treeResponse = await fetch(
+      `https://api.github.com/repos/${repository.owner}/${repository.repo}/git/trees/${encodeURIComponent(repo.default_branch)}?recursive=1`,
+      { headers: { Accept: 'application/vnd.github+json' } }
+    );
+    if (!treeResponse.ok) return;
+
+    const tree = await treeResponse.json();
+    const nextCatalog = catalogFromTree(tree.tree || []);
+    if (!nextCatalog.length) return;
+
+    const currentGradeName = studyCatalog[contentState.study.grade]?.name;
+    const nextGradeIndex = nextCatalog.findIndex(grade => grade.name === currentGradeName);
+    studyCatalog = nextCatalog;
+    contentState.study.grade = nextGradeIndex >= 0 ? nextGradeIndex : 0;
+    contentState.study.item = Math.min(
+      contentState.study.item,
+      Math.max(0, studyCatalog[contentState.study.grade].subjects.length - 1)
+    );
+
+    const route = currentRoute();
+    if (route.page === 'study') renderView('study', route.params);
+  } catch {
+    // The local fallback remains available when the GitHub API is unavailable.
+  }
+}
+
 function renderStudy() {
   const state = contentState.study;
-  const currentTerm = studyTerms[state.term];
+  const currentGrade = studyCatalog[state.grade] || studyCatalog[0];
 
   return `
     <section class="content-view" data-page-view="study">
@@ -120,11 +220,18 @@ function renderStudy() {
         <h1>学在南雍</h1>
       </header>
       <div class="section-tabs" role="tablist" aria-label="学期切换">
-        ${studyTerms.map((term, index) => `
-          <button type="button" class="section-tab" role="tab" id="study-term-${index}" aria-controls="study-panel" aria-selected="${index === state.term}" tabindex="${index === state.term ? 0 : -1}" data-study-term="${index}" data-ripple>${term.label}</button>
+        ${studyCatalog.map((grade, index) => `
+          <button type="button" class="section-tab" role="tab" id="study-term-${index}" aria-controls="study-courses" aria-selected="${index === state.grade}" tabindex="${index === state.grade ? 0 : -1}" data-study-term="${index}" data-ripple>${escapeHtml(grade.name)}</button>
         `).join('')}
       </div>
-      ${chapterLayout('study', '学科导航', currentTerm.items, state.item)}
+      <div class="course-grid" id="study-courses">
+        ${currentGrade.subjects.map(subject => `
+          <a class="course-card glass-surface" href="#study/${encodeRoutePart(currentGrade.name)}/${encodeRoutePart(subject.name)}" data-course-link data-ripple>
+            <strong>${escapeHtml(subject.name)}</strong>
+            <span>${subject.contentCount}个内容</span>
+          </a>
+        `).join('')}
+      </div>
     </section>`;
 }
 
@@ -134,11 +241,8 @@ function renderAbout() {
       <section class="home-section" aria-labelledby="personal-heading">
         <h2 class="home-section-title" id="personal-heading">个人信息</h2>
         <div class="profile-layout">
-          <div class="avatar-placeholder" aria-label="头像预留位">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="8" r="3.5"></circle>
-              <path d="M5 20c.8-3.4 3.2-5.3 7-5.3s6.2 1.9 7 5.3"></path>
-            </svg>
+          <div class="avatar-placeholder" aria-label="头像">
+            <img src="icon/icon128.png" alt="头像">
           </div>
           <article class="personal-info-card glass-surface">
             ${personalInfo.map(item => `
@@ -166,6 +270,21 @@ function renderAbout() {
     </section>`;
 }
 
+function renderCourseView(gradeName, subjectName) {
+  const grade = studyCatalog.find(item => item.name === gradeName);
+  const subject = grade?.subjects.find(item => item.name === subjectName);
+  if (!grade || !subject) return renderStudy();
+
+  return `
+    <section class="content-view course-view" data-page-view="study-course" data-grade="${escapeHtml(grade.name)}" data-subject="${escapeHtml(subject.name)}">
+      <button type="button" class="course-back" data-study-back data-ripple>返回学在南雍</button>
+      <header class="content-heading">
+        <h1>${escapeHtml(subject.name)}</h1>
+      </header>
+      <article class="course-content-placeholder" aria-label="课程内容占位"></article>
+    </section>`;
+}
+
 function renderIndexedPage(page, title, indexTitle, items) {
   const state = contentState[page];
 
@@ -178,7 +297,7 @@ function renderIndexedPage(page, title, indexTitle, items) {
     </section>`;
 }
 
-function renderView(page) {
+function renderView(page, params = []) {
   if (!contentRoot) return;
 
   if (page === 'about') {
@@ -187,6 +306,10 @@ function renderView(page) {
   }
 
   if (page === 'study') {
+    if (params.length >= 2) {
+      contentRoot.innerHTML = renderCourseView(params[0], params[1]);
+      return;
+    }
     contentRoot.innerHTML = renderStudy();
     return;
   }
@@ -221,11 +344,11 @@ function renderView(page) {
 }
 
 function syncActiveNav() {
-  const currentHash = window.location.hash || '#about';
-  const currentLink = navLinks.find(link => link.getAttribute('href') === currentHash);
-  const page = currentLink ? currentLink.getAttribute('href').slice(1) : 'about';
+  const route = currentRoute();
+  const currentLink = navLinks.find(link => link.getAttribute('href') === `#${route.page}`);
+  const page = currentLink ? route.page : 'about';
   setActiveNav(currentLink || navLinks[0]);
-  renderView(page);
+  renderView(page, currentLink ? route.params : []);
 }
 
 function reducedMotion() {
@@ -291,17 +414,23 @@ document.addEventListener('click', event => {
 
   const studyTerm = event.target.closest('[data-study-term]');
   if (studyTerm) {
-    contentState.study.term = Number(studyTerm.dataset.studyTerm);
+    contentState.study.grade = Number(studyTerm.dataset.studyTerm);
     contentState.study.item = 0;
     renderView('study');
     rippleAt({
-      target: document.getElementById(`study-term-${contentState.study.term}`),
+      target: document.getElementById(`study-term-${contentState.study.grade}`),
       detail: event.detail,
       type: event.type,
       clientX: event.clientX,
       clientY: event.clientY
     });
-    document.getElementById(`study-term-${contentState.study.term}`)?.focus();
+    document.getElementById(`study-term-${contentState.study.grade}`)?.focus();
+    return;
+  }
+
+  const studyBack = event.target.closest('[data-study-back]');
+  if (studyBack) {
+    window.location.hash = '#study';
     return;
   }
 
@@ -331,3 +460,5 @@ document.addEventListener('keydown', event => {
 
 window.addEventListener('hashchange', syncActiveNav);
 syncActiveNav();
+loadStudyCatalog();
+window.setInterval(loadStudyCatalog, 60000);

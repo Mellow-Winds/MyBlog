@@ -1,0 +1,21 @@
+# Local agent instructions
+AGENTS.md
+
+# Dependencies and generated output
+node_modules/
+dist/
+build/
+
+# Local configuration
+.env
+.env.*
+!.env.example
+
+# Test and coverage output
+test-results/
+coverage/
+playwright-report/
+
+# Operating-system files
+.DS_Store
+Thumbs.db

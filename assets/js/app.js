@@ -1,5 +1,6 @@
 const body = document.body;
 const contentRoot = document.getElementById('content-root');
+const courseContext = document.querySelector('.course-context');
 const navLinks = [...document.querySelectorAll('.nav-link[href^="#"]')];
 const rippleDuration = 1000;
 const liquidGlassBackground = [
@@ -179,6 +180,7 @@ async function loadStudyCatalog() {
 
   try {
     const repoResponse = await fetch(`https://api.github.com/repos/${repository.owner}/${repository.repo}`, {
+      cache: 'no-store',
       headers: { Accept: 'application/vnd.github+json' }
     });
     if (!repoResponse.ok) return;
@@ -186,7 +188,7 @@ async function loadStudyCatalog() {
     const repo = await repoResponse.json();
     const treeResponse = await fetch(
       `https://api.github.com/repos/${repository.owner}/${repository.repo}/git/trees/${encodeURIComponent(repo.default_branch)}?recursive=1`,
-      { headers: { Accept: 'application/vnd.github+json' } }
+      { cache: 'no-store', headers: { Accept: 'application/vnd.github+json' } }
     );
     if (!treeResponse.ok) return;
 
@@ -204,7 +206,7 @@ async function loadStudyCatalog() {
     );
 
     const route = currentRoute();
-    if (route.page === 'study') renderView('study', route.params);
+    if (route.page === 'study') syncActiveNav();
   } catch {
     // The local fallback remains available when the GitHub API is unavailable.
   }
@@ -347,8 +349,18 @@ function syncActiveNav() {
   const route = currentRoute();
   const currentLink = navLinks.find(link => link.getAttribute('href') === `#${route.page}`);
   const page = currentLink ? route.page : 'about';
+  const grade = studyCatalog.find(item => item.name === route.params[0]);
+  const subject = grade?.subjects.find(item => item.name === route.params[1]);
+  const isCoursePage = page === 'study' && Boolean(grade && subject);
+
+  body.classList.toggle('course-page', isCoursePage);
+  if (courseContext) {
+    courseContext.hidden = !isCoursePage;
+    courseContext.textContent = isCoursePage ? `${grade.name}-${subject.name}` : '';
+  }
+
   setActiveNav(currentLink || navLinks[0]);
-  renderView(page, currentLink ? route.params : []);
+  renderView(page, isCoursePage ? route.params : []);
 }
 
 function reducedMotion() {

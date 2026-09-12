@@ -148,6 +148,10 @@ function githubRepository() {
   return { owner, repo };
 }
 
+function isLocalServer() {
+  return window.location.protocol === 'http:' && ['127.0.0.1', 'localhost', '::1'].includes(window.location.hostname);
+}
+
 function catalogFromTree(tree) {
   const root = 'docs_learning/';
   const grades = new Map();
@@ -174,11 +178,38 @@ function catalogFromTree(tree) {
     }));
 }
 
-async function loadStudyCatalog() {
-  const repository = githubRepository();
-  if (!repository) return;
+function catalogSignature(catalog) {
+  return JSON.stringify(catalog);
+}
 
+function applyStudyCatalog(nextCatalog) {
+  if (!nextCatalog.length || catalogSignature(nextCatalog) === catalogSignature(studyCatalog)) return;
+
+  const currentGradeName = studyCatalog[contentState.study.grade]?.name;
+  const currentSubjectName = studyCatalog[contentState.study.grade]?.subjects[contentState.study.item]?.name;
+  const nextGradeIndex = nextCatalog.findIndex(grade => grade.name === currentGradeName);
+  studyCatalog = nextCatalog;
+  contentState.study.grade = nextGradeIndex >= 0 ? nextGradeIndex : 0;
+
+  const currentGrade = studyCatalog[contentState.study.grade];
+  const nextSubjectIndex = currentGrade.subjects.findIndex(subject => subject.name === currentSubjectName);
+  contentState.study.item = nextSubjectIndex >= 0 ? nextSubjectIndex : 0;
+
+  if (currentRoute().page === 'study') syncActiveNav();
+}
+
+async function loadStudyCatalog() {
   try {
+    if (isLocalServer()) {
+      const localResponse = await fetch('/__myblog/study-catalog', { cache: 'no-store' });
+      if (!localResponse.ok) return;
+      applyStudyCatalog(await localResponse.json());
+      return;
+    }
+
+    const repository = githubRepository();
+    if (!repository) return;
+
     const repoResponse = await fetch(`https://api.github.com/repos/${repository.owner}/${repository.repo}`, {
       cache: 'no-store',
       headers: { Accept: 'application/vnd.github+json' }
@@ -194,21 +225,9 @@ async function loadStudyCatalog() {
 
     const tree = await treeResponse.json();
     const nextCatalog = catalogFromTree(tree.tree || []);
-    if (!nextCatalog.length) return;
-
-    const currentGradeName = studyCatalog[contentState.study.grade]?.name;
-    const nextGradeIndex = nextCatalog.findIndex(grade => grade.name === currentGradeName);
-    studyCatalog = nextCatalog;
-    contentState.study.grade = nextGradeIndex >= 0 ? nextGradeIndex : 0;
-    contentState.study.item = Math.min(
-      contentState.study.item,
-      Math.max(0, studyCatalog[contentState.study.grade].subjects.length - 1)
-    );
-
-    const route = currentRoute();
-    if (route.page === 'study') syncActiveNav();
+    applyStudyCatalog(nextCatalog);
   } catch {
-    // The local fallback remains available when the GitHub API is unavailable.
+    // The local fallback remains available when a catalog source is unavailable.
   }
 }
 
@@ -473,4 +492,4 @@ document.addEventListener('keydown', event => {
 window.addEventListener('hashchange', syncActiveNav);
 syncActiveNav();
 loadStudyCatalog();
-window.setInterval(loadStudyCatalog, 60000);
+window.setInterval(loadStudyCatalog, isLocalServer() ? 1000 : 60000);

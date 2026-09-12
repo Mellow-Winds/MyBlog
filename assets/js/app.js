@@ -373,6 +373,32 @@ function animateContentEntry() {
   contentRoot.classList.add('view-enter');
 }
 
+function animateCourseRows(grid) {
+  if (reducedMotion()) return;
+  const cards = [...grid.querySelectorAll('.course-card')];
+  const tops = [];
+  // Measure the actual grid before transforms are applied (no assumed column count).
+  const rows = cards.map(card => {
+    const top = card.offsetTop;
+    let row = tops.findIndex(value => Math.abs(value - top) < 2);
+    if (row < 0) row = tops.push(top) - 1;
+    return row;
+  });
+  cards.forEach((card, index) => {
+    card.style.setProperty('--course-row', rows[index]);
+    card.classList.add('course-enter');
+    const cleanup = event => {
+      if (event.target !== card || event.animationName !== 'course-row-enter') return;
+      card.classList.remove('course-enter');
+      card.style.removeProperty('--course-row');
+      card.removeEventListener('animationend', cleanup);
+      card.removeEventListener('animationcancel', cleanup);
+    };
+    card.addEventListener('animationend', cleanup);
+    card.addEventListener('animationcancel', cleanup);
+  });
+}
+
 function reducedMotion() {
   return mediaMatches('(prefers-reduced-motion: reduce)');
 }
@@ -436,18 +462,24 @@ document.addEventListener('click', event => {
 
   const studyTerm = event.target.closest('[data-study-term]');
   if (studyTerm) {
-    contentState.study.grade = Number(studyTerm.dataset.studyTerm);
+    if (event.detail === 0) rippleAt(event);
+    const nextGrade = Number(studyTerm.dataset.studyTerm);
+    if (nextGrade === contentState.study.grade) return;
+    contentState.study.grade = nextGrade;
     contentState.study.item = 0;
-    renderView('study');
-    animateContentEntry();
-    rippleAt({
-      target: document.getElementById(`study-term-${contentState.study.grade}`),
-      detail: event.detail,
-      type: event.type,
-      clientX: event.clientX,
-      clientY: event.clientY
+    contentRoot.classList.remove('view-enter');
+    // Retain the title, tabs, focus and in-flight ripple; replace only the cards.
+    const template = document.createElement('template');
+    template.innerHTML = renderStudy();
+    const grid = document.getElementById('study-courses');
+    grid.replaceChildren(...template.content.querySelector('#study-courses').childNodes);
+    contentRoot.querySelectorAll('[data-study-term]').forEach(tab => {
+      const selected = Number(tab.dataset.studyTerm) === nextGrade;
+      tab.setAttribute('aria-selected', String(selected));
+      tab.tabIndex = selected ? 0 : -1;
     });
-    document.getElementById(`study-term-${contentState.study.grade}`)?.focus();
+    animateCourseRows(grid);
+    studyTerm.focus({ preventScroll: true });
     return;
   }
 

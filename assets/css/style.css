@@ -426,6 +426,16 @@ body.course-page .site-nav {
   gap: var(--space-6);
 }
 
+.course-card.course-enter {
+  animation: course-row-enter 1000ms var(--ease) both;
+  animation-delay: calc(var(--course-row, 0) * 140ms);
+}
+
+@keyframes course-row-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .course-card {
   position: relative;
   isolation: isolate;
@@ -794,6 +804,10 @@ body.course-page .site-nav {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  #content-root.view-enter,
+  .course-card.course-enter {
+    animation: none;
+  }
   *,
   *::before,
   *::after {

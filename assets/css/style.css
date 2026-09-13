@@ -40,6 +40,16 @@ body {
 }
 
 html {
+  /* Page transitions slide .page-shell to a positive X, past the viewport edge.
+     That forms a scrollable overflow region. body{overflow:hidden} does not stop
+     it — body's overflow propagates to the viewport, so the region still exists.
+     On mobile Chrome the region expands the initial containing block to fit the
+     content, and position:fixed re-anchors to that bigger block: the bottom dock
+     drops a full viewport height below the screen and slides back up. Clipping
+     the root stops the region from ever forming. `clip` is listed second so the
+     browsers that understand it get a non-scrolling clip. */
+  overflow-x: hidden;
+  overflow-x: clip;
   background: var(--surface);
 }
 
@@ -1246,8 +1256,24 @@ body.home-page .main-stage {
     justify-items: start;
   }
 
+  /* One contact per line: the two-column grid leaves each value too narrow to
+     render, so the email clipped to an ellipsis. */
   .personal-info-card {
     width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The base rules drop the divider from a whole two-column row. Stacked, only
+     the last item should lose it — hence the same specificity, later in source. */
+  .personal-info-card .info-item:nth-child(n + 3),
+  .personal-info-card .info-item:nth-last-child(-n + 2) {
+    border-bottom: 1px solid rgba(255, 255, 255, .46);
+  }
+
+  /* Not :last-child — .personal-introduction follows the items and is the card's
+     actual last child, so the final contact is :nth-last-child(2). */
+  .personal-info-card .info-item:nth-last-child(2) {
+    border-bottom: 0;
   }
 
   .article-grid {

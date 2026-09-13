@@ -1,6 +1,8 @@
 {
   "private": true,
   "scripts": {
+    "sync:content": "node scripts/sync-content.mjs",
+    "sync:learning": "node scripts/sync-learning.mjs",
     "dev": "node scripts/dev-server.mjs"
   }
 }

@@ -9,89 +9,434 @@
       "folder": "大一上",
       "course": [
         {
-          "name": "测试",
+          "name": "马克思主义基本原理",
+          "folder": "马克思主义基本原理",
           "teacher": "xxx",
-          "files": [
+          "children": [
             {
-              "name": "公式测试",
-              "path": "公式测试.md",
+              "kind": "file",
+              "name": "马原模拟题答案",
+              "path": "马原模拟题答案.md",
               "type": "md",
-              "version": "1789204569772.1616-537"
+              "version": "1767622520007.0984-9144"
             },
             {
-              "name": "思政重点",
-              "path": "思政重点.pdf",
-              "type": "pdf",
-              "version": "1782825137331.1565-824965"
+              "kind": "file",
+              "name": "马原知识点模拟1",
+              "path": "马原知识点模拟1.md",
+              "type": "md",
+              "version": "1767536611314.878-10123"
+            },
+            {
+              "kind": "file",
+              "name": "马原知识点模拟2",
+              "path": "马原知识点模拟2.md",
+              "type": "md",
+              "version": "1767622172343.725-8769"
+            }
+          ],
+          "files": [
+            {
+              "name": "马原模拟题答案",
+              "path": "马原模拟题答案.md",
+              "type": "md",
+              "version": "1767622520007.0984-9144"
+            },
+            {
+              "name": "马原知识点模拟1",
+              "path": "马原知识点模拟1.md",
+              "type": "md",
+              "version": "1767536611314.878-10123"
+            },
+            {
+              "name": "马原知识点模拟2",
+              "path": "马原知识点模拟2.md",
+              "type": "md",
+              "version": "1767622172343.725-8769"
             }
           ]
         },
         {
-          "name": "公式测试学科",
+          "name": "微观经济学",
+          "folder": "微观经济学",
           "teacher": "xxx",
-          "files": [
+          "children": [
             {
-              "name": "公式测试学科",
-              "path": "公式测试学科.md",
+              "kind": "file",
+              "name": "微观经济学-简答题",
+              "path": "微观经济学-简答题.md",
               "type": "md",
-              "version": "1789205189819.4734-543"
+              "version": "1767969262221.0996-8393"
+            },
+            {
+              "kind": "file",
+              "name": "微观经济学-名词解释",
+              "path": "微观经济学-名词解释.md",
+              "type": "md",
+              "version": "1789267865083.636-9024"
             }
-          ]
-        },
-        {
-          "name": "课程3",
-          "teacher": "xxx",
-          "files": []
-        },
-        {
-          "name": "课程4",
-          "teacher": "xxx",
-          "files": []
-        },
-        {
-          "name": "课程5",
-          "teacher": "xxx",
-          "files": []
-        },
-        {
-          "name": "马克思主义原理",
-          "teacher": "xxx",
+          ],
           "files": [
             {
-              "name": "马原复习",
-              "path": "马原复习.md",
+              "name": "微观经济学-简答题",
+              "path": "微观经济学-简答题.md",
               "type": "md",
-              "version": "1789201709142.6665-10265"
+              "version": "1767969262221.0996-8393"
+            },
+            {
+              "name": "微观经济学-名词解释",
+              "path": "微观经济学-名词解释.md",
+              "type": "md",
+              "version": "1789267865083.636-9024"
             }
           ]
         },
         {
           "name": "政治经济学",
+          "folder": "政治经济学",
           "teacher": "xxx",
-          "files": [
+          "children": [
             {
-              "name": "政治经济学期末模拟试卷（A卷）",
-              "path": "政治经济学期末模拟试卷（A卷）.md",
+              "kind": "file",
+              "name": "政治经济学期末模拟试卷（A）",
+              "path": "政治经济学期末模拟试卷（A）.md",
               "type": "md",
               "version": "1767364763471.5608-6171"
             },
             {
-              "name": "政治经济学期末模拟试卷（B卷）",
-              "path": "政治经济学期末模拟试卷（B卷）.md",
+              "kind": "file",
+              "name": "政治经济学期末模拟试卷（B）",
+              "path": "政治经济学期末模拟试卷（B）.md",
               "type": "md",
               "version": "1767347882694.1157-6300"
             },
             {
-              "name": "政治经济学期末模拟试卷（C卷）",
-              "path": "政治经济学期末模拟试卷（C卷）.md",
+              "kind": "file",
+              "name": "政治经济学期末模拟试卷（C）",
+              "path": "政治经济学期末模拟试卷（C）.md",
               "type": "md",
               "version": "1767347911629.2078-10585"
             },
             {
-              "name": "政治经济学期末模拟试卷（D卷）",
-              "path": "政治经济学期末模拟试卷（D卷）.md",
+              "kind": "file",
+              "name": "政治经济学期末模拟试卷（D）",
+              "path": "政治经济学期末模拟试卷（D）.md",
               "type": "md",
               "version": "1767347916931.447-8197"
+            }
+          ],
+          "files": [
+            {
+              "name": "政治经济学期末模拟试卷（A）",
+              "path": "政治经济学期末模拟试卷（A）.md",
+              "type": "md",
+              "version": "1767364763471.5608-6171"
+            },
+            {
+              "name": "政治经济学期末模拟试卷（B）",
+              "path": "政治经济学期末模拟试卷（B）.md",
+              "type": "md",
+              "version": "1767347882694.1157-6300"
+            },
+            {
+              "name": "政治经济学期末模拟试卷（C）",
+              "path": "政治经济学期末模拟试卷（C）.md",
+              "type": "md",
+              "version": "1767347911629.2078-10585"
+            },
+            {
+              "name": "政治经济学期末模拟试卷（D）",
+              "path": "政治经济学期末模拟试卷（D）.md",
+              "type": "md",
+              "version": "1767347916931.447-8197"
+            }
+          ]
+        },
+        {
+          "name": "C Programming",
+          "folder": "C Programming",
+          "teacher": "xxx",
+          "children": [
+            {
+              "kind": "folder",
+              "name": "课程",
+              "folder": "课程",
+              "path": "课程",
+              "children": [
+                {
+                  "kind": "file",
+                  "name": "6 Data Types",
+                  "path": "课程/6 Data Types.md",
+                  "type": "md",
+                  "version": "1762318873476.3064-3859"
+                },
+                {
+                  "kind": "file",
+                  "name": "7 Pointers Arrays",
+                  "path": "课程/7 Pointers Arrays.md",
+                  "type": "md",
+                  "version": "1763518577428.454-13014"
+                },
+                {
+                  "kind": "file",
+                  "name": "8 Pointers 第二节课",
+                  "path": "课程/8 Pointers 第二节课.md",
+                  "type": "md",
+                  "version": "1765201898113.633-4464"
+                },
+                {
+                  "kind": "file",
+                  "name": "9 字符串",
+                  "path": "课程/9 字符串.md",
+                  "type": "md",
+                  "version": "1764591179113.0022-368"
+                },
+                {
+                  "kind": "file",
+                  "name": "10 Struct Union Enum",
+                  "path": "课程/10 Struct Union Enum.md",
+                  "type": "md",
+                  "version": "1764732925987.5967-1106"
+                },
+                {
+                  "kind": "file",
+                  "name": "11 链表和递归",
+                  "path": "课程/11 链表和递归.md",
+                  "type": "md",
+                  "version": "1765873628319.541-4779"
+                }
+              ]
+            },
+            {
+              "kind": "folder",
+              "name": "课外补充",
+              "folder": "课外补充",
+              "path": "课外补充",
+              "children": [
+                {
+                  "kind": "file",
+                  "name": "dummy head在链表的应用",
+                  "path": "课外补充/dummy head在链表的应用.md",
+                  "type": "md",
+                  "version": "1767170998292.587-6015"
+                }
+              ]
+            },
+            {
+              "kind": "folder",
+              "name": "算法",
+              "folder": "算法",
+              "path": "算法",
+              "children": [
+                {
+                  "kind": "file",
+                  "name": "二分查找的『红绿算法』",
+                  "path": "算法/二分查找的『红绿算法』.md",
+                  "type": "md",
+                  "version": "1776249708629.9817-10825"
+                },
+                {
+                  "kind": "file",
+                  "name": "二位前缀和",
+                  "path": "算法/二位前缀和.md",
+                  "type": "md",
+                  "version": "1767599747942.435-2340"
+                },
+                {
+                  "kind": "file",
+                  "name": "最大的山脉数组",
+                  "path": "算法/最大的山脉数组.md",
+                  "type": "md",
+                  "version": "1778575118104.4805-1996"
+                },
+                {
+                  "kind": "file",
+                  "name": "Floyd 判圈算法",
+                  "path": "算法/Floyd 判圈算法.md",
+                  "type": "md",
+                  "version": "1767602295230.0337-2751"
+                },
+                {
+                  "kind": "file",
+                  "name": "Kadane 算法",
+                  "path": "算法/Kadane 算法.md",
+                  "type": "md",
+                  "version": "1767171036670.1782-2755"
+                }
+              ]
+            },
+            {
+              "kind": "folder",
+              "name": "作业",
+              "folder": "作业",
+              "path": "作业",
+              "children": [
+                {
+                  "kind": "file",
+                  "name": "模拟测札记：2024期末",
+                  "path": "作业/模拟测札记：2024期末.md",
+                  "type": "md",
+                  "version": "1766675547067.2307-5784"
+                },
+                {
+                  "kind": "file",
+                  "name": "模拟测札记：第二次模拟考",
+                  "path": "作业/模拟测札记：第二次模拟考.md",
+                  "type": "md",
+                  "version": "1767601399341.0298-2089"
+                },
+                {
+                  "kind": "file",
+                  "name": "作业札记：第7次作业",
+                  "path": "作业/作业札记：第7次作业.md",
+                  "type": "md",
+                  "version": "1765280474979.307-7202"
+                },
+                {
+                  "kind": "file",
+                  "name": "作业札记：第8次作业",
+                  "path": "作业/作业札记：第8次作业.md",
+                  "type": "md",
+                  "version": "1765283633608.264-6787"
+                },
+                {
+                  "kind": "file",
+                  "name": "作业札记：第9次作业",
+                  "path": "作业/作业札记：第9次作业.md",
+                  "type": "md",
+                  "version": "1767276015926.1306-7853"
+                },
+                {
+                  "kind": "file",
+                  "name": "作业札记：第10次作业",
+                  "path": "作业/作业札记：第10次作业.md",
+                  "type": "md",
+                  "version": "1766153521586.598-3035"
+                },
+                {
+                  "kind": "file",
+                  "name": "作业札记：琐记",
+                  "path": "作业/作业札记：琐记.md",
+                  "type": "md",
+                  "version": "1767538054501.6118-775"
+                }
+              ]
+            }
+          ],
+          "files": [
+            {
+              "name": "6 Data Types",
+              "path": "课程/6 Data Types.md",
+              "type": "md",
+              "version": "1762318873476.3064-3859"
+            },
+            {
+              "name": "7 Pointers Arrays",
+              "path": "课程/7 Pointers Arrays.md",
+              "type": "md",
+              "version": "1763518577428.454-13014"
+            },
+            {
+              "name": "8 Pointers 第二节课",
+              "path": "课程/8 Pointers 第二节课.md",
+              "type": "md",
+              "version": "1765201898113.633-4464"
+            },
+            {
+              "name": "9 字符串",
+              "path": "课程/9 字符串.md",
+              "type": "md",
+              "version": "1764591179113.0022-368"
+            },
+            {
+              "name": "10 Struct Union Enum",
+              "path": "课程/10 Struct Union Enum.md",
+              "type": "md",
+              "version": "1764732925987.5967-1106"
+            },
+            {
+              "name": "11 链表和递归",
+              "path": "课程/11 链表和递归.md",
+              "type": "md",
+              "version": "1765873628319.541-4779"
+            },
+            {
+              "name": "dummy head在链表的应用",
+              "path": "课外补充/dummy head在链表的应用.md",
+              "type": "md",
+              "version": "1767170998292.587-6015"
+            },
+            {
+              "name": "二分查找的『红绿算法』",
+              "path": "算法/二分查找的『红绿算法』.md",
+              "type": "md",
+              "version": "1776249708629.9817-10825"
+            },
+            {
+              "name": "二位前缀和",
+              "path": "算法/二位前缀和.md",
+              "type": "md",
+              "version": "1767599747942.435-2340"
+            },
+            {
+              "name": "最大的山脉数组",
+              "path": "算法/最大的山脉数组.md",
+              "type": "md",
+              "version": "1778575118104.4805-1996"
+            },
+            {
+              "name": "Floyd 判圈算法",
+              "path": "算法/Floyd 判圈算法.md",
+              "type": "md",
+              "version": "1767602295230.0337-2751"
+            },
+            {
+              "name": "Kadane 算法",
+              "path": "算法/Kadane 算法.md",
+              "type": "md",
+              "version": "1767171036670.1782-2755"
+            },
+            {
+              "name": "模拟测札记：2024期末",
+              "path": "作业/模拟测札记：2024期末.md",
+              "type": "md",
+              "version": "1766675547067.2307-5784"
+            },
+            {
+              "name": "模拟测札记：第二次模拟考",
+              "path": "作业/模拟测札记：第二次模拟考.md",
+              "type": "md",
+              "version": "1767601399341.0298-2089"
+            },
+            {
+              "name": "作业札记：第7次作业",
+              "path": "作业/作业札记：第7次作业.md",
+              "type": "md",
+              "version": "1765280474979.307-7202"
+            },
+            {
+              "name": "作业札记：第8次作业",
+              "path": "作业/作业札记：第8次作业.md",
+              "type": "md",
+              "version": "1765283633608.264-6787"
+            },
+            {
+              "name": "作业札记：第9次作业",
+              "path": "作业/作业札记：第9次作业.md",
+              "type": "md",
+              "version": "1767276015926.1306-7853"
+            },
+            {
+              "name": "作业札记：第10次作业",
+              "path": "作业/作业札记：第10次作业.md",
+              "type": "md",
+              "version": "1766153521586.598-3035"
+            },
+            {
+              "name": "作业札记：琐记",
+              "path": "作业/作业札记：琐记.md",
+              "type": "md",
+              "version": "1767538054501.6118-775"
             }
           ]
         }
@@ -105,29 +450,1089 @@
       "folder": "大一下",
       "course": [
         {
-          "name": "课程1",
+          "name": "宏观经济学",
+          "folder": "宏观经济学",
           "teacher": "xxx",
-          "files": []
+          "children": [
+            {
+              "kind": "folder",
+              "name": "课件",
+              "folder": "课件",
+              "path": "课件",
+              "children": [
+                {
+                  "kind": "file",
+                  "name": "lecture1A_Data_GDP",
+                  "path": "课件/lecture1A_Data_GDP.pdf",
+                  "type": "pdf",
+                  "version": "1777986389032.508-3435856"
+                },
+                {
+                  "kind": "file",
+                  "name": "lecture1B_Data_Other",
+                  "path": "课件/lecture1B_Data_Other.pdf",
+                  "type": "pdf",
+                  "version": "1777986389565.619-3505810"
+                },
+                {
+                  "kind": "file",
+                  "name": "lecture1C_Discount",
+                  "path": "课件/lecture1C_Discount.pdf",
+                  "type": "pdf",
+                  "version": "1777986390356.0098-1133243"
+                },
+                {
+                  "kind": "file",
+                  "name": "lecture2A_Classical_Real",
+                  "path": "课件/lecture2A_Classical_Real.pdf",
+                  "type": "pdf",
+                  "version": "1777986391265.7102-2917640"
+                },
+                {
+                  "kind": "file",
+                  "name": "lecture2B_Classical_Monetary",
+                  "path": "课件/lecture2B_Classical_Monetary.pdf",
+                  "type": "pdf",
+                  "version": "1777986392263.0918-3047240"
+                },
+                {
+                  "kind": "file",
+                  "name": "lecture2C_Classical_open",
+                  "path": "课件/lecture2C_Classical_open.pdf",
+                  "type": "pdf",
+                  "version": "1777986393286.4807-2266813"
+                }
+              ]
+            },
+            {
+              "kind": "file",
+              "name": "Lecture 1-宏观经济数据的衡量",
+              "path": "Lecture 1-宏观经济数据的衡量.md",
+              "type": "md",
+              "version": "1778201889851.7666-18712"
+            },
+            {
+              "kind": "file",
+              "name": "Lecture 2A-封闭经济的实体模型",
+              "path": "Lecture 2A-封闭经济的实体模型.md",
+              "type": "md",
+              "version": "1778203471967.6348-10168"
+            },
+            {
+              "kind": "file",
+              "name": "Lecture 2B-古典封闭经济的货币模型",
+              "path": "Lecture 2B-古典封闭经济的货币模型.md",
+              "type": "md",
+              "version": "1778207125780.146-8788"
+            },
+            {
+              "kind": "file",
+              "name": "Lecture 2C-古典开放经济模型",
+              "path": "Lecture 2C-古典开放经济模型.md",
+              "type": "md",
+              "version": "1778207802097.9434-7796"
+            }
+          ],
+          "files": [
+            {
+              "name": "lecture1A_Data_GDP",
+              "path": "课件/lecture1A_Data_GDP.pdf",
+              "type": "pdf",
+              "version": "1777986389032.508-3435856"
+            },
+            {
+              "name": "lecture1B_Data_Other",
+              "path": "课件/lecture1B_Data_Other.pdf",
+              "type": "pdf",
+              "version": "1777986389565.619-3505810"
+            },
+            {
+              "name": "lecture1C_Discount",
+              "path": "课件/lecture1C_Discount.pdf",
+              "type": "pdf",
+              "version": "1777986390356.0098-1133243"
+            },
+            {
+              "name": "lecture2A_Classical_Real",
+              "path": "课件/lecture2A_Classical_Real.pdf",
+              "type": "pdf",
+              "version": "1777986391265.7102-2917640"
+            },
+            {
+              "name": "lecture2B_Classical_Monetary",
+              "path": "课件/lecture2B_Classical_Monetary.pdf",
+              "type": "pdf",
+              "version": "1777986392263.0918-3047240"
+            },
+            {
+              "name": "lecture2C_Classical_open",
+              "path": "课件/lecture2C_Classical_open.pdf",
+              "type": "pdf",
+              "version": "1777986393286.4807-2266813"
+            },
+            {
+              "name": "Lecture 1-宏观经济数据的衡量",
+              "path": "Lecture 1-宏观经济数据的衡量.md",
+              "type": "md",
+              "version": "1778201889851.7666-18712"
+            },
+            {
+              "name": "Lecture 2A-封闭经济的实体模型",
+              "path": "Lecture 2A-封闭经济的实体模型.md",
+              "type": "md",
+              "version": "1778203471967.6348-10168"
+            },
+            {
+              "name": "Lecture 2B-古典封闭经济的货币模型",
+              "path": "Lecture 2B-古典封闭经济的货币模型.md",
+              "type": "md",
+              "version": "1778207125780.146-8788"
+            },
+            {
+              "name": "Lecture 2C-古典开放经济模型",
+              "path": "Lecture 2C-古典开放经济模型.md",
+              "type": "md",
+              "version": "1778207802097.9434-7796"
+            }
+          ]
         },
         {
-          "name": "课程2",
+          "name": "软工I",
+          "folder": "软工I",
           "teacher": "xxx",
-          "files": []
+          "children": [
+            {
+              "kind": "folder",
+              "name": "笔记",
+              "folder": "笔记",
+              "path": "笔记",
+              "children": [
+                {
+                  "kind": "file",
+                  "name": "0 前言",
+                  "path": "笔记/0 前言.md",
+                  "type": "md",
+                  "version": "1774257593790.4597-0"
+                },
+                {
+                  "kind": "file",
+                  "name": "1 Ciallo Java!",
+                  "path": "笔记/1 Ciallo Java!.md",
+                  "type": "md",
+                  "version": "1773665834028.681-3329"
+                },
+                {
+                  "kind": "file",
+                  "name": "2 认识对象",
+                  "path": "笔记/2 认识对象.md",
+                  "type": "md",
+                  "version": "1774247219107.8188-605"
+                },
+                {
+                  "kind": "file",
+                  "name": "3.1 变量（Variables）",
+                  "path": "笔记/3.1 变量（Variables）.md",
+                  "type": "md",
+                  "version": "1774339717549.495-6844"
+                },
+                {
+                  "kind": "file",
+                  "name": "3.2 数组也是对象",
+                  "path": "笔记/3.2 数组也是对象.md",
+                  "type": "md",
+                  "version": "1774250626117.9314-1537"
+                },
+                {
+                  "kind": "file",
+                  "name": "4 对象的行为",
+                  "path": "笔记/4 对象的行为.md",
+                  "type": "md",
+                  "version": "1774339392433.1956-4838"
+                },
+                {
+                  "kind": "file",
+                  "name": "5 编写程序（1）",
+                  "path": "笔记/5 编写程序（1）.md",
+                  "type": "md",
+                  "version": "1774257954970.4878-458"
+                },
+                {
+                  "kind": "file",
+                  "name": "6 API",
+                  "path": "笔记/6 API.md",
+                  "type": "md",
+                  "version": "1774869225234.6772-2173"
+                },
+                {
+                  "kind": "file",
+                  "name": "7 继承和多态",
+                  "path": "笔记/7 继承和多态.md",
+                  "type": "md",
+                  "version": "1774958346423.8591-6696"
+                },
+                {
+                  "kind": "file",
+                  "name": "8 接口和抽象类",
+                  "path": "笔记/8 接口和抽象类.md",
+                  "type": "md",
+                  "version": "1774964853735.5938-1414"
+                },
+                {
+                  "kind": "file",
+                  "name": "札记",
+                  "path": "笔记/札记.md",
+                  "type": "md",
+                  "version": "1774868742402.3186-3209"
+                },
+                {
+                  "kind": "file",
+                  "name": "FYP1：关于String的特殊用法",
+                  "path": "笔记/FYP1：关于String的特殊用法.md",
+                  "type": "md",
+                  "version": "1773738850209.2415-4912"
+                }
+              ]
+            },
+            {
+              "kind": "folder",
+              "name": "课件",
+              "folder": "课件",
+              "path": "课件",
+              "children": [
+                {
+                  "kind": "file",
+                  "name": "00 - Overview",
+                  "path": "课件/00 - Overview.pdf",
+                  "type": "pdf",
+                  "version": "1777259460406.0432-912570"
+                },
+                {
+                  "kind": "file",
+                  "name": "01 - 编程基础 I-编程语言概述-slides",
+                  "path": "课件/01 - 编程基础 I-编程语言概述-slides.pdf",
+                  "type": "pdf",
+                  "version": "1777259486179.2183-3749030"
+                },
+                {
+                  "kind": "file",
+                  "name": "01-lab - 第一次编程实践课",
+                  "path": "课件/01-lab - 第一次编程实践课.pdf",
+                  "type": "pdf",
+                  "version": "1777259465222.317-2451958"
+                },
+                {
+                  "kind": "file",
+                  "name": "02 - 编程基础 II-可计算性-slides",
+                  "path": "课件/02 - 编程基础 II-可计算性-slides.pdf",
+                  "type": "pdf",
+                  "version": "1777259492190.9253-3195455"
+                },
+                {
+                  "kind": "file",
+                  "name": "02-lab - 第二次编程实践课-slides",
+                  "path": "课件/02-lab - 第二次编程实践课-slides.pdf",
+                  "type": "pdf",
+                  "version": "1777259470099.2397-3379645"
+                },
+                {
+                  "kind": "file",
+                  "name": "03 - 编程基础 III-Lambda演算-slides",
+                  "path": "课件/03 - 编程基础 III-Lambda演算-slides.pdf",
+                  "type": "pdf",
+                  "version": "1777259497880.2195-2456551"
+                },
+                {
+                  "kind": "file",
+                  "name": "03-lab - 第三次编程实践课-slides",
+                  "path": "课件/03-lab - 第三次编程实践课-slides.pdf",
+                  "type": "pdf",
+                  "version": "1777259503477.21-3043723"
+                },
+                {
+                  "kind": "file",
+                  "name": "04 - 编程基础 IV-程序的结构-slides",
+                  "path": "课件/04 - 编程基础 IV-程序的结构-slides.pdf",
+                  "type": "pdf",
+                  "version": "1777259521414.2705-2283264"
+                },
+                {
+                  "kind": "file",
+                  "name": "04-lab - 第四次编程实践课-slides",
+                  "path": "课件/04-lab - 第四次编程实践课-slides.pdf",
+                  "type": "pdf",
+                  "version": "1777259529845.445-3649293"
+                },
+                {
+                  "kind": "file",
+                  "name": "05 - 编程基础 V-函数式编程范式-slides",
+                  "path": "课件/05 - 编程基础 V-函数式编程范式-slides.pdf",
+                  "type": "pdf",
+                  "version": "1777259534237.0747-3927813"
+                },
+                {
+                  "kind": "file",
+                  "name": "05-lab - 第五次编程实践课-slides",
+                  "path": "课件/05-lab - 第五次编程实践课-slides.pdf",
+                  "type": "pdf",
+                  "version": "1777259538585.1829-3105804"
+                },
+                {
+                  "kind": "file",
+                  "name": "06 - 结构化编程思想",
+                  "path": "课件/06 - 结构化编程思想.pdf",
+                  "type": "pdf",
+                  "version": "1777259556972.8445-1610481"
+                },
+                {
+                  "kind": "file",
+                  "name": "06-lab - 第六次编程实践课-slides",
+                  "path": "课件/06-lab - 第六次编程实践课-slides.pdf",
+                  "type": "pdf",
+                  "version": "1777259544025.2805-2521832"
+                },
+                {
+                  "kind": "file",
+                  "name": "07 - 变量与数据类型",
+                  "path": "课件/07 - 变量与数据类型.pdf",
+                  "type": "pdf",
+                  "version": "1777259562580.3496-2083007"
+                },
+                {
+                  "kind": "file",
+                  "name": "07-lab - 第七次编程实践课-slides",
+                  "path": "课件/07-lab - 第七次编程实践课-slides.pdf",
+                  "type": "pdf",
+                  "version": "1777259550979.894-3504087"
+                },
+                {
+                  "kind": "file",
+                  "name": "08 - 控制流与方法",
+                  "path": "课件/08 - 控制流与方法.pdf",
+                  "type": "pdf",
+                  "version": "1777259573753.1812-2492536"
+                },
+                {
+                  "kind": "file",
+                  "name": "08-lab - 第八次编程实践课-slides",
+                  "path": "课件/08-lab - 第八次编程实践课-slides.pdf",
+                  "type": "pdf",
+                  "version": "1777259629465.4753-1700177"
+                },
+                {
+                  "kind": "file",
+                  "name": "09 - 从编程到软件工程建模",
+                  "path": "课件/09 - 从编程到软件工程建模.pdf",
+                  "type": "pdf",
+                  "version": "1777259578440.896-2309455"
+                },
+                {
+                  "kind": "file",
+                  "name": "10 - 面向对象编程 I-思想",
+                  "path": "课件/10 - 面向对象编程 I-思想.pdf",
+                  "type": "pdf",
+                  "version": "1777259621975.7634-3033127"
+                },
+                {
+                  "kind": "file",
+                  "name": "11 - JVM和字节码基础",
+                  "path": "课件/11 - JVM和字节码基础.pdf",
+                  "type": "pdf",
+                  "version": "1778464081000-11549496"
+                },
+                {
+                  "kind": "file",
+                  "name": "12 - 面向对象编程 II-封装",
+                  "path": "课件/12 - 面向对象编程 II-封装.pdf",
+                  "type": "pdf",
+                  "version": "1778289657000-4077950"
+                },
+                {
+                  "kind": "file",
+                  "name": "13- 面向对象编程 III-协作",
+                  "path": "课件/13- 面向对象编程 III-协作.pdf",
+                  "type": "pdf",
+                  "version": "1782358564000-1143525"
+                },
+                {
+                  "kind": "file",
+                  "name": "14 - 面向对象编程 IV-继承与多态",
+                  "path": "课件/14 - 面向对象编程 IV-继承与多态.pdf",
+                  "type": "pdf",
+                  "version": "1779787283000-1800832"
+                },
+                {
+                  "kind": "file",
+                  "name": "15 - 面向对象编程 V-可修改性",
+                  "path": "课件/15 - 面向对象编程 V-可修改性.pdf",
+                  "type": "pdf",
+                  "version": "1780304327000-1437411"
+                },
+                {
+                  "kind": "file",
+                  "name": "16 - 面向对象编程 VI-接口",
+                  "path": "课件/16 - 面向对象编程 VI-接口.pdf",
+                  "type": "pdf",
+                  "version": "1780910611000-1369726"
+                },
+                {
+                  "kind": "file",
+                  "name": "17 - 异常",
+                  "path": "课件/17 - 异常.pdf",
+                  "type": "pdf",
+                  "version": "1780910623000-523651"
+                },
+                {
+                  "kind": "file",
+                  "name": "18 - Network and Thread",
+                  "path": "课件/18 - Network and Thread.pdf",
+                  "type": "pdf",
+                  "version": "1780988458000-560479"
+                },
+                {
+                  "kind": "file",
+                  "name": "复习总结",
+                  "path": "课件/复习总结.pdf",
+                  "type": "pdf",
+                  "version": "1782358587000-436994"
+                }
+              ]
+            },
+            {
+              "kind": "folder",
+              "name": "期末复习",
+              "folder": "期末复习",
+              "path": "期末复习",
+              "children": [
+                {
+                  "kind": "file",
+                  "name": "2019",
+                  "path": "期末复习/2019.md",
+                  "type": "md",
+                  "version": "1782360612000-5354"
+                },
+                {
+                  "kind": "file",
+                  "name": "2020",
+                  "path": "期末复习/2020.pdf",
+                  "type": "pdf",
+                  "version": "1782360612000-816778"
+                },
+                {
+                  "kind": "file",
+                  "name": "2021",
+                  "path": "期末复习/2021.md",
+                  "type": "md",
+                  "version": "1782485953628.3396-696"
+                },
+                {
+                  "kind": "file",
+                  "name": "2022",
+                  "path": "期末复习/2022.pdf",
+                  "type": "pdf",
+                  "version": "1782360612000-441972"
+                },
+                {
+                  "kind": "file",
+                  "name": "2024",
+                  "path": "期末复习/2024.md",
+                  "type": "md",
+                  "version": "1782486225171.4016-4036"
+                },
+                {
+                  "kind": "file",
+                  "name": "2025",
+                  "path": "期末复习/2025.md",
+                  "type": "md",
+                  "version": "1782389910935.593-2612"
+                },
+                {
+                  "kind": "file",
+                  "name": "复习总结",
+                  "path": "期末复习/复习总结.pdf",
+                  "type": "pdf",
+                  "version": "1782390077101.1758-445754"
+                },
+                {
+                  "kind": "file",
+                  "name": "往年卷",
+                  "path": "期末复习/往年卷.md",
+                  "type": "md",
+                  "version": "1782474480552.9119-7241"
+                },
+                {
+                  "kind": "file",
+                  "name": "知识点总结",
+                  "path": "期末复习/知识点总结.md",
+                  "type": "md",
+                  "version": "1782489478488.5361-42486"
+                },
+                {
+                  "kind": "file",
+                  "name": "cheat-sheet",
+                  "path": "期末复习/cheat-sheet.pdf",
+                  "type": "pdf",
+                  "version": "1782487149400.785-577750"
+                }
+              ]
+            },
+            {
+              "kind": "folder",
+              "name": "作业",
+              "folder": "作业",
+              "path": "作业",
+              "children": [
+                {
+                  "kind": "file",
+                  "name": "第1周",
+                  "path": "作业/第1周.md",
+                  "type": "md",
+                  "version": "1773667824214.5474-11763"
+                },
+                {
+                  "kind": "file",
+                  "name": "第2周大作业",
+                  "path": "作业/第2周大作业.md",
+                  "type": "md",
+                  "version": "1774686080307.5852-20838"
+                },
+                {
+                  "kind": "file",
+                  "name": "第3周",
+                  "path": "作业/第3周.md",
+                  "type": "md",
+                  "version": "1773738943002.1694-252"
+                },
+                {
+                  "kind": "file",
+                  "name": "第6周：HashMap等",
+                  "path": "作业/第6周：HashMap等.md",
+                  "type": "md",
+                  "version": "1777259820796.7632-6138"
+                },
+                {
+                  "kind": "file",
+                  "name": "第7周：文件的读取与写入",
+                  "path": "作业/第7周：文件的读取与写入.md",
+                  "type": "md",
+                  "version": "1777361580620.8662-5508"
+                },
+                {
+                  "kind": "file",
+                  "name": "第一次机考备选知识点",
+                  "path": "作业/第一次机考备选知识点.md",
+                  "type": "md",
+                  "version": "1777361627605.667-27632"
+                },
+                {
+                  "kind": "file",
+                  "name": "模拟测试1",
+                  "path": "作业/模拟测试1.md",
+                  "type": "md",
+                  "version": "1776180221596.79-22224"
+                },
+                {
+                  "kind": "file",
+                  "name": "模拟测试2",
+                  "path": "作业/模拟测试2.md",
+                  "type": "md",
+                  "version": "1777277910729.9731-367"
+                },
+                {
+                  "kind": "file",
+                  "name": "model test 1",
+                  "path": "作业/model test 1.md",
+                  "type": "md",
+                  "version": "1776178354036.4397-12024"
+                }
+              ]
+            }
+          ],
+          "files": [
+            {
+              "name": "0 前言",
+              "path": "笔记/0 前言.md",
+              "type": "md",
+              "version": "1774257593790.4597-0"
+            },
+            {
+              "name": "1 Ciallo Java!",
+              "path": "笔记/1 Ciallo Java!.md",
+              "type": "md",
+              "version": "1773665834028.681-3329"
+            },
+            {
+              "name": "2 认识对象",
+              "path": "笔记/2 认识对象.md",
+              "type": "md",
+              "version": "1774247219107.8188-605"
+            },
+            {
+              "name": "3.1 变量（Variables）",
+              "path": "笔记/3.1 变量（Variables）.md",
+              "type": "md",
+              "version": "1774339717549.495-6844"
+            },
+            {
+              "name": "3.2 数组也是对象",
+              "path": "笔记/3.2 数组也是对象.md",
+              "type": "md",
+              "version": "1774250626117.9314-1537"
+            },
+            {
+              "name": "4 对象的行为",
+              "path": "笔记/4 对象的行为.md",
+              "type": "md",
+              "version": "1774339392433.1956-4838"
+            },
+            {
+              "name": "5 编写程序（1）",
+              "path": "笔记/5 编写程序（1）.md",
+              "type": "md",
+              "version": "1774257954970.4878-458"
+            },
+            {
+              "name": "6 API",
+              "path": "笔记/6 API.md",
+              "type": "md",
+              "version": "1774869225234.6772-2173"
+            },
+            {
+              "name": "7 继承和多态",
+              "path": "笔记/7 继承和多态.md",
+              "type": "md",
+              "version": "1774958346423.8591-6696"
+            },
+            {
+              "name": "8 接口和抽象类",
+              "path": "笔记/8 接口和抽象类.md",
+              "type": "md",
+              "version": "1774964853735.5938-1414"
+            },
+            {
+              "name": "札记",
+              "path": "笔记/札记.md",
+              "type": "md",
+              "version": "1774868742402.3186-3209"
+            },
+            {
+              "name": "FYP1：关于String的特殊用法",
+              "path": "笔记/FYP1：关于String的特殊用法.md",
+              "type": "md",
+              "version": "1773738850209.2415-4912"
+            },
+            {
+              "name": "00 - Overview",
+              "path": "课件/00 - Overview.pdf",
+              "type": "pdf",
+              "version": "1777259460406.0432-912570"
+            },
+            {
+              "name": "01 - 编程基础 I-编程语言概述-slides",
+              "path": "课件/01 - 编程基础 I-编程语言概述-slides.pdf",
+              "type": "pdf",
+              "version": "1777259486179.2183-3749030"
+            },
+            {
+              "name": "01-lab - 第一次编程实践课",
+              "path": "课件/01-lab - 第一次编程实践课.pdf",
+              "type": "pdf",
+              "version": "1777259465222.317-2451958"
+            },
+            {
+              "name": "02 - 编程基础 II-可计算性-slides",
+              "path": "课件/02 - 编程基础 II-可计算性-slides.pdf",
+              "type": "pdf",
+              "version": "1777259492190.9253-3195455"
+            },
+            {
+              "name": "02-lab - 第二次编程实践课-slides",
+              "path": "课件/02-lab - 第二次编程实践课-slides.pdf",
+              "type": "pdf",
+              "version": "1777259470099.2397-3379645"
+            },
+            {
+              "name": "03 - 编程基础 III-Lambda演算-slides",
+              "path": "课件/03 - 编程基础 III-Lambda演算-slides.pdf",
+              "type": "pdf",
+              "version": "1777259497880.2195-2456551"
+            },
+            {
+              "name": "03-lab - 第三次编程实践课-slides",
+              "path": "课件/03-lab - 第三次编程实践课-slides.pdf",
+              "type": "pdf",
+              "version": "1777259503477.21-3043723"
+            },
+            {
+              "name": "04 - 编程基础 IV-程序的结构-slides",
+              "path": "课件/04 - 编程基础 IV-程序的结构-slides.pdf",
+              "type": "pdf",
+              "version": "1777259521414.2705-2283264"
+            },
+            {
+              "name": "04-lab - 第四次编程实践课-slides",
+              "path": "课件/04-lab - 第四次编程实践课-slides.pdf",
+              "type": "pdf",
+              "version": "1777259529845.445-3649293"
+            },
+            {
+              "name": "05 - 编程基础 V-函数式编程范式-slides",
+              "path": "课件/05 - 编程基础 V-函数式编程范式-slides.pdf",
+              "type": "pdf",
+              "version": "1777259534237.0747-3927813"
+            },
+            {
+              "name": "05-lab - 第五次编程实践课-slides",
+              "path": "课件/05-lab - 第五次编程实践课-slides.pdf",
+              "type": "pdf",
+              "version": "1777259538585.1829-3105804"
+            },
+            {
+              "name": "06 - 结构化编程思想",
+              "path": "课件/06 - 结构化编程思想.pdf",
+              "type": "pdf",
+              "version": "1777259556972.8445-1610481"
+            },
+            {
+              "name": "06-lab - 第六次编程实践课-slides",
+              "path": "课件/06-lab - 第六次编程实践课-slides.pdf",
+              "type": "pdf",
+              "version": "1777259544025.2805-2521832"
+            },
+            {
+              "name": "07 - 变量与数据类型",
+              "path": "课件/07 - 变量与数据类型.pdf",
+              "type": "pdf",
+              "version": "1777259562580.3496-2083007"
+            },
+            {
+              "name": "07-lab - 第七次编程实践课-slides",
+              "path": "课件/07-lab - 第七次编程实践课-slides.pdf",
+              "type": "pdf",
+              "version": "1777259550979.894-3504087"
+            },
+            {
+              "name": "08 - 控制流与方法",
+              "path": "课件/08 - 控制流与方法.pdf",
+              "type": "pdf",
+              "version": "1777259573753.1812-2492536"
+            },
+            {
+              "name": "08-lab - 第八次编程实践课-slides",
+              "path": "课件/08-lab - 第八次编程实践课-slides.pdf",
+              "type": "pdf",
+              "version": "1777259629465.4753-1700177"
+            },
+            {
+              "name": "09 - 从编程到软件工程建模",
+              "path": "课件/09 - 从编程到软件工程建模.pdf",
+              "type": "pdf",
+              "version": "1777259578440.896-2309455"
+            },
+            {
+              "name": "10 - 面向对象编程 I-思想",
+              "path": "课件/10 - 面向对象编程 I-思想.pdf",
+              "type": "pdf",
+              "version": "1777259621975.7634-3033127"
+            },
+            {
+              "name": "11 - JVM和字节码基础",
+              "path": "课件/11 - JVM和字节码基础.pdf",
+              "type": "pdf",
+              "version": "1778464081000-11549496"
+            },
+            {
+              "name": "12 - 面向对象编程 II-封装",
+              "path": "课件/12 - 面向对象编程 II-封装.pdf",
+              "type": "pdf",
+              "version": "1778289657000-4077950"
+            },
+            {
+              "name": "13- 面向对象编程 III-协作",
+              "path": "课件/13- 面向对象编程 III-协作.pdf",
+              "type": "pdf",
+              "version": "1782358564000-1143525"
+            },
+            {
+              "name": "14 - 面向对象编程 IV-继承与多态",
+              "path": "课件/14 - 面向对象编程 IV-继承与多态.pdf",
+              "type": "pdf",
+              "version": "1779787283000-1800832"
+            },
+            {
+              "name": "15 - 面向对象编程 V-可修改性",
+              "path": "课件/15 - 面向对象编程 V-可修改性.pdf",
+              "type": "pdf",
+              "version": "1780304327000-1437411"
+            },
+            {
+              "name": "16 - 面向对象编程 VI-接口",
+              "path": "课件/16 - 面向对象编程 VI-接口.pdf",
+              "type": "pdf",
+              "version": "1780910611000-1369726"
+            },
+            {
+              "name": "17 - 异常",
+              "path": "课件/17 - 异常.pdf",
+              "type": "pdf",
+              "version": "1780910623000-523651"
+            },
+            {
+              "name": "18 - Network and Thread",
+              "path": "课件/18 - Network and Thread.pdf",
+              "type": "pdf",
+              "version": "1780988458000-560479"
+            },
+            {
+              "name": "复习总结",
+              "path": "课件/复习总结.pdf",
+              "type": "pdf",
+              "version": "1782358587000-436994"
+            },
+            {
+              "name": "2019",
+              "path": "期末复习/2019.md",
+              "type": "md",
+              "version": "1782360612000-5354"
+            },
+            {
+              "name": "2020",
+              "path": "期末复习/2020.pdf",
+              "type": "pdf",
+              "version": "1782360612000-816778"
+            },
+            {
+              "name": "2021",
+              "path": "期末复习/2021.md",
+              "type": "md",
+              "version": "1782485953628.3396-696"
+            },
+            {
+              "name": "2022",
+              "path": "期末复习/2022.pdf",
+              "type": "pdf",
+              "version": "1782360612000-441972"
+            },
+            {
+              "name": "2024",
+              "path": "期末复习/2024.md",
+              "type": "md",
+              "version": "1782486225171.4016-4036"
+            },
+            {
+              "name": "2025",
+              "path": "期末复习/2025.md",
+              "type": "md",
+              "version": "1782389910935.593-2612"
+            },
+            {
+              "name": "复习总结",
+              "path": "期末复习/复习总结.pdf",
+              "type": "pdf",
+              "version": "1782390077101.1758-445754"
+            },
+            {
+              "name": "往年卷",
+              "path": "期末复习/往年卷.md",
+              "type": "md",
+              "version": "1782474480552.9119-7241"
+            },
+            {
+              "name": "知识点总结",
+              "path": "期末复习/知识点总结.md",
+              "type": "md",
+              "version": "1782489478488.5361-42486"
+            },
+            {
+              "name": "cheat-sheet",
+              "path": "期末复习/cheat-sheet.pdf",
+              "type": "pdf",
+              "version": "1782487149400.785-577750"
+            },
+            {
+              "name": "第1周",
+              "path": "作业/第1周.md",
+              "type": "md",
+              "version": "1773667824214.5474-11763"
+            },
+            {
+              "name": "第2周大作业",
+              "path": "作业/第2周大作业.md",
+              "type": "md",
+              "version": "1774686080307.5852-20838"
+            },
+            {
+              "name": "第3周",
+              "path": "作业/第3周.md",
+              "type": "md",
+              "version": "1773738943002.1694-252"
+            },
+            {
+              "name": "第6周：HashMap等",
+              "path": "作业/第6周：HashMap等.md",
+              "type": "md",
+              "version": "1777259820796.7632-6138"
+            },
+            {
+              "name": "第7周：文件的读取与写入",
+              "path": "作业/第7周：文件的读取与写入.md",
+              "type": "md",
+              "version": "1777361580620.8662-5508"
+            },
+            {
+              "name": "第一次机考备选知识点",
+              "path": "作业/第一次机考备选知识点.md",
+              "type": "md",
+              "version": "1777361627605.667-27632"
+            },
+            {
+              "name": "模拟测试1",
+              "path": "作业/模拟测试1.md",
+              "type": "md",
+              "version": "1776180221596.79-22224"
+            },
+            {
+              "name": "模拟测试2",
+              "path": "作业/模拟测试2.md",
+              "type": "md",
+              "version": "1777277910729.9731-367"
+            },
+            {
+              "name": "model test 1",
+              "path": "作业/model test 1.md",
+              "type": "md",
+              "version": "1776178354036.4397-12024"
+            }
+          ]
         },
         {
-          "name": "课程3",
+          "name": "思想道德与法治",
+          "folder": "思想道德与法治",
           "teacher": "xxx",
-          "files": []
+          "children": [
+            {
+              "kind": "file",
+              "name": "思政重点",
+              "path": "思政重点.md",
+              "type": "md",
+              "version": "1782825128645.9534-13041"
+            },
+            {
+              "kind": "file",
+              "name": "思政重点",
+              "path": "思政重点.pdf",
+              "type": "pdf",
+              "version": "1782825137331.1565-824965"
+            }
+          ],
+          "files": [
+            {
+              "name": "思政重点",
+              "path": "思政重点.md",
+              "type": "md",
+              "version": "1782825128645.9534-13041"
+            },
+            {
+              "name": "思政重点",
+              "path": "思政重点.pdf",
+              "type": "pdf",
+              "version": "1782825137331.1565-824965"
+            }
+          ]
         },
         {
-          "name": "课程4",
+          "name": "需求",
+          "folder": "需求",
           "teacher": "xxx",
-          "files": []
-        },
-        {
-          "name": "课程5",
-          "teacher": "xxx",
-          "files": []
+          "children": [
+            {
+              "kind": "folder",
+              "name": "期末复习",
+              "folder": "期末复习",
+              "path": "期末复习",
+              "children": [
+                {
+                  "kind": "file",
+                  "name": "背诵",
+                  "path": "期末复习/背诵.pdf",
+                  "type": "pdf",
+                  "version": "1782564335245.428-5332755"
+                },
+                {
+                  "kind": "file",
+                  "name": "复习",
+                  "path": "期末复习/复习.pdf",
+                  "type": "pdf",
+                  "version": "1782621657705.7993-3254404"
+                },
+                {
+                  "kind": "file",
+                  "name": "面向考点复习",
+                  "path": "期末复习/面向考点复习.pdf",
+                  "type": "pdf",
+                  "version": "1782553879073.065-29210338"
+                },
+                {
+                  "kind": "file",
+                  "name": "面向往年题的需求总结",
+                  "path": "期末复习/面向往年题的需求总结.md",
+                  "type": "md",
+                  "version": "1782567836269.1345-10447"
+                },
+                {
+                  "kind": "file",
+                  "name": "往年卷考点",
+                  "path": "期末复习/往年卷考点.md",
+                  "type": "md",
+                  "version": "1782616551263.7283-15708"
+                },
+                {
+                  "kind": "file",
+                  "name": "需求期末2020-2024",
+                  "path": "期末复习/需求期末2020-2024.md",
+                  "type": "md",
+                  "version": "1782574750916.1462-10373"
+                }
+              ]
+            }
+          ],
+          "files": [
+            {
+              "name": "背诵",
+              "path": "期末复习/背诵.pdf",
+              "type": "pdf",
+              "version": "1782564335245.428-5332755"
+            },
+            {
+              "name": "复习",
+              "path": "期末复习/复习.pdf",
+              "type": "pdf",
+              "version": "1782621657705.7993-3254404"
+            },
+            {
+              "name": "面向考点复习",
+              "path": "期末复习/面向考点复习.pdf",
+              "type": "pdf",
+              "version": "1782553879073.065-29210338"
+            },
+            {
+              "name": "面向往年题的需求总结",
+              "path": "期末复习/面向往年题的需求总结.md",
+              "type": "md",
+              "version": "1782567836269.1345-10447"
+            },
+            {
+              "name": "往年卷考点",
+              "path": "期末复习/往年卷考点.md",
+              "type": "md",
+              "version": "1782616551263.7283-15708"
+            },
+            {
+              "name": "需求期末2020-2024",
+              "path": "期末复习/需求期末2020-2024.md",
+              "type": "md",
+              "version": "1782574750916.1462-10373"
+            }
+          ]
         }
       ]
     },
@@ -137,31 +1542,81 @@
       "session": "first_session",
       "name": "大二上",
       "folder": "大二上",
+      "course": []
+    },
+    {
+      "weight": 999,
+      "year": "测试学科",
+      "session": "session",
+      "name": "测试学科",
+      "folder": "测试学科",
       "course": [
         {
-          "name": "课程1",
+          "name": "测试课程",
+          "folder": "测试课程",
           "teacher": "xxx",
-          "files": []
-        },
+          "children": [
+            {
+              "kind": "file",
+              "name": "公式测试",
+              "path": "公式测试.md",
+              "type": "md",
+              "version": "1789204569772.1616-537"
+            },
+            {
+              "kind": "file",
+              "name": "PDF测试",
+              "path": "PDF测试.pdf",
+              "type": "pdf",
+              "version": "1789306424282.716-24616"
+            }
+          ],
+          "files": [
+            {
+              "name": "公式测试",
+              "path": "公式测试.md",
+              "type": "md",
+              "version": "1789204569772.1616-537"
+            },
+            {
+              "name": "PDF测试",
+              "path": "PDF测试.pdf",
+              "type": "pdf",
+              "version": "1789306424282.716-24616"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "weight": 999,
+      "year": "MarkDown入门学习",
+      "session": "session",
+      "name": "MarkDown入门学习",
+      "folder": "MarkDown入门学习",
+      "course": [
         {
-          "name": "课程2",
+          "name": "MarkDown入门学习",
+          "folder": "",
+          "root": true,
           "teacher": "xxx",
-          "files": []
-        },
-        {
-          "name": "课程3",
-          "teacher": "xxx",
-          "files": []
-        },
-        {
-          "name": "课程4",
-          "teacher": "xxx",
-          "files": []
-        },
-        {
-          "name": "课程5",
-          "teacher": "xxx",
-          "files": []
+          "children": [
+            {
+              "kind": "file",
+              "name": "Markdown学习指南",
+              "path": "Markdown学习指南.md",
+              "type": "md",
+              "version": "1789308630704.087-6254"
+            }
+          ],
+          "files": [
+            {
+              "name": "Markdown学习指南",
+              "path": "Markdown学习指南.md",
+              "type": "md",
+              "version": "1789308630704.087-6254"
+            }
+          ]
         }
       ]
     }

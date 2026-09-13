@@ -46,11 +46,9 @@ html {
 body {
   position: relative;
   isolation: isolate;
-  display: grid;
-  grid-template-columns: minmax(220px, 240px) minmax(0, 1fr);
-  gap: var(--space-3);
+  display: block;
   min-height: 100dvh;
-  padding: 14px;
+  padding: 0;
   overflow: hidden;
   color: var(--ink);
   background:
@@ -140,17 +138,32 @@ body[data-material-mode="liquid-glass"] {
 }
 
 .sidebar {
-  display: flex;
+  display: none;
   flex-direction: column;
-  height: calc(100dvh - 28px);
+  height: calc(100dvh - 32px);
   padding: 0 10px var(--space-3);
-  overflow: auto;
+  overflow: hidden;
   background:
     var(--glass-highlight),
     rgba(249, 249, 255, .36);
   -webkit-backdrop-filter: blur(var(--material-blur)) saturate(135%);
   backdrop-filter: blur(var(--material-blur)) saturate(135%);
   border-radius: 20px;
+  view-transition-name: none;
+}
+
+body.course-page .page-shell {
+  display: grid;
+  grid-template-columns: minmax(260px, 280px) minmax(0, 1fr);
+  gap: 24px;
+  padding: 16px;
+}
+
+body.course-page .sidebar {
+  display: flex;
+  height: calc(100dvh - 32px);
+  padding-bottom: 116px;
+  border-radius: 24px;
 }
 
 .brand {
@@ -282,30 +295,221 @@ body.course-page .site-nav {
 .main-stage {
   position: relative;
   z-index: 1;
-  height: calc(100dvh - 28px);
+  width: 100%;
+  height: 100dvh;
   overflow: auto;
-  padding: clamp(24px, 4vw, 64px);
-  scrollbar-gutter: stable;
+  overflow-x: hidden;
+  padding: clamp(48px, 8vw, 112px) clamp(24px, 8vw, 120px) 152px;
+  scrollbar-gutter: auto;
+}
+
+body.course-page .main-stage {
+  height: calc(100dvh - 32px);
+  padding: 48px 24px 152px;
 }
 
 #content-root {
-  max-width: 1120px;
+  max-width: 1180px;
   margin: 0 auto;
+  view-transition-name: none;
 }
 
-#content-root.view-enter {
-  animation: content-view-enter 420ms var(--ease) both;
+.page-shell {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  view-transition-name: none;
 }
 
-@keyframes content-view-enter {
+.route-snapshot {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  pointer-events: none;
+  will-change: transform;
+  z-index: 1;
+}
+
+#content-root.view-enter,
+#content-root.view-enter-from-right,
+#content-root.view-enter-from-left {
+  animation-duration: 1000ms;
+  animation-timing-function: var(--ease);
+  animation-fill-mode: both;
+  will-change: transform;
+}
+
+#content-root.view-enter,
+#content-root.view-enter-from-right {
+  animation-name: content-view-enter-from-right;
+}
+
+#content-root.view-enter-from-left {
+  animation-name: content-view-enter-from-left;
+}
+
+@keyframes content-view-enter-from-right {
   from {
-    opacity: 0;
-    transform: translateY(8px);
+    transform: translateX(100%);
   }
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
   }
+}
+
+@keyframes content-view-enter-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+
+/* One centered dock holds the site navigation and the GitHub control. */
+.bottom-dock {
+  position: fixed;
+  z-index: 20;
+  left: 50%;
+  bottom: 24px;
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  max-width: calc(100vw - 48px);
+  transform: translateX(-50%);
+}
+
+.bottom-nav {
+  position: relative;
+  flex: 1 1 auto;
+  width: min(680px, calc(100vw - 150px));
+  padding: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .34), transparent 48%, rgba(255, 255, 255, .08)),
+    rgba(249, 249, 255, .42);
+  view-transition-name: site-navigation;
+}
+
+.bottom-nav-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.bottom-nav-indicator {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--indicator-width, 0px);
+  border: 1px solid rgba(255, 255, 255, .76);
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .42), transparent 54%, rgba(255, 255, 255, .16)),
+    rgba(255, 255, 255, .26);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .78), 0 10px 24px rgba(20, 33, 43, .12);
+  pointer-events: none;
+  transform: translateX(var(--indicator-x, 0px));
+  transition: width 420ms var(--ease), transform 680ms var(--ease), background 260ms var(--ease), box-shadow 260ms var(--ease);
+}
+
+.bottom-nav.is-positioning .bottom-nav-indicator {
+  transition: none;
+}
+
+.bottom-nav-link {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: 68px;
+  padding: 8px 10px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: center;
+  transition: color 240ms var(--ease), transform 240ms var(--ease);
+}
+
+.bottom-nav-link:hover {
+  color: var(--ink);
+}
+
+.bottom-nav-link:active {
+  transform: scale(.96);
+}
+
+a.bottom-nav-link:focus-visible {
+  outline: 2px solid rgba(74, 144, 217, .62);
+  outline-offset: 2px;
+}
+
+.bottom-nav-link.is-active {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.bottom-nav-icon {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+}
+
+.bottom-nav-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.bottom-nav-label {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.github-float {
+  position: relative;
+  flex: 0 0 80px;
+  display: grid;
+  width: 80px;
+  height: 80px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  color: var(--ink);
+  cursor: pointer;
+  view-transition-name: github-control;
+  transition: transform 240ms var(--ease), background 240ms var(--ease), color 240ms var(--ease);
+}
+
+.github-float:hover {
+  color: var(--primary);
+  background: var(--hover);
+}
+
+.github-float:active {
+  transform: scale(.94);
+}
+
+.github-float svg {
+  width: 26px;
+  height: 26px;
 }
 
 .content-view {
@@ -314,7 +518,105 @@ body.course-page .site-nav {
 
 .home-view {
   display: grid;
-  gap: var(--space-12);
+  gap: 0;
+}
+
+body.home-page .main-stage {
+  padding-top: 0;
+  padding-bottom: 0;
+  scroll-snap-type: y mandatory;
+}
+
+.home-hero, .home-content { scroll-snap-align: start; scroll-snap-stop: always; }
+.home-content { min-height: 100dvh; padding-bottom: 152px; }
+.personal-introduction {
+  grid-column: 1 / -1;
+  margin: 20px 0 0;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,.46);
+  font-size: 15px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+}
+.personal-info-card .info-item:nth-child(n + 3) { border-bottom: 0; }
+
+.home-hero {
+  position: relative;
+  display: grid;
+  min-height: max(560px, 100svh);
+  place-items: center;
+  padding: 64px 0 160px;
+  text-align: center;
+}
+
+.home-hero h1 {
+  margin: 0;
+  font-size: clamp(26px, 4.2vw, 60px);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: -.035em;
+}
+
+.home-hero h1 span { display: block; }
+
+.home-hero p {
+  margin: 28px 0 0;
+  font-size: clamp(12px, 1.2vw, 15px);
+  line-height: 1.9;
+  color: var(--muted);
+}
+
+.home-down {
+  position: absolute;
+  bottom: 132px;
+  left: calc(50% - 24px);
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  transition: opacity 220ms ease;
+}
+.home-down svg { width: 32px; height: 32px; animation: home-hint 2.4s ease-in-out infinite; }
+@keyframes home-hint { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(4px); } }
+.has-scrolled .home-down { opacity: 0; visibility: hidden; }
+.home-down:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 50%; }
+.home-profile { padding-top: 48px; }
+.home-projects { padding-block: 56px; }
+.home-projects-title { margin-bottom: 24px; }
+.home-project-list { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; }
+.home-project-more { margin: 0; color: var(--muted); font-size: 14px; }
+.home-project-card {
+  width: 250px;
+  max-width: 100%;
+  padding: 24px;
+  border-radius: 24px;
+}
+.home-project-card h3 { margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -.035em; }
+.home-project-card p { margin: 8px 0 24px; color: var(--muted); font-size: 14px; }
+.home-project-link {
+  position: relative;
+  isolation: isolate;
+  display: table;
+  margin-left: auto;
+  padding: 12px 28px;
+  min-height: 48px;
+  border-radius: 999px;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: rgba(249,249,255,.72);
+  transition: transform 180ms var(--ease), background-color 180ms var(--ease);
+}
+.home-project-link:hover { background-color: rgba(249,249,255,.9); }
+.home-project-link:active { transform: scale(.97); }
+.home-recent { min-height: 220px; }
+.home-recent .home-section-title { text-align: center; font-weight: 600; margin-bottom: 48px; }
+.home-recent .article-grid:empty { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .home-down svg { animation: none; }
 }
 
 .home-section {
@@ -408,32 +710,106 @@ body.course-page .site-nav {
 
 .article-card {
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
   min-width: 0;
   min-height: 168px;
   padding: var(--space-6);
   border-radius: 24px;
+  color: inherit;
+  text-decoration: none;
 }
 
 .article-card h3 {
+  margin: 0;
+  min-width: 0;
   overflow-wrap: anywhere;
   font-size: var(--text-lg);
+}
+
+.article-source {
+  width: 100%;
+  min-width: 0;
+  margin: var(--space-6) 0 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+
+.study-view .content-heading {
+  margin-bottom: 56px;
+}
+
+.study-timeline {
+  display: grid;
+  gap: 56px;
+}
+
+.study-term {
+  position: relative;
+  min-width: 0;
+  padding-left: 52px;
+}
+
+.study-term:not(:last-child)::after {
+  position: absolute;
+  top: 44px;
+  bottom: -56px;
+  left: 15px;
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(74, 144, 217, .5), rgba(255, 255, 255, .18));
+  content: "";
+}
+
+.study-term-heading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 24px;
+}
+
+.study-term-heading h2 {
+  margin: 0;
+  font-size: clamp(22px, 2.4vw, 28px);
+  letter-spacing: -.04em;
+}
+
+.study-term-marker {
+  position: absolute;
+  left: -52px;
+  display: block;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, .82);
+  border-radius: 50%;
+  background: rgba(249, 249, 255, .44);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), 0 6px 16px rgba(20, 33, 43, .1);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  backdrop-filter: blur(14px) saturate(130%);
+}
+
+.study-term-marker::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 0 5px rgba(74, 144, 217, .12);
+  content: "";
+  transform: translate(-50%, -50%);
 }
 
 .course-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-6);
-}
-
-.course-card.course-enter {
-  animation: course-row-enter 1000ms var(--ease) both;
-  animation-delay: calc(var(--course-row, 0) * 140ms);
-}
-
-@keyframes course-row-enter {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .course-card {
@@ -448,7 +824,7 @@ body.course-page .site-nav {
   border-radius: 24px;
   color: var(--ink);
   text-decoration: none;
-  transition: background 180ms var(--ease), border-color 180ms var(--ease), box-shadow 180ms var(--ease), transform 180ms var(--ease);
+  transition: opacity 1000ms var(--ease), background 180ms var(--ease), border-color 180ms var(--ease), box-shadow 180ms var(--ease), transform 180ms var(--ease);
 }
 
 .course-card:hover {
@@ -741,10 +1117,54 @@ body.course-page .site-nav {
   }
 
   .main-stage {
-    height: calc(100dvh - 28px);
+    height: 100dvh;
     min-height: 420px;
-    margin-top: var(--space-3);
-    padding: var(--space-6) var(--space-3) var(--space-8);
+    margin-top: 0;
+    padding: var(--space-6) var(--space-3) 136px;
+  }
+
+  .bottom-dock {
+    right: 12px;
+    left: 12px;
+    bottom: 12px;
+    gap: 6px;
+    max-width: none;
+    width: auto;
+    transform: none;
+  }
+
+  .bottom-nav {
+    width: auto;
+    min-width: 0;
+  }
+
+  .bottom-nav-track {
+    gap: 2px;
+  }
+
+  .bottom-nav-link {
+    min-height: 60px;
+    padding-inline: 4px;
+    border-radius: 999px;
+  }
+
+  .bottom-nav-indicator {
+    border-radius: 999px;
+  }
+
+  .bottom-nav-label {
+    font-size: 10px;
+  }
+
+  .github-float {
+    flex-basis: 68px;
+    width: 68px;
+    height: 68px;
+  }
+
+  .github-float svg {
+    width: 22px;
+    height: 22px;
   }
 
   .chapter-layout {
@@ -780,6 +1200,18 @@ body.course-page .site-nav {
     padding-top: 0;
   }
 
+  .study-term {
+    padding-left: 40px;
+  }
+
+  .study-term-marker {
+    left: -40px;
+  }
+
+  .study-term:not(:last-child)::after {
+    left: 15px;
+  }
+
   .section-tabs {
     justify-content: flex-start;
     margin-inline: auto;
@@ -805,9 +1237,15 @@ body.course-page .site-nav {
 
 @media (prefers-reduced-motion: reduce) {
   #content-root.view-enter,
-  .course-card.course-enter {
+  #content-root.view-enter-from-left,
+  #content-root.view-enter-from-right {
     animation: none;
   }
+
+  .bottom-nav-indicator {
+    transition: none;
+  }
+
   *,
   *::before,
   *::after {
@@ -850,6 +1288,21 @@ body.course-page .site-nav {
     box-shadow: none;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+
+  .bottom-nav,
+  .github-float {
+    border-color: var(--ink);
+    background: var(--surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .bottom-nav-indicator {
+    border-color: var(--ink);
+    background: var(--container);
+    box-shadow: none;
   }
 
   .avatar-placeholder {
@@ -899,6 +1352,21 @@ body.course-page .site-nav {
     backdrop-filter: none;
   }
 
+  .bottom-nav,
+  .github-float {
+    border-color: CanvasText;
+    background: Canvas;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .bottom-nav-indicator {
+    border-color: CanvasText;
+    background: Highlight;
+    box-shadow: none;
+  }
+
   .avatar-placeholder {
     border-color: CanvasText;
     background: Canvas;
@@ -929,6 +1397,21 @@ body.course-page .site-nav {
     box-shadow: none;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+
+  .bottom-nav,
+  .github-float {
+    border-color: var(--ink);
+    background: var(--surface);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .bottom-nav-indicator {
+    border-color: var(--ink);
+    background: var(--container);
+    box-shadow: none;
   }
 
   .avatar-placeholder {

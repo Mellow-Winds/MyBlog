@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "source": "dairy",
+  "children": [
+    {
+      "kind": "file",
+      "name": "测试文件",
+      "path": "测试文件.md",
+      "type": "md",
+      "version": "1789306647080.15-51"
+    }
+  ]
+}

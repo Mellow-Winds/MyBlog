@@ -2,29 +2,27 @@
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#F9F9FF">
     <meta name="description" content="个人主页">
     <title>个人主页</title>
-    <link rel="stylesheet" href="assets/css/style.css?v=course-reader-4">
-    <link rel="stylesheet" href="assets/css/reader.css?v=course-reader-4">
+    <link rel="stylesheet" href="assets/css/style.css?v=mobile-24">
+    <link rel="stylesheet" href="assets/css/reader.css?v=mobile-24">
     <link rel="stylesheet" href="assets/vendor/katex/katex.min.css?v=0.18.7">
   </head>
   <body data-material-mode="liquid-glass">
-    <aside class="sidebar glass-surface" aria-label="个人主页导航">
+    <div class="page-shell">
+    <aside class="sidebar glass-surface" id="content-directory" aria-label="内容目录">
       <div class="sidebar-heading">
       <button type="button" class="reader-back" data-study-back data-ripple aria-label="返回学在南雍" title="返回学在南雍" hidden>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
       </button>
-      <a class="brand" href="#about" aria-label="返回关于我">
-        <span class="brand-mark" aria-hidden="true">
-          <img src="icon/icon128.png" alt="">
-        </span>
+      <div class="brand">
         <span class="brand-copy">
-          <strong>MellowBlog</strong>
-          <span class="course-context" hidden></span>
+          <strong data-section-title>学在南雍</strong>
+        <span class="course-context" hidden></span>
         </span>
-      </a>
+      </div>
       </div>
       <div class="file-tools" aria-label="文件列表工具" hidden>
         <div class="file-tool-zone" data-reader-tool="filter">
@@ -49,70 +47,68 @@
       </div>
       <nav class="course-files" aria-label="课程文件" tabindex="0" hidden></nav>
 
-      <nav class="site-nav" aria-label="站点板块">
-        <a class="nav-link is-active" href="#about" aria-current="page" data-ripple>
-          <span class="nav-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="8" r="3.2"></circle>
-              <path d="M5.5 20c.7-3.4 3-5.2 6.5-5.2s5.8 1.8 6.5 5.2"></path>
-            </svg>
-          </span>
-          <span>关于我</span>
-        </a>
-        <a class="nav-link" href="#study" data-ripple>
-          <span class="nav-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"></path>
-              <path d="M4 5.5v16M8 7h8M8 11h8"></path>
-            </svg>
-          </span>
-          <span>学在南雍</span>
-        </a>
-        <a class="nav-link" href="#jinling" data-ripple>
-          <span class="nav-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 21s6-5.3 6-11a6 6 0 1 0-12 0c0 5.7 6 11 6 11Z"></path>
-              <circle cx="12" cy="10" r="2"></circle>
-            </svg>
-          </span>
-          <span>玩在金陵</span>
-        </a>
-        <a class="nav-link" href="#memories" data-ripple>
-          <span class="nav-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H19v19l-5-3-5 3V4.5A2.5 2.5 0 0 0 6 2.5Z"></path>
-              <path d="M6 4.5V19"></path>
-            </svg>
-          </span>
-          <span>南雍杂忆</span>
-        </a>
-        <a class="nav-link" href="#articles" data-ripple>
-          <span class="nav-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="10.8" cy="10.8" r="6.2"></circle>
-              <path d="m16 16 4.5 4.5"></path>
-            </svg>
-          </span>
-          <span>文章检索</span>
-        </a>
-        <a class="nav-link" href="https://github.com/Mellow-Winds" target="_blank" rel="noopener noreferrer" data-ripple>
-          <span class="nav-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.809 1.304 3.495.997.108-.775.418-1.305.762-1.604-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.435.375.81 1.096.81 2.21 0 1.595-.015 2.875-.015 3.27 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path>
-            </svg>
-          </span>
-          <span>GitHub</span>
-        </a>
-      </nav>
     </aside>
 
     <main class="main-stage" aria-label="主页内容区">
       <div id="content-root"></div>
     </main>
+    </div>
+
+    <button type="button" class="mobile-directory-toggle glass-surface" data-study-directory aria-label="打开内容目录" aria-controls="content-directory" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <button type="button" class="directory-backdrop" data-directory-dismiss aria-label="关闭内容目录" tabindex="-1" aria-hidden="true"></button>
+    <div class="bottom-dock">
+      <nav class="bottom-nav glass-surface" aria-label="站点板块" data-bottom-nav>
+        <div class="bottom-nav-track">
+          <span class="bottom-nav-indicator" aria-hidden="true"></span>
+          <a class="bottom-nav-link is-active" href="#home" data-nav-page="home" aria-current="page">
+            <span class="bottom-nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10.5 9-7 9 7"></path><path d="M5.5 9.5V21h13V9.5M9.5 21v-6h5v6"></path></svg>
+            </span>
+            <span class="bottom-nav-label">首页</span>
+          </a>
+          <a class="bottom-nav-link" href="#study" data-nav-page="study">
+            <span class="bottom-nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"></path><path d="M4 5.5v16M8 7h8M8 11h8"></path></svg>
+            </span>
+            <span class="bottom-nav-label">学在南雍</span>
+          </a>
+          <a class="bottom-nav-link" href="#jinling" data-nav-page="jinling">
+            <span class="bottom-nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s6-5.3 6-11a6 6 0 1 0-12 0c0 5.7 6 11 6 11Z"></path><circle cx="12" cy="10" r="2"></circle></svg>
+            </span>
+            <span class="bottom-nav-label">玩在金陵</span>
+          </a>
+          <a class="bottom-nav-link" href="#memories" data-nav-page="memories">
+            <span class="bottom-nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H19v19l-5-3-5 3V4.5A2.5 2.5 0 0 0 6 2.5Z"></path><path d="M6 4.5V19"></path></svg>
+            </span>
+            <span class="bottom-nav-label">南雍杂忆</span>
+          </a>
+          <a class="bottom-nav-link" href="#articles" data-nav-page="articles">
+            <span class="bottom-nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.8" cy="10.8" r="6.2"></circle><path d="m16 16 4.5 4.5"></path></svg>
+            </span>
+            <span class="bottom-nav-label">文章检索</span>
+          </a>
+        </div>
+      </nav>
+
+      <a class="github-float glass-surface" href="https://github.com/Mellow-Winds" target="_blank" rel="noopener noreferrer" data-ripple aria-label="打开 GitHub" title="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.809 1.304 3.495.997.108-.775.418-1.305.762-1.604-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.435.375.81 1.096.81 2.21 0 1.595-.015 2.875-.015 3.27 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg>
+      </a>
+    </div>
+
+    <div class="reader-copy-toast" data-reader-copy-toast role="status" aria-live="polite" aria-atomic="true" aria-hidden="true" hidden>
+      <span>已复制</span>
+    </div>
 
     <script src="assets/js/markdown-it.min.js"></script>
     <script src="assets/vendor/katex/katex.min.js?v=0.18.7"></script>
-    <script src="assets/js/reader.js?v=course-reader-4"></script>
-    <script src="assets/js/app.js?v=course-reader-4"></script>
+    <script src="assets/js/reader.js?v=study-22"></script>
+    <script src="assets/js/route-motion.js?v=motion-14"></script>
+    <script src="assets/js/mobile-directory.js?v=mobile-1"></script>
+    <script src="assets/js/app.js?v=mobile-24"></script>
   </body>
 </html>

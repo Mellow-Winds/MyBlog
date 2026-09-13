@@ -111,18 +111,139 @@ window.MyBlogReader = (() => {
   }
 
   const md = window.markdownit({ html: false, linkify: false, typographer: false, highlight: (source, info) => highlightCode(source, info) });
+  md.inline.ruler.before('image', 'local_image', (state, silent) => {
+    if (!state.src.startsWith('%%', state.pos)) return false;
+    const end = state.src.indexOf('%%', state.pos + 2);
+    if (end < 0) return false;
+    const path = state.src.slice(state.pos + 2, end).trim();
+    if (!path || /[\r\n]/.test(path)) return false;
+    if (!silent) {
+      const token = state.push('image', 'img', 0);
+      token.attrs = [['src', path], ['alt', ''], ['data-local-image', 'true'], ['loading', 'lazy']];
+      const label = new state.Token('text', '', 0);
+      label.content = path.split('/').at(-1);
+      token.children = [label];
+      token.content = label.content;
+    }
+    state.pos = end + 2;
+    return true;
+  });
   const esc = text => md.utils.escapeHtml(String(text));
-  const routeFor = (grade, subject, file) => '#study/' + [grade, subject, file].map(encodeURIComponent).join('/');
+  let section = 'study', contentRootPath = 'docs_learning';
+  const sectionStates = new Map();
+  const routeFor = (grade, subject, file) => '#' + section + '/' + (section === 'study' ? [grade, subject, file] : file.split('/')).map(encodeURIComponent).join('/');
+  const fileUrl = (grade, subject, path) => new URL([contentRootPath, ...(section === 'study' ? [grade.folder || grade.name, ...(subject.root ? [] : [subject.folder || subject.name])] : []), ...path.split('/')].map(encodeURIComponent).join('/'), document.baseURI);
 
   let request;
   let loadedKey = '';
   let listKey = '';
   let retry;
   let outlineHeadings = [];
+  let activeOutlineId = '';
+  let clickedHeadingId = '';
+
+  function headingTree(headings) {
+    const roots = [], stack = [];
+    headings.forEach(heading => {
+      const node = { heading, level: Number(heading.tagName.slice(1)), children: [] };
+      while (stack.length && stack.at(-1).level >= node.level) stack.pop();
+      (stack.at(-1)?.children || roots).push(node);
+      stack.push(node);
+    });
+    return roots;
+  }
+
+  function renderOutlineTree(nodes, depth = 0) {
+    return nodes.map(({ heading, children }) => {
+      const label = heading.textContent.trim() || '未命名标题';
+      const button = `<button type="button" data-reader-heading="${heading.id}" aria-label="${esc(label)}">${heading.innerHTML || esc(label)}</button>`;
+      if (!children.length) return `<div class="outline-leaf">${button}</div>`;
+      return `<details class="study-branch outline-branch" ${depth === 0 ? 'open' : ''}><summary aria-controls="${heading.id}-children">${button}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg></summary><div id="${heading.id}-children" class="study-children">${renderOutlineTree(children, depth + 1)}</div></details>`;
+    }).join('');
+  }
+
+  function renderFooter() {
+    const footer = document.querySelector('.reader-footer');
+    if (!footer || footer.hidden || !activeContext?.subject) return;
+    const { grade, subject, requestedPath } = activeContext;
+    const collectFiles = nodes => nodes.flatMap(node => node.kind === 'folder' ? collectFiles(node.children) : [node]);
+    const files = collectFiles(visibleTree(courseTree(subject)));
+    const index = files.findIndex(file => file.path === requestedPath);
+    const link = (file, label) => file
+      ? `<a href="${esc(routeFor(grade.name, subject.name, file.path))}"><span>${label}</span><strong>${esc(file.name)}</strong></a>`
+      : `<span class="reader-page-disabled" aria-disabled="true">${label}</span>`;
+    footer.innerHTML = `<p class="reader-end">--我可是有底线的--</p><nav class="reader-pagination" aria-label="文章切换">${link(index > 0 ? files[index - 1] : null, '上一篇')}${link(index >= 0 ? files[index + 1] : null, '下一篇')}</nav>`;
+  }
   let activeContext = null;
+  let catalog = [];
+  const expanded = new Set();
+  let treeInitialized = false;
+  let selectedTreeKey = '';
+  const branchAnimations = new Map();
+  function setBranchOpen(node, open, animate = false) {
+    const children = node.querySelector('.study-children');
+    const summary = node.querySelector('summary');
+    const running = branchAnimations.get(node);
+    if (running) cancelAnimationFrame(running.frame);
+    const height = node.open ? children.getBoundingClientRect().height : 0;
+    summary.setAttribute('aria-expanded', String(open));
+    node.dataset.expanded = String(open);
+    children.inert = !open;
+    const finish = () => {
+      node.open = open;
+      children.style.removeProperty('height');
+      children.style.removeProperty('overflow');
+      children.style.removeProperty('opacity');
+      branchAnimations.delete(node);
+    };
+    if (!animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return; }
+    node.open = true;
+    const spring = running?.spring || window.MyBlogRouteMotion.createSpring();
+    spring.position = height;
+    spring.response = 18;
+    children.style.height = `${height}px`;
+    children.style.overflow = 'hidden';
+    let previous = performance.now();
+    const state = { spring, frame: 0 };
+    const tick = now => {
+      if (!node.isConnected) { finish(); return; }
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return; }
+      const naturalHeight = children.scrollHeight;
+      spring.target = open ? naturalHeight : 0;
+      spring.step(Math.min((now - previous) / 1000, .05));
+      previous = now;
+      children.style.height = `${Math.max(0, spring.position)}px`;
+      children.style.opacity = String(Math.min(1, Math.max(0, spring.position / Math.max(1, naturalHeight))));
+      if (Math.abs(spring.position - spring.target) < .5 && Math.abs(spring.velocity) < 2) finish();
+      else state.frame = requestAnimationFrame(tick);
+    };
+    branchAnimations.set(node, state);
+    state.frame = requestAnimationFrame(tick);
+  }
+  const branchKey = (...parts) => JSON.stringify(parts);
+  function setCatalog(value) { catalog = value; }
+  function setSection(page, root) {
+    if (page === section) return;
+    request?.abort();
+    sectionStates.set(section, { loadedKey, outlineHeadings, activeContext, selectedTreeKey, activeOutlineId, clickedHeadingId,
+      expanded: [...expanded], treeInitialized, viewState: { ...viewState } });
+    const state = sectionStates.get(page);
+    section = page; contentRootPath = root;
+    loadedKey = state?.loadedKey || '';
+    outlineHeadings = state?.outlineHeadings || [];
+    activeContext = state?.activeContext || null;
+    selectedTreeKey = state?.selectedTreeKey || '';
+    activeOutlineId = state?.activeOutlineId || '';
+    clickedHeadingId = state?.clickedHeadingId || '';
+    expanded.clear(); (state?.expanded || []).forEach(key => expanded.add(key));
+    treeInitialized = state?.treeInitialized || false;
+    Object.assign(viewState, state?.viewState || { filter: 'all', sort: 'name' });
+    listKey = '';
+  }
   const viewState = { filter: 'all', sort: 'name' };
   const fileTools = document.querySelector('.file-tools');
   const fileList = document.querySelector('.course-files');
+  const copyToast = document.querySelector('[data-reader-copy-toast]');
   const toolZones = [...document.querySelectorAll('.file-tool-zone')];
   let activeMenu = null;
   let closeTimer = 0;
@@ -173,51 +294,159 @@ window.MyBlogReader = (() => {
     });
   }
 
+  function visibleTree(nodes) {
+    const result = [];
+    for (const node of Array.isArray(nodes) ? nodes : []) {
+      if (node.kind === 'folder') {
+        const children = visibleTree(node.children);
+        if (children.length || viewState.filter === 'all') result.push({ ...node, children });
+        continue;
+      }
+      if (viewState.filter === 'all' || fileType(node) === viewState.filter) result.push(node);
+    }
+    return result.sort((left, right) => {
+      if (left.kind !== right.kind) return left.kind === 'folder' ? -1 : 1;
+      const weightDifference = (left.weight ?? Number.POSITIVE_INFINITY) - (right.weight ?? Number.POSITIVE_INFINITY);
+      if (weightDifference) return weightDifference;
+      if (viewState.sort === 'type' && left.kind === 'file') {
+        const typeDifference = fileType(left).localeCompare(fileType(right));
+        if (typeDifference) return typeDifference;
+      }
+      return String(left.name).localeCompare(String(right.name), 'zh-CN', { numeric: true, sensitivity: 'base' });
+    });
+  }
+
+  function courseTree(course) {
+    if (Array.isArray(course?.children) && (course.children.length || !Array.isArray(course.files) || !course.files.length)) return course.children;
+    return (course?.files || []).map(file => ({ ...file, kind: 'file' }));
+  }
+
   function renderFileList(grade, subject, requestedPath) {
     if (!fileList) return null;
-    const files = subject?.files || [];
-    const selected = requestedPath ? files.find(file => file.path === requestedPath) : files[0];
-    const shown = visibleFiles(files);
-    const signature = JSON.stringify([grade.name, subject.name, viewState, files.map(file => [file.path, file.name, file.type, file.version])]);
-    const rebuilt = listKey !== signature;
-    if (rebuilt) {
-      const scroll = fileList.scrollTop;
-      const focusedPath = fileList.contains(document.activeElement) ? document.activeElement.dataset.readerFile : null;
-      fileList.innerHTML = shown.length
-        ? shown.map(file => {
-          const type = fileType(file);
-          return `<a class="nav-link file-link" href="${esc(routeFor(grade.name, subject.name, file.path))}" data-reader-file="${esc(file.path)}" data-ripple title="${esc(file.path)}"><span class="file-type file-type-${type}">${type.toUpperCase()}</span><span class="file-name">${esc(file.name)}</span></a>`;
-        }).join('')
-        : '<span class="file-empty">暂无文件</span>';
-      fileList.scrollTop = activeContext?.courseKey === `${grade.name}/${subject.name}` ? scroll : 0;
-      listKey = signature;
-      if (focusedPath) [...fileList.children].find(node => node.dataset.readerFile === focusedPath)?.focus({ preventScroll: true });
+    const selected = requestedPath ? subject?.files.find(file => file.path === requestedPath) : null;
+    if (!treeInitialized && catalog.length) { expanded.add(branchKey(catalog[0].name)); treeInitialized = true; }
+    const nextTreeKey = selected ? branchKey(grade.name, subject.name, selected.path) : '';
+    const selectionChanged = nextTreeKey !== selectedTreeKey;
+    selectedTreeKey = nextTreeKey;
+    if (selectionChanged && requestedPath && grade && subject) {
+      expanded.add(branchKey(grade.name));
+      expanded.add(branchKey(grade.name, subject.name));
+      const parts = String(requestedPath).split('/');
+      let parentPath = '';
+      parts.slice(0, -1).forEach(part => {
+        parentPath = parentPath ? `${parentPath}/${part}` : part;
+        expanded.add(branchKey(grade.name, subject.name, parentPath));
+      });
     }
-    [...fileList.querySelectorAll('[data-reader-file]')].forEach(link => {
-      const active = link.dataset.readerFile === selected?.path;
-      link.classList.toggle('is-active', active);
-      if (active) link.setAttribute('aria-current', 'page');
-      else link.removeAttribute('aria-current');
+    const signature = JSON.stringify([catalog, viewState]);
+    if (listKey !== signature) {
+      branchAnimations.forEach(state => cancelAnimationFrame(state.frame));
+      branchAnimations.clear();
+      const scroll = fileList.scrollTop;
+      const disclosure = (key, title, children, kind) => `<details class="study-branch ${kind}" data-branch="${esc(key)}" ${expanded.has(key) ? 'open' : ''}><summary><span>${esc(title)}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg></summary><div class="study-children">${children}</div></details>`;
+      const renderNode = (term, course, node) => {
+        if (node.kind === 'folder') {
+          const children = visibleTree(node.children);
+          return disclosure(branchKey(term.name, course.name, node.path), node.name, children.map(child => renderNode(term, course, child)).join('') || '<span class="file-empty">暂无文件</span>', 'study-folder');
+        }
+        return `<a class="nav-link file-link" href="${esc(routeFor(term.name, course.name, node.path))}" data-reader-file="${esc(node.path)}" data-file-key="${esc(branchKey(term.name, course.name, node.path))}" title="${esc(node.name)}" data-ripple><span class="file-type file-type-${fileType(node)}">${fileType(node).toUpperCase()}</span><span class="file-name">${esc(node.name)}</span></a>`;
+      };
+      fileList.innerHTML = section === 'study'
+        ? catalog.map(term => term.subjects.some(course => course.root)
+          ? term.subjects.map(course => disclosure(branchKey(term.name), course.name, visibleTree(courseTree(course)).map(node => renderNode(term, course, node)).join('') || '<span class="file-empty">暂无文件</span>', 'study-course')).join('')
+          : disclosure(branchKey(term.name), term.name, term.subjects.map(course => disclosure(branchKey(term.name, course.name), course.name, visibleTree(courseTree(course)).map(node => renderNode(term, course, node)).join('') || '<span class="file-empty">暂无文件</span>', 'study-course')).join(''), 'study-semester')).join('')
+        : catalog.flatMap(term => term.subjects.flatMap(course => visibleTree(courseTree(course)).map(node => renderNode(term, course, node)))).join('') || '<span class="file-empty">暂无文件</span>';
+      fileList.querySelectorAll('details').forEach(node => {
+        setBranchOpen(node, expanded.has(node.dataset.branch));
+        node.querySelector('summary').addEventListener('click', event => {
+          event.preventDefault();
+          const open = !expanded.has(node.dataset.branch);
+          if (open) expanded.add(node.dataset.branch); else expanded.delete(node.dataset.branch);
+          setBranchOpen(node, open, true);
+        });
+      });
+      fileList.scrollTop = scroll;
+      listKey = signature;
+    }
+    fileList.querySelectorAll('details').forEach(node => {
+      if (node.dataset.expanded !== String(expanded.has(node.dataset.branch))) setBranchOpen(node, expanded.has(node.dataset.branch));
     });
-    return { selected, rebuilt };
+    fileList.querySelectorAll('[data-file-key]').forEach(link => {
+      const active = !!selected && link.dataset.fileKey === branchKey(grade.name, subject.name, selected.path);
+      link.classList.toggle('is-active', active);
+      if (active) link.setAttribute('aria-current', 'page'); else link.removeAttribute('aria-current');
+      if (active && selectionChanged) link.scrollIntoView({ block: 'nearest' });
+    });
+    return { selected };
   }
 
   function reset() {
     request?.abort();
+    clickedHeadingId = '';
+    activeOutlineId = '';
     loadedKey = '';
     listKey = '';
     outlineHeadings = [];
     activeContext = null;
+    selectedTreeKey = '';
+    closePopovers();
+  }
+
+  function suspend() {
+    // Preserve the mounted reader and its selection while leaving the section.
+    if (document.getElementById('markdown-content')?.hasAttribute('aria-busy')) {
+      request?.abort();
+      loadedKey = '';
+    }
     closePopovers();
   }
 
   function updateOutline() {
+    if (clickedHeadingId) return;
     const main = document.querySelector('.main-stage');
     if (!outlineHeadings.length || !main) return;
     const edge = main.getBoundingClientRect().top + 80;
     let active = outlineHeadings[0];
     for (const heading of outlineHeadings) if (heading.getBoundingClientRect().top <= edge) active = heading;
-    document.querySelectorAll('[data-reader-heading]').forEach(button => button.setAttribute('aria-current', button.dataset.readerHeading === active.id ? 'location' : 'false'));
+    setOutlineActive(active.id);
+  }
+
+  function setOutlineActive(id, reveal = false) {
+    if (activeOutlineId === id && !reveal) return;
+    activeOutlineId = id;
+    document.querySelectorAll('[data-reader-heading]').forEach(button => {
+      button.setAttribute('aria-current', button.dataset.readerHeading === id ? 'location' : 'false');
+      if (button.dataset.readerHeading !== id || !reveal) return;
+      let ancestor = button.parentElement?.closest('.outline-branch');
+      while (ancestor) {
+        if (ancestor.querySelector('summary')?.contains(button) !== true) setBranchOpen(ancestor, true);
+        ancestor = ancestor.parentElement?.closest('.outline-branch');
+      }
+      const list = button.closest?.('.reader-outline-list');
+      if (list) {
+        const row = button.getBoundingClientRect(), bounds = list.getBoundingClientRect();
+        if (row.top < bounds.top) list.scrollTop += row.top - bounds.top;
+        else if (row.bottom > bounds.bottom) list.scrollTop += row.bottom - bounds.bottom;
+      }
+    });
+  }
+
+  function scrollToHeading(heading) {
+    const main = document.querySelector('.main-stage');
+    if (!main || !heading) return;
+
+    const mainRect = main.getBoundingClientRect();
+    const headingRect = heading.getBoundingClientRect();
+    const target = Math.max(0, Math.min(
+      main.scrollHeight - main.clientHeight,
+      main.scrollTop + headingRect.top - mainRect.top - 24
+    ));
+    const behavior = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+
+    clickedHeadingId = heading.id;
+    setOutlineActive(heading.id, true);
+    if (typeof main.scrollTo === 'function') main.scrollTo({ top: target, behavior });
+    else main.scrollTop = target;
   }
 
   function findUnescaped(source, needle, start) {
@@ -322,15 +551,110 @@ window.MyBlogReader = (() => {
     return html;
   }
 
+  function localImageUrl(path, articleUrl, rootUrl) {
+    // Custom images are local to their content collection; normalize before checking.
+    const decoded = decodeURIComponent(path).replace(/\\/g, '/');
+    if (/%(?:2e|2f|5c)/i.test(decoded)) throw new Error('Ambiguous encoded image path');
+    if (/^(?:[a-z][a-z\d+.-]*:|\/)/i.test(decoded)) throw new Error('Not a relative image');
+    const target = new URL(decoded, articleUrl);
+    const root = new URL(rootUrl);
+    if (target.origin !== root.origin || !target.pathname.startsWith(root.pathname)) throw new Error('Image outside content root');
+    return target.href;
+  }
+
+  function imageFailure(node) {
+    const message = document.createElement('span');
+    message.className = 'reader-image-error';
+    message.setAttribute('role', 'status');
+    message.textContent = `图片无法加载：${node.getAttribute('alt') || '图片'}`;
+    node.replaceWith(message);
+  }
+
+  const copyResetTimers = new WeakMap();
+  let copyToastTimer = 0;
+  let copyToastHideTimer = 0;
+  let copyToastFrame = 0;
+
+  function showCopyToast() {
+    if (!copyToast) return;
+    window.clearTimeout(copyToastTimer);
+    window.clearTimeout(copyToastHideTimer);
+    if (copyToastFrame && typeof window.cancelAnimationFrame === 'function') window.cancelAnimationFrame(copyToastFrame);
+    copyToast.hidden = false;
+    copyToast.dataset.state = 'closed';
+    copyToast.setAttribute('aria-hidden', 'false');
+    const open = () => { copyToast.dataset.state = 'open'; copyToastFrame = 0; };
+    if (typeof window.requestAnimationFrame === 'function') copyToastFrame = window.requestAnimationFrame(open);
+    else open();
+    copyToastTimer = window.setTimeout(() => {
+      copyToast.dataset.state = 'closed';
+      copyToast.setAttribute('aria-hidden', 'true');
+      copyToastHideTimer = window.setTimeout(() => { copyToast.hidden = true; }, 220);
+    }, 1600);
+  }
+
+  function setCopyState(button, state, label) {
+    button.dataset.state = state;
+    button.setAttribute('aria-label', label);
+    button.title = label;
+    const status = button.querySelector('.code-copy-status');
+    if (status) status.textContent = state === 'copied' ? '已复制' : state === 'error' ? '复制失败' : '';
+    window.clearTimeout(copyResetTimers.get(button));
+    if (state !== 'idle') {
+      copyResetTimers.set(button, window.setTimeout(() => setCopyState(button, 'idle', '复制代码'), 1600));
+    }
+  }
+
+  async function copyCode(button, code) {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(code);
+      } else {
+        const textarea = document.createElement('textarea');
+        try {
+          textarea.value = code;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.opacity = '0';
+          document.body.append(textarea);
+          textarea.select();
+          if (!document.execCommand?.('copy')) throw new Error('copy command failed');
+        } finally {
+          textarea.remove();
+        }
+      }
+      setCopyState(button, 'copied', '已复制代码');
+      showCopyToast();
+    } catch {
+      setCopyState(button, 'error', '复制失败，请手动复制');
+    }
+  }
+
+  function setupCodeCopy(article) {
+    article.querySelectorAll('pre > code').forEach(code => {
+      const pre = code.parentElement;
+      if (pre.querySelector('[data-code-copy]')) return;
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'code-copy';
+      button.dataset.codeCopy = '';
+      button.setAttribute('aria-label', '复制代码');
+      button.title = '复制代码';
+      button.innerHTML = '<svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="11" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"></path></svg><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg><span class="code-copy-status" aria-live="polite"></span>';
+      button.addEventListener('click', () => copyCode(button, code.textContent));
+      pre.append(button);
+    });
+  }
+
   function animateArticle(article) {
     article.classList.remove('reader-content-enter');
-    void article.offsetWidth;
-    article.classList.add('reader-content-enter');
+    window.MyBlogMotion?.reveal(article.children);
+    window.MyBlogMotion?.reveal(document.querySelectorAll('.reader-outline-list [data-reader-heading]'));
   }
 
   async function show(grade, subject, requestedPath) {
-    if (!grade || !subject || !fileList) return;
-    const courseKey = `${grade.name}/${subject.name}`;
+    if (!fileList) return;
+    const courseKey = `${grade?.name || ''}/${subject?.name || ''}`;
     if (activeContext && activeContext.courseKey !== courseKey) viewState.filter = 'all';
     activeContext = { grade, subject, requestedPath, courseKey };
     renderToolState();
@@ -338,12 +662,12 @@ window.MyBlogReader = (() => {
     const article = document.getElementById('markdown-content');
     const outline = document.querySelector('.reader-outline');
     const view = article.closest('.course-view');
-    view.dataset.grade = grade.name;
-    view.dataset.subject = subject.name;
-    const key = JSON.stringify([grade.name, subject.name, selected?.path, selected?.version, requestedPath && !selected, fileType(selected)]);
+    view.dataset.grade = grade?.name || '';
+    view.dataset.subject = subject?.name || '';
+    const key = JSON.stringify([grade?.name, subject?.name, selected?.path, selected?.version, requestedPath && !selected, fileType(selected)]);
     if (loadedKey === key) return;
     const previousPath = loadedKey ? JSON.parse(loadedKey).slice(0, 3) : [];
-    const sameFile = JSON.stringify(previousPath) === JSON.stringify([grade.name, subject.name, selected?.path]);
+    const sameFile = JSON.stringify(previousPath) === JSON.stringify([grade?.name, subject?.name, selected?.path]);
     loadedKey = key;
     request?.abort();
     request = new AbortController();
@@ -351,20 +675,30 @@ window.MyBlogReader = (() => {
     const main = document.querySelector('.main-stage');
     const previousScroll = main.scrollTop;
     outline.hidden = true;
+    const outlineToggle = document.querySelector('[data-study-outline]');
+    if (outlineToggle) outlineToggle.hidden = true;
+    outline.replaceChildren();
     outlineHeadings = [];
+    activeOutlineId = '';
+    clickedHeadingId = '';
+    const footer = document.querySelector('.reader-footer');
+    if (footer) { footer.hidden = true; footer.replaceChildren(); footer.style.minHeight = ''; }
     article.replaceChildren();
+    article.classList.toggle('reader-empty', !selected);
+    article.removeAttribute('aria-busy');
     if (!sameFile) main.scrollTop = 0;
     if (!selected) {
       if (requestedPath) article.innerHTML = '<p role="status">文件不存在或已移除。</p>';
+      else article.innerHTML = '<p role="status">在左侧打开文件</p>';
       return;
     }
     if (!requestedPath) history.replaceState(null, '', routeFor(grade.name, subject.name, selected.path));
-    const url = new URL(['docs_learning', grade.name, subject.name, ...selected.path.split('/')].map(encodeURIComponent).join('/'), document.baseURI);
+    const url = fileUrl(grade, subject, selected.path);
     article.setAttribute('aria-busy', 'true');
     try {
       if (fileType(selected) === 'pdf') {
         article.innerHTML = `<iframe class="pdf-viewer" src="${esc(url.href)}#view=FitH" title="${esc(selected.name)}"></iframe><p class="pdf-fallback"><a href="${esc(url.href)}" target="_blank" rel="noopener">在新标签页打开 PDF</a></p>`;
-        animateArticle(article);
+        if (!sameFile) animateArticle(article);
         if (sameFile) main.scrollTop = previousScroll;
         return;
       }
@@ -379,6 +713,7 @@ window.MyBlogReader = (() => {
         code.dataset.language = language;
         code.parentElement.dataset.language = language;
       });
+      setupCodeCopy(article);
       const slugs = new Map();
       outlineHeadings = [...article.querySelectorAll('h1,h2,h3,h4,h5,h6')];
       outlineHeadings.forEach((heading, index) => {
@@ -386,11 +721,29 @@ window.MyBlogReader = (() => {
         const slug = heading.textContent.trim().toLowerCase().replace(/\s+/g, '-');
         if (!slugs.has(slug)) slugs.set(slug, heading.id);
       });
-      outline.innerHTML = '<div class="chapter-index-heading"><strong>章节导航</strong></div><div class="reader-outline-list">' + outlineHeadings.map(heading => `<button type="button" data-reader-heading="${heading.id}" data-level="${heading.tagName.slice(1)}" data-ripple aria-label="${esc(heading.textContent)}">${heading.innerHTML}</button>`).join('') + '</div>';
+      outline.innerHTML = '<div class="chapter-index-heading"><strong>文件导航</strong></div><div class="reader-outline-list">' + renderOutlineTree(headingTree(outlineHeadings)) + '</div>';
+      outline.querySelectorAll('.outline-branch').forEach(node => {
+        setBranchOpen(node, node.open);
+        node.querySelector('summary').addEventListener('click', event => {
+          if (event.target.closest('[data-reader-heading]')) return;
+          event.preventDefault();
+          setBranchOpen(node, node.dataset.expanded !== 'true', true);
+        });
+      });
+      if (footer) { footer.hidden = false; renderFooter(); }
       outline.hidden = !outlineHeadings.length;
+      if (outlineToggle) outlineToggle.hidden = outline.hidden;
       article.querySelectorAll('a[href], img[src]').forEach(node => {
         const attribute = node.tagName === 'IMG' ? 'src' : 'href';
         const value = node.getAttribute(attribute);
+        if (node.tagName === 'IMG' && node.hasAttribute('data-local-image')) {
+          try {
+            node.setAttribute('src', localImageUrl(value, url, new URL(contentRootPath + '/', document.baseURI)));
+            node.addEventListener('error', () => imageFailure(node), { once: true });
+            if (node.complete && node.naturalWidth === 0) imageFailure(node);
+          } catch { imageFailure(node); }
+          return;
+        }
         if (value.startsWith('#')) {
           let slug;
           try { slug = decodeURIComponent(value.slice(1)); } catch { return; }
@@ -402,14 +755,14 @@ window.MyBlogReader = (() => {
         const base = new URL('./', url);
         if (node.tagName === 'A' && resolved.origin === url.origin && /\.(md|pdf)$/i.test(resolved.pathname)) {
           const linked = subject.files.find(file => {
-            const linkedUrl = new URL(file.path.split('/').map(encodeURIComponent).join('/'), new URL(['docs_learning', grade.name, subject.name, ''].map(encodeURIComponent).join('/'), document.baseURI));
+            const linkedUrl = fileUrl(grade, subject, file.path);
             return linkedUrl.pathname === resolved.pathname;
           });
           if (linked) { node.href = routeFor(grade.name, subject.name, linked.path); return; }
         }
         node.setAttribute(attribute, new URL(value, base).href);
       });
-      animateArticle(article);
+      if (!sameFile) animateArticle(article);
       if (sameFile) main.scrollTop = previousScroll;
       updateOutline();
     } catch (error) {
@@ -430,6 +783,7 @@ window.MyBlogReader = (() => {
     zone.addEventListener('focusout', event => {
       if (!zone.contains(event.relatedTarget)) scheduleClose();
     });
+    zone.querySelector('.file-popover')?.addEventListener('pointerenter', () => openPopover(kind));
   });
   fileTools?.addEventListener('click', event => {
     const button = event.target.closest('.file-tool');
@@ -448,6 +802,7 @@ window.MyBlogReader = (() => {
       renderToolState();
       openPopover(filterOption ? 'filter' : 'sort');
       if (activeContext) renderFileList(activeContext.grade, activeContext.subject, activeContext.requestedPath);
+      renderFooter();
     }
   });
   document.addEventListener('keydown', event => { if (event.key === 'Escape') closePopovers(); });
@@ -458,10 +813,19 @@ window.MyBlogReader = (() => {
     const jump = event.target.closest('[data-reader-heading]');
     if (jump) {
       event.preventDefault();
-      document.getElementById(jump.dataset.readerHeading)?.scrollIntoView({ block: 'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      const heading = document.getElementById(jump.dataset.readerHeading);
+      if (!heading) return;
+      scrollToHeading(heading);
     }
     if (event.target.closest('[data-reader-retry]')) retry?.();
   });
   document.querySelector('.main-stage').addEventListener('scroll', updateOutline, { passive: true });
-  return { show, reset };
+  const resumeReading = () => { clickedHeadingId = ''; updateOutline(); };
+  ['wheel', 'touchstart', 'pointerdown'].forEach(type => {
+    document.querySelector('.main-stage').addEventListener(type, resumeReading, { passive: true });
+  });
+  document.addEventListener('keydown', event => {
+    if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) resumeReading();
+  });
+  return { show, reset, suspend, setCatalog, setSection, scrollToHeading };
 })();

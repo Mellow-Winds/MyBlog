@@ -19,3 +19,6 @@ playwright-report/
 # Operating-system files
 .DS_Store
 Thumbs.db
+
+# devlog
+devlog

@@ -1,12 +1,17 @@
 import { createServer } from 'node:http';
 import { extname, join, normalize, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readFile, readdir, stat, writeFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
+import { syncAllContent } from './sync-content.mjs';
 
 const projectRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const learningRoot = join(projectRoot, 'docs_learning');
-const learningJsonPath = join(learningRoot, 'learning.json');
+const learningJsonPath = join(projectRoot, 'docs_learning', 'learning.json');
 const port = Number(process.env.MYBLOG_PORT || 4173);
+let syncing = null;
+function refreshContent() {
+  if (!syncing) syncing = syncAllContent(projectRoot).finally(() => { syncing = null; });
+  return syncing;
+}
 
 const contentTypes = {
   '.css': 'text/css; charset=utf-8',
@@ -16,96 +21,12 @@ const contentTypes = {
   '.md': 'text/markdown; charset=utf-8',
   '.pdf': 'application/pdf',
   '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
   '.svg': 'image/svg+xml'
 };
-
-async function readContentFiles(directory, prefix = '') {
-  const files = [];
-  const entries = await readdir(directory, { withFileTypes: true });
-
-  for (const entry of entries) {
-    if (entry.name.startsWith('.')) continue;
-    const entryPath = join(directory, entry.name);
-    const path = prefix + entry.name;
-    if (entry.isDirectory()) files.push(...await readContentFiles(entryPath, path + '/'));
-    if (entry.isFile() && /\.(md|pdf)$/i.test(entry.name)) {
-      const info = await stat(entryPath);
-      const type = extname(entry.name).slice(1).toLowerCase();
-      files.push({ name: entry.name.replace(/\.(md|pdf)$/i, ''), path, type, version: `${info.mtimeMs}-${info.size}` });
-    }
-  }
-
-  return files.sort((a, b) => a.path.localeCompare(b.path, 'zh-CN', { numeric: true }));
-}
-
-const defaultTermMeta = new Map([
-  ['大一上', { weight: 1, year: 'freshman', session: 'first_session' }],
-  ['大一下', { weight: 2, year: 'freshman', session: 'second_session' }],
-  ['大二上', { weight: 3, year: 'sophomore', session: 'first_session' }]
-]);
-function compareTerms(left, right) {
-  const weightDifference = (left.weight ?? Number.POSITIVE_INFINITY) - (right.weight ?? Number.POSITIVE_INFINITY);
-  return weightDifference || left.name.localeCompare(right.name, 'zh-CN', { numeric: true });
-}
-
-async function readLearningDocument() {
-  try {
-    return JSON.parse(await readFile(learningJsonPath, 'utf8'));
-  } catch {
-    return { version: 1, catalog: [] };
-  }
-}
-
-async function syncLearningJson() {
-  const previous = await readLearningDocument();
-  const previousCatalog = Array.isArray(previous.catalog) ? previous.catalog : [];
-  const previousGrades = new Map(previousCatalog.map(grade => [grade.folder || grade.name, grade]));
-  const catalog = [];
-  let gradeEntries = [];
-
-  try {
-    gradeEntries = await readdir(learningRoot, { withFileTypes: true });
-  } catch {
-    return previous;
-  }
-
-  for (const gradeEntry of gradeEntries) {
-    if (!gradeEntry.isDirectory() || gradeEntry.name.startsWith('.')) continue;
-
-    const gradePath = join(learningRoot, gradeEntry.name);
-    const previousGrade = previousGrades.get(gradeEntry.name) || {};
-    const previousCourses = new Map((previousGrade.course || []).map(course => [course.name, course]));
-    const courses = [];
-    const subjectEntries = await readdir(gradePath, { withFileTypes: true });
-    for (const subjectEntry of subjectEntries) {
-      if (!subjectEntry.isDirectory() || subjectEntry.name.startsWith('.')) continue;
-      const files = await readContentFiles(join(gradePath, subjectEntry.name));
-      const previousCourse = previousCourses.get(subjectEntry.name) || {};
-      courses.push({
-        name: subjectEntry.name,
-        teacher: previousCourse.teacher || 'xxx',
-        files: files.map(file => ({ name: file.name, path: file.path, type: file.type, version: file.version }))
-      });
-    }
-
-    const meta = defaultTermMeta.get(gradeEntry.name) || {};
-    const configuredWeight = Number(previousGrade.weight);
-    catalog.push({
-      weight: Number.isFinite(configuredWeight) ? configuredWeight : (meta.weight ?? 999),
-      year: previousGrade.year || meta.year || gradeEntry.name,
-      session: previousGrade.session || meta.session || 'session',
-      name: previousGrade.name || gradeEntry.name,
-      folder: gradeEntry.name,
-      course: courses.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN', { numeric: true }))
-    });
-  }
-
-  const next = { version: 1, catalog: catalog.sort(compareTerms) };
-  if (JSON.stringify(previous) !== JSON.stringify(next)) {
-    await writeFile(learningJsonPath, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
-  }
-  return next;
-}
 
 function safeProjectPath(urlPath) {
   const decodedPath = decodeURIComponent(urlPath);
@@ -119,7 +40,7 @@ const server = createServer(async (request, response) => {
   try {
     const requestUrl = new URL(request.url, `http://${request.headers.host}`);
     if (requestUrl.pathname === '/__myblog/study-catalog') {
-      const learningDocument = await syncLearningJson();
+      const learningDocument = JSON.parse(await readFile(learningJsonPath, 'utf8'));
       response.writeHead(200, {
         'Cache-Control': 'no-store',
         'Content-Type': 'application/json; charset=utf-8'
@@ -160,15 +81,16 @@ server.on('error', error => {
 });
 server.on('listening', () => {
   console.log(`MyBlog local preview: http://127.0.0.1:${activePort}/`);
-  console.log('docs_learning changes are checked automatically by the page.');
+  console.log('Content manifests refresh automatically for all three reading sections.');
 });
 async function start() {
   try {
-    await syncLearningJson();
+    await refreshContent();
   } catch (error) {
     console.error(`Unable to sync docs_learning/learning.json: ${error.message}`);
   }
   server.listen(activePort, '127.0.0.1');
+  setInterval(() => refreshContent().catch(error => console.error(error.message)), 1500).unref();
 }
 
 start();

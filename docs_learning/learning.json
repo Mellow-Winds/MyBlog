@@ -609,17 +609,10 @@
               "children": [
                 {
                   "kind": "file",
-                  "name": "0 前言",
-                  "path": "笔记/0 前言.md",
+                  "name": "1 Hello Java!",
+                  "path": "笔记/1 Hello Java!.md",
                   "type": "md",
-                  "version": "1774257593790.4597-0"
-                },
-                {
-                  "kind": "file",
-                  "name": "1 Ciallo Java!",
-                  "path": "笔记/1 Ciallo Java!.md",
-                  "type": "md",
-                  "version": "1773665834028.681-3329"
+                  "version": "1789313236441.9817-3328"
                 },
                 {
                   "kind": "file",
@@ -1049,16 +1042,10 @@
           ],
           "files": [
             {
-              "name": "0 前言",
-              "path": "笔记/0 前言.md",
+              "name": "1 Hello Java!",
+              "path": "笔记/1 Hello Java!.md",
               "type": "md",
-              "version": "1774257593790.4597-0"
-            },
-            {
-              "name": "1 Ciallo Java!",
-              "path": "笔记/1 Ciallo Java!.md",
-              "type": "md",
-              "version": "1773665834028.681-3329"
+              "version": "1789313236441.9817-3328"
             },
             {
               "name": "2 认识对象",
@@ -1415,13 +1402,6 @@
               "path": "思政重点.md",
               "type": "md",
               "version": "1782825128645.9534-13041"
-            },
-            {
-              "kind": "file",
-              "name": "思政重点",
-              "path": "思政重点.pdf",
-              "type": "pdf",
-              "version": "1782825137331.1565-824965"
             }
           ],
           "files": [
@@ -1430,12 +1410,6 @@
               "path": "思政重点.md",
               "type": "md",
               "version": "1782825128645.9534-13041"
-            },
-            {
-              "name": "思政重点",
-              "path": "思政重点.pdf",
-              "type": "pdf",
-              "version": "1782825137331.1565-824965"
             }
           ]
         },
@@ -1452,24 +1426,10 @@
               "children": [
                 {
                   "kind": "file",
-                  "name": "背诵",
-                  "path": "期末复习/背诵.pdf",
-                  "type": "pdf",
-                  "version": "1782564335245.428-5332755"
-                },
-                {
-                  "kind": "file",
-                  "name": "复习",
-                  "path": "期末复习/复习.pdf",
+                  "name": "复习（2026版）",
+                  "path": "期末复习/复习（2026版）.pdf",
                   "type": "pdf",
                   "version": "1782621657705.7993-3254404"
-                },
-                {
-                  "kind": "file",
-                  "name": "面向考点复习",
-                  "path": "期末复习/面向考点复习.pdf",
-                  "type": "pdf",
-                  "version": "1782553879073.065-29210338"
                 },
                 {
                   "kind": "file",
@@ -1497,22 +1457,10 @@
           ],
           "files": [
             {
-              "name": "背诵",
-              "path": "期末复习/背诵.pdf",
-              "type": "pdf",
-              "version": "1782564335245.428-5332755"
-            },
-            {
-              "name": "复习",
-              "path": "期末复习/复习.pdf",
+              "name": "复习（2026版）",
+              "path": "期末复习/复习（2026版）.pdf",
               "type": "pdf",
               "version": "1782621657705.7993-3254404"
-            },
-            {
-              "name": "面向考点复习",
-              "path": "期末复习/面向考点复习.pdf",
-              "type": "pdf",
-              "version": "1782553879073.065-29210338"
             },
             {
               "name": "面向往年题的需求总结",
@@ -1590,17 +1538,24 @@
     },
     {
       "weight": 999,
-      "year": "MarkDown入门学习",
+      "year": "实用技巧",
       "session": "session",
-      "name": "MarkDown入门学习",
-      "folder": "MarkDown入门学习",
+      "name": "实用技巧",
+      "folder": "实用技巧",
       "course": [
         {
-          "name": "MarkDown入门学习",
+          "name": "实用技巧",
           "folder": "",
           "root": true,
           "teacher": "xxx",
           "children": [
+            {
+              "kind": "file",
+              "name": "快速考试",
+              "path": "快速考试.md",
+              "type": "md",
+              "version": "1789313151967.4875-8673"
+            },
             {
               "kind": "file",
               "name": "Markdown学习指南",
@@ -1610,6 +1565,12 @@
             }
           ],
           "files": [
+            {
+              "name": "快速考试",
+              "path": "快速考试.md",
+              "type": "md",
+              "version": "1789313151967.4875-8673"
+            },
             {
               "name": "Markdown学习指南",
               "path": "Markdown学习指南.md",

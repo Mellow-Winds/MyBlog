@@ -341,7 +341,7 @@ function renderAbout() {
                 <strong class="info-value">${item.value}</strong>
               </div>
             `).join('')}
-            <p class="personal-introduction">Hello！我的昵称是Mellow Winds，一名NJU软工经济在读大二学生。我喜欢追根究底，用逻辑、模型和反例理解问题。在理性之外，我同样珍视审美、想象力和人与人之间真诚的交流。喜欢辩论和一些看起来“没什么用”却足够有趣的探索。对我而言，大学不只是获得知识和学位的地方，更重要的是不断尝试、创造，并逐渐找到自己真正愿意长期投入的事情。</p>
+            <p class="personal-introduction">Hello！你可以叫我Mellow，我是一名NJU软工经济在读大二学生。我喜欢追根究底，用逻辑、模型和反例理解问题。在理性之外，我同样珍视审美、想象力和人与人之间真诚的交流。喜欢辩论和一些看起来“没什么用”却足够有趣的探索。对我而言，大学不只是获得知识和学位的地方，更重要的是不断尝试、创造，并逐渐找到自己真正愿意长期投入的事情。</p>
           </article>
         </div>
       </section>

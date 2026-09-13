@@ -351,10 +351,13 @@ window.MyBlogReader = (() => {
         }
         return `<a class="nav-link file-link" href="${esc(routeFor(term.name, course.name, node.path))}" data-reader-file="${esc(node.path)}" data-file-key="${esc(branchKey(term.name, course.name, node.path))}" title="${esc(node.name)}" data-ripple><span class="file-type file-type-${fileType(node)}">${fileType(node).toUpperCase()}</span><span class="file-name">${esc(node.name)}</span></a>`;
       };
+      const courseFiles = (term, course) => visibleTree(courseTree(course)).map(node => renderNode(term, course, node)).join('') || '<span class="file-empty">暂无文件</span>';
       fileList.innerHTML = section === 'study'
         ? catalog.map(term => term.subjects.some(course => course.root)
-          ? term.subjects.map(course => disclosure(branchKey(term.name), course.name, visibleTree(courseTree(course)).map(node => renderNode(term, course, node)).join('') || '<span class="file-empty">暂无文件</span>', 'study-course')).join('')
-          : disclosure(branchKey(term.name), term.name, term.subjects.map(course => disclosure(branchKey(term.name, course.name), course.name, visibleTree(courseTree(course)).map(node => renderNode(term, course, node)).join('') || '<span class="file-empty">暂无文件</span>', 'study-course')).join(''), 'study-semester')).join('')
+          // A term folder holding files directly has no course layer to show. Keep the
+          // semester shell so it matches the other terms, and inline the files inside it.
+          ? disclosure(branchKey(term.name), term.name, term.subjects.map(course => courseFiles(term, course)).join(''), 'study-semester')
+          : disclosure(branchKey(term.name), term.name, term.subjects.map(course => disclosure(branchKey(term.name, course.name), course.name, courseFiles(term, course), 'study-course')).join(''), 'study-semester')).join('')
         : catalog.flatMap(term => term.subjects.flatMap(course => visibleTree(courseTree(course)).map(node => renderNode(term, course, node)))).join('') || '<span class="file-empty">暂无文件</span>';
       fileList.querySelectorAll('details').forEach(node => {
         setBranchOpen(node, expanded.has(node.dataset.branch));
@@ -775,15 +778,18 @@ window.MyBlogReader = (() => {
   }
 
   renderToolState();
+  const canHover = matchMedia('(hover: hover)').matches;
   toolZones.forEach(zone => {
     const kind = zone.dataset.readerTool;
-    zone.addEventListener('pointerenter', () => openPopover(kind));
-    zone.addEventListener('pointerleave', scheduleClose);
-    zone.addEventListener('focusin', () => openPopover(kind));
-    zone.addEventListener('focusout', event => {
-      if (!zone.contains(event.relatedTarget)) scheduleClose();
-    });
-    zone.querySelector('.file-popover')?.addEventListener('pointerenter', () => openPopover(kind));
+    if (canHover) {
+      zone.addEventListener('pointerenter', () => openPopover(kind));
+      zone.addEventListener('pointerleave', scheduleClose);
+      zone.addEventListener('focusin', () => openPopover(kind));
+      zone.addEventListener('focusout', event => {
+        if (!zone.contains(event.relatedTarget)) scheduleClose();
+      });
+      zone.querySelector('.file-popover')?.addEventListener('pointerenter', () => openPopover(kind));
+    }
   });
   fileTools?.addEventListener('click', event => {
     const button = event.target.closest('.file-tool');

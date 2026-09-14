@@ -545,7 +545,7 @@ body.course-page .sidebar { height: calc(100dvh - 48px - env(safe-area-inset-bot
     margin: 0 0 12px;
     border-bottom: 1px solid rgba(255,255,255,.54);
   }
-  .mobile-outline-panel .reader-outline-list { min-height: 0; padding: 0 2px 8px; }
+  .mobile-outline-panel .reader-outline-list { flex: 1; min-height: 0; padding: 0 2px 8px; }
   body.course-page :is(.directory-backdrop, .outline-backdrop) {
     display: block;
     position: fixed;

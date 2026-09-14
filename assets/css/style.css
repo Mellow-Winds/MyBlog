@@ -623,7 +623,8 @@ body.home-page .main-stage {
 .home-project-link:hover { background-color: rgba(249,249,255,.9); }
 .home-project-link:active { transform: scale(.97); }
 .home-links { padding-block: 8px 56px; }
-.home-links-grid { display: flex; justify-content: center; }
+.home-links-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+.friend-link-icon img[hidden] { display: none; }
 .friend-link-card {
   display: flex;
   align-items: center;

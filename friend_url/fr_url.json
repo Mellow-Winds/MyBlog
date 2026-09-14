@@ -1,0 +1,14 @@
+[
+  {
+    "name": "寻梦之旅-ErinwithBMQ",
+    "description": "循此苦旅，终抵繁星。",
+    "icon": "./icons/www.erinwithbmq.xin-7a10c585d6b2.png",
+    "url": "https://www.erinwithbmq.xin/"
+  },
+  {
+    "name": "Sunshine's Blog",
+    "description": "记录技术思考、项目经验和学习成长",
+    "icon": "./icons/mingshuo.org-1d3209dc5a86.jpg",
+    "url": "https://mingshuo.org/"
+  }
+]

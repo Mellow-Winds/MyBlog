@@ -812,7 +812,7 @@ window.MyBlogReader = (() => {
     view.dataset.grade = grade?.name || '';
     view.dataset.subject = subject?.name || '';
     const key = JSON.stringify([grade?.name, subject?.name, selected?.path, selected?.version, requestedPath && !selected, fileType(selected)]);
-    if (loadedKey === key) { window.MyBlogSearch?.articleReady(fileType(selected)); return; }
+    if (loadedKey === key) { window.MyBlogSearch?.articleReady(selected ? fileType(selected) : null); return; }
     const previousPath = loadedKey ? JSON.parse(loadedKey).slice(0, 3) : [];
     const sameFile = JSON.stringify(previousPath) === JSON.stringify([grade?.name, subject?.name, selected?.path]);
     loadedKey = key;

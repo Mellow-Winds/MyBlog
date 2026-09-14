@@ -1,6 +1,7 @@
 {
   "private": true,
   "scripts": {
+    "sync:friend-links": "node scripts/sync-friend-links.mjs",
     "sync:content": "node scripts/sync-content.mjs",
     "sync:learning": "node scripts/sync-learning.mjs",
     "dev": "node scripts/dev-server.mjs"

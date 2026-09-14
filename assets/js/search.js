@@ -24,8 +24,15 @@ window.MyBlogSearch = (() => {
     if (document.querySelector('.search-page')) savedScroll = main.scrollTop;
     document.body.classList.remove('search-page-active');
     generation++;
-    if (control) control.hidden = true;
-    setOpen(false, true);
+    if (control) {
+      setOpen(false, true);
+      control.hidden = true;
+      control.querySelector('input').value = '';
+      control.querySelector('output').textContent = '';
+    }
+    clearMarks();
+    article = null;
+    articleKey = '';
   }
   function mount(root) {
     document.body.classList.add('search-page-active');
@@ -160,7 +167,7 @@ window.MyBlogSearch = (() => {
     updateCount(); save();
   }
   function articleReady(type) {
-    if (type !== 'md' || !document.querySelector('#markdown-content')?.textContent) return;
+    if (type !== 'md' || !document.querySelector('#markdown-content')?.textContent) { leave(); return; }
     if (!control) makeControl();
     article = document.getElementById('markdown-content');
     articleKey = location.hash.split('?')[0];

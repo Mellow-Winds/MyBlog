@@ -3,6 +3,7 @@ import { extname, join, normalize, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readFile, stat } from 'node:fs/promises';
 import { syncAllContent } from './sync-content.mjs';
+import { syncFriendLinks } from './sync-friend-links.mjs';
 
 const projectRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const learningJsonPath = join(projectRoot, 'docs_learning', 'learning.json');
@@ -14,6 +15,7 @@ function refreshContent() {
 }
 
 const contentTypes = {
+  '.ico': 'image/x-icon',
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -84,6 +86,11 @@ server.on('listening', () => {
   console.log('Content manifests refresh automatically for all three reading sections.');
 });
 async function start() {
+  try {
+    console.log(`Saved ${await syncFriendLinks(projectRoot)} friend icons.`);
+  } catch (error) {
+    console.warn(`Unable to sync friend links: ${error.message}`);
+  }
   try {
     await refreshContent();
   } catch (error) {

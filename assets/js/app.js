@@ -368,19 +368,9 @@ function renderAbout() {
           `).join('')}
         </div>
       </section>
-      <section class="home-section home-links" aria-labelledby="links-heading" data-home-reveal>
+      <section class="home-section home-links" aria-labelledby="links-heading" data-home-reveal hidden>
         <h2 class="home-section-title home-links-title" id="links-heading">友情链接</h2>
         <div class="home-links-grid">
-          <a class="friend-link-card glass-surface" href="https://www.erinwithbmq.xin/" target="_blank" rel="noopener noreferrer" data-ripple>
-            <span class="friend-link-icon" aria-hidden="true">
-              <img src="https://www.erinwithbmq.xin/images/favicon.ico" alt="" loading="lazy" data-fallback-src="https://www.erinwithbmq.xin/images/apple-touch-icon.png" onerror="if (this.dataset.fallbackSrc) { this.src=this.dataset.fallbackSrc; this.dataset.fallbackSrc=''; } else { this.hidden=true; this.parentElement.classList.add('is-fallback'); }">
-              <svg class="friend-link-fallback" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07.07l2-2a5 5 0 0 0-7.07-7.07l-1.15 1.15"></path><path d="M14 11a5 5 0 0 0-7.07-.07l-2 2A5 5 0 0 0 7 20l1.15-1.15"></path></svg>
-            </span>
-            <span class="friend-link-copy">
-              <strong>ErinwithBMQ Blog</strong>
-              <span>一位优秀的软院学姐兼CPL助教Blog</span>
-            </span>
-          </a>
         </div>
       </section>
       </div>
@@ -421,6 +411,7 @@ function renderView(page, params = []) {
 
   if (page === 'home') {
     contentRoot.innerHTML = renderAbout();
+    window.MyBlogFriendLinks.mount(contentRoot);
     requestAnimationFrame(updateHomeMotion);
     return;
   }
@@ -597,7 +588,7 @@ document.querySelector('.main-stage').addEventListener('scroll', () => {
     updateHomeMotion();
   });
 }, { passive: true });
-window.MyBlogMotion = { reveal: revealElements };
+window.MyBlogMotion = { reveal: revealElements, updateHome: updateHomeMotion };
 
 function reducedMotion() {
   return mediaMatches('(prefers-reduced-motion: reduce)');

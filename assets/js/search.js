@@ -107,8 +107,9 @@ window.MyBlogSearch = (() => {
   }
   function positionControl() {
     if (!control) return;
-    if (narrow.matches) document.body.append(control);
-    else document.querySelector('.course-view .reader-outline')?.append(control);
+    const parent = narrow.matches ? document.body : document.querySelector('.course-view .reader-outline');
+    // Keyboard/viewport resizes must not detach a focused input.
+    if (parent && control.parentElement !== parent) parent.append(control);
     control.querySelector('.article-search-content').inert = narrow.matches && !open;
     paint();
   }

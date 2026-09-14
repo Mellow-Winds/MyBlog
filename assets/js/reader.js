@@ -998,8 +998,8 @@ window.MyBlogReader = (() => {
       event.preventDefault();
       const heading = document.getElementById(jump.dataset.readerHeading);
       if (!heading) return;
-      scrollToHeading(heading);
       if (mobileOutlineOpen) setMobileOutlineOpen(false);
+      scrollToHeading(heading);
     }
     if (event.target.closest('[data-reader-retry]')) retry?.();
   });

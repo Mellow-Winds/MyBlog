@@ -812,7 +812,7 @@ window.MyBlogReader = (() => {
     view.dataset.grade = grade?.name || '';
     view.dataset.subject = subject?.name || '';
     const key = JSON.stringify([grade?.name, subject?.name, selected?.path, selected?.version, requestedPath && !selected, fileType(selected)]);
-    if (loadedKey === key) return;
+    if (loadedKey === key) { window.MyBlogSearch?.articleReady(fileType(selected)); return; }
     const previousPath = loadedKey ? JSON.parse(loadedKey).slice(0, 3) : [];
     const sameFile = JSON.stringify(previousPath) === JSON.stringify([grade?.name, subject?.name, selected?.path]);
     loadedKey = key;
@@ -833,6 +833,7 @@ window.MyBlogReader = (() => {
     const footer = document.querySelector('.reader-footer');
     if (footer) { footer.hidden = true; footer.replaceChildren(); footer.style.minHeight = ''; }
     article.replaceChildren();
+    window.MyBlogSearch?.leave();
     article.classList.toggle('reader-empty', !selected);
     article.removeAttribute('aria-busy');
     if (!sameFile) main.scrollTop = 0;
@@ -924,6 +925,7 @@ window.MyBlogReader = (() => {
       if (!sameFile) animateArticle(article);
       if (sameFile) main.scrollTop = previousScroll;
       updateOutline();
+      window.MyBlogSearch?.articleReady('md');
     } catch (error) {
       if (signal.aborted) return;
       article.innerHTML = '<p role="status">文件读取失败。</p><button type="button" class="reader-retry" data-reader-retry data-ripple>重试</button>';

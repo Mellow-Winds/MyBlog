@@ -197,7 +197,7 @@ function decodeRoutePart(value) {
 
 function currentRoute() {
   const parts = (window.location.hash || '#home')
-    .slice(1)
+    .slice(1).split('?')[0]
     .split('/')
     .filter(Boolean)
     .map(decodeRoutePart);
@@ -413,6 +413,11 @@ function renderIndexedPage(page, title, indexTitle, items) {
 
 function renderView(page, params = []) {
   if (!contentRoot) return;
+  window.MyBlogSearch.leave();
+  if (page === 'articles') {
+    window.MyBlogSearch.mount(contentRoot);
+    return;
+  }
 
   if (page === 'home') {
     contentRoot.innerHTML = renderAbout();

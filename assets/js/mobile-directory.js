@@ -45,6 +45,7 @@ window.MyBlogDirectory = (() => {
   function setOpen(value, immediate = false) {
     value = Boolean(value && narrow.matches && body.classList.contains('course-page'));
     const changed = value !== open;
+    if (value) window.MyBlogReader?.closeOutline?.(true);
     open = value;
     body.classList.toggle('directory-open', open);
     toggle.setAttribute('aria-expanded', String(open));

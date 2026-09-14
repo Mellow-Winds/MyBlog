@@ -153,12 +153,13 @@ window.MyBlogReader = (() => {
     return roots;
   }
 
-  function renderOutlineTree(nodes, depth = 0) {
+  function renderOutlineTree(nodes, depth = 0, instance = 'desktop') {
     return nodes.map(({ heading, children }) => {
       const label = heading.textContent.trim() || '未命名标题';
       const button = `<button type="button" data-reader-heading="${heading.id}" aria-label="${esc(label)}">${heading.innerHTML || esc(label)}</button>`;
       if (!children.length) return `<div class="outline-leaf">${button}</div>`;
-      return `<details class="study-branch outline-branch" ${depth === 0 ? 'open' : ''}><summary aria-controls="${heading.id}-children">${button}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg></summary><div id="${heading.id}-children" class="study-children">${renderOutlineTree(children, depth + 1)}</div></details>`;
+      const childrenId = `${heading.id}-children-${instance}`;
+      return `<details class="study-branch outline-branch" ${depth === 0 ? 'open' : ''}><summary aria-controls="${childrenId}">${button}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg></summary><div id="${childrenId}" class="study-children">${renderOutlineTree(children, depth + 1, instance)}</div></details>`;
     }).join('');
   }
 
@@ -244,9 +245,87 @@ window.MyBlogReader = (() => {
   const fileTools = document.querySelector('.file-tools');
   const fileList = document.querySelector('.course-files');
   const copyToast = document.querySelector('[data-reader-copy-toast]');
+  const outlineToggle = document.querySelector('[data-study-outline-toggle]');
+  const mobileOutline = document.querySelector('[data-mobile-outline]');
+  const outlineBackdrop = document.querySelector('[data-outline-dismiss]');
+  const outlineNarrow = matchMedia('(max-width: 1200px)');
+  const outlineReduced = matchMedia('(prefers-reduced-motion: reduce)');
   const toolZones = [...document.querySelectorAll('.file-tool-zone')];
   let activeMenu = null;
   let closeTimer = 0;
+  let mobileOutlineOpen = false;
+  let outlineFrame = 0;
+  let outlinePrevious = 0;
+  let outlineSpring;
+
+  function outlineViews(desktopOutline = document.querySelector('.course-view .reader-outline')) {
+    return [desktopOutline, mobileOutline].filter((view, index, views) => view && views.indexOf(view) === index);
+  }
+
+  function getOutlineSpring() {
+    if (!outlineSpring) outlineSpring = window.MyBlogRouteMotion?.createSpring?.();
+    if (outlineSpring) outlineSpring.response = 16;
+    return outlineSpring;
+  }
+
+  function paintMobileOutline() {
+    if (!mobileOutline || !outlineBackdrop || !outlineSpring) return;
+    const value = Math.max(0, Math.min(1, outlineSpring.position));
+    mobileOutline.style.opacity = String(value);
+    mobileOutline.style.transform = `translateY(${-12 * (1 - value)}px) scale(${.94 + .06 * value})`;
+    outlineBackdrop.style.opacity = String(value);
+  }
+
+  function finishMobileOutline() {
+    cancelAnimationFrame(outlineFrame);
+    outlineFrame = 0;
+    if (outlineSpring) {
+      outlineSpring.position = outlineSpring.target;
+      outlineSpring.velocity = 0;
+    }
+    paintMobileOutline();
+    if (mobileOutline) mobileOutline.dataset.mobileState = mobileOutlineOpen ? 'open' : 'closed';
+  }
+
+  function tickMobileOutline(now) {
+    if (!outlineSpring) { finishMobileOutline(); return; }
+    outlineSpring.step(Math.min((now - outlinePrevious) / 1000, .05));
+    outlinePrevious = now;
+    paintMobileOutline();
+    if (outlineSpring.settled || outlineReduced.matches) finishMobileOutline();
+    else outlineFrame = requestAnimationFrame(tickMobileOutline);
+  }
+
+  function setMobileOutlineOpen(value, immediate = false) {
+    value = Boolean(value && outlineNarrow.matches && body.classList.contains('course-page') && outlineHeadings.length && outlineToggle && !outlineToggle.hidden);
+    const changed = value !== mobileOutlineOpen;
+    mobileOutlineOpen = value;
+    if (value) window.MyBlogDirectory?.close?.(true);
+    body.classList.toggle('outline-open', mobileOutlineOpen);
+    outlineToggle?.setAttribute('aria-expanded', String(mobileOutlineOpen));
+    outlineToggle?.setAttribute('aria-label', mobileOutlineOpen ? '关闭文件导航' : '打开文件导航');
+    if (mobileOutline) {
+      mobileOutline.inert = outlineNarrow.matches && !mobileOutlineOpen;
+      mobileOutline.setAttribute('aria-hidden', String(!mobileOutlineOpen));
+    }
+    outlineBackdrop?.setAttribute('aria-hidden', String(!mobileOutlineOpen));
+    if (!outlineNarrow.matches || !mobileOutline || !outlineBackdrop) return;
+    if (mobileOutlineOpen && changed) {
+      const bounds = mobileOutline.getBoundingClientRect();
+      [...mobileOutline.querySelectorAll('.chapter-index-heading, .reader-outline-list button, .outline-branch > summary')]
+        .filter(node => { const rect = node.getBoundingClientRect(); return rect.height && rect.bottom > bounds.top && rect.top < bounds.bottom; })
+        .forEach((node, index) => node.animate([
+          { opacity: 0, transform: 'translateY(-8px)' },
+          { opacity: 1, transform: 'translateY(0)' }
+        ], { duration: 1000, delay: Math.min(index, 10) * 65, easing: 'cubic-bezier(.2,0,0,1)', fill: 'backwards' }));
+    }
+    mobileOutline.dataset.mobileState = mobileOutlineOpen ? 'opening' : 'closing';
+    const spring = getOutlineSpring();
+    if (!spring) { finishMobileOutline(); return; }
+    spring.target = mobileOutlineOpen ? 1 : 0;
+    if (immediate || outlineReduced.matches) { finishMobileOutline(); return; }
+    if (!outlineFrame) { outlinePrevious = performance.now(); outlineFrame = requestAnimationFrame(tickMobileOutline); }
+  }
 
   const fileType = file => file?.type === 'pdf' || /\.pdf$/i.test(file?.path || '') ? 'pdf' : 'md';
 
@@ -385,6 +464,7 @@ window.MyBlogReader = (() => {
 
   function reset() {
     request?.abort();
+    setMobileOutlineOpen(false, true);
     clickedHeadingId = '';
     activeOutlineId = '';
     loadedKey = '';
@@ -397,6 +477,7 @@ window.MyBlogReader = (() => {
 
   function suspend() {
     // Preserve the mounted reader and its selection while leaving the section.
+    setMobileOutlineOpen(false, true);
     if (document.getElementById('markdown-content')?.hasAttribute('aria-busy')) {
       request?.abort();
       loadedKey = '';
@@ -645,7 +726,17 @@ window.MyBlogReader = (() => {
       button.title = '复制代码';
       button.innerHTML = '<svg class="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="11" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"></path></svg><svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg><span class="code-copy-status" aria-live="polite"></span>';
       button.addEventListener('click', () => copyCode(button, code.textContent));
-      pre.append(button);
+      const toolbar = document.createElement('div');
+      toolbar.className = 'code-toolbar';
+      const language = document.createElement('span');
+      language.className = 'code-language';
+      language.setAttribute('aria-hidden', 'true');
+      language.textContent = pre.dataset.language || code.dataset.language || 'text';
+      const scroll = document.createElement('div');
+      scroll.className = 'code-scroll';
+      scroll.append(code);
+      toolbar.append(language, button);
+      pre.replaceChildren(toolbar, scroll);
     });
   }
 
@@ -663,7 +754,8 @@ window.MyBlogReader = (() => {
     renderToolState();
     const { selected } = renderFileList(grade, subject, requestedPath);
     const article = document.getElementById('markdown-content');
-    const outline = document.querySelector('.reader-outline');
+    const outline = document.querySelector('.course-view .reader-outline');
+    const views = outlineViews(outline);
     const view = article.closest('.course-view');
     view.dataset.grade = grade?.name || '';
     view.dataset.subject = subject?.name || '';
@@ -677,10 +769,12 @@ window.MyBlogReader = (() => {
     const signal = request.signal;
     const main = document.querySelector('.main-stage');
     const previousScroll = main.scrollTop;
-    outline.hidden = true;
-    const outlineToggle = document.querySelector('[data-study-outline]');
+    setMobileOutlineOpen(false, true);
+    views.forEach(current => {
+      current.hidden = true;
+      current.replaceChildren();
+    });
     if (outlineToggle) outlineToggle.hidden = true;
-    outline.replaceChildren();
     outlineHeadings = [];
     activeOutlineId = '';
     clickedHeadingId = '';
@@ -724,18 +818,28 @@ window.MyBlogReader = (() => {
         const slug = heading.textContent.trim().toLowerCase().replace(/\s+/g, '-');
         if (!slugs.has(slug)) slugs.set(slug, heading.id);
       });
-      outline.innerHTML = '<div class="chapter-index-heading"><strong>文件导航</strong></div><div class="reader-outline-list">' + renderOutlineTree(headingTree(outlineHeadings)) + '</div>';
-      outline.querySelectorAll('.outline-branch').forEach(node => {
-        setBranchOpen(node, node.open);
-        node.querySelector('summary').addEventListener('click', event => {
-          if (event.target.closest('[data-reader-heading]')) return;
-          event.preventDefault();
-          setBranchOpen(node, node.dataset.expanded !== 'true', true);
+      const tree = headingTree(outlineHeadings);
+      views.forEach((current, index) => {
+        current.innerHTML = '<div class="chapter-index-heading"><strong>文件导航</strong></div><div class="reader-outline-list">' + renderOutlineTree(tree, 0, index === 0 ? 'desktop' : 'mobile') + '</div>';
+        current.querySelectorAll('.outline-branch').forEach(node => {
+          setBranchOpen(node, node.open);
+          node.querySelector('summary').addEventListener('click', event => {
+            if (event.target.closest('[data-reader-heading]')) return;
+            event.preventDefault();
+            setBranchOpen(node, node.dataset.expanded !== 'true', true);
+          });
         });
       });
       if (footer) { footer.hidden = false; renderFooter(); }
-      outline.hidden = !outlineHeadings.length;
-      if (outlineToggle) outlineToggle.hidden = outline.hidden;
+      views.forEach(current => { current.hidden = !outlineHeadings.length; });
+      if (mobileOutline) {
+        mobileOutline.dataset.mobileState = 'closed';
+        mobileOutline.setAttribute('aria-hidden', 'true');
+      }
+      if (outlineToggle) {
+        outlineToggle.hidden = !outlineHeadings.length;
+        outlineToggle.setAttribute('aria-expanded', 'false');
+      }
       article.querySelectorAll('a[href], img[src]').forEach(node => {
         const attribute = node.tagName === 'IMG' ? 'src' : 'href';
         const value = node.getAttribute(attribute);
@@ -811,9 +915,28 @@ window.MyBlogReader = (() => {
       renderFooter();
     }
   });
+  outlineToggle?.addEventListener('click', () => setMobileOutlineOpen(!mobileOutlineOpen));
+  outlineBackdrop?.addEventListener('click', () => setMobileOutlineOpen(false));
+  outlineNarrow.addEventListener('change', () => setMobileOutlineOpen(false, true));
+  outlineReduced.addEventListener('change', () => { if (outlineFrame && outlineReduced.matches) finishMobileOutline(); });
   document.addEventListener('keydown', event => { if (event.key === 'Escape') closePopovers(); });
   document.addEventListener('pointerdown', event => {
     if (activeMenu && !fileTools?.contains(event.target)) closePopovers();
+    if (mobileOutlineOpen && !mobileOutline?.contains(event.target) && !outlineToggle?.contains(event.target)) setMobileOutlineOpen(false);
+  });
+  document.addEventListener('focusin', event => {
+    if (mobileOutlineOpen && event.target !== outlineToggle && !mobileOutline?.contains(event.target)) setMobileOutlineOpen(false);
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && mobileOutlineOpen) {
+      event.preventDefault();
+      setMobileOutlineOpen(false);
+      outlineToggle?.focus({ preventScroll: true });
+    }
+    if (event.key === 'Tab' && mobileOutlineOpen && document.activeElement === outlineToggle && !event.shiftKey) {
+      event.preventDefault();
+      mobileOutline?.querySelector('summary, button:not([hidden]), a[href]')?.focus();
+    }
   });
   document.addEventListener('click', event => {
     const jump = event.target.closest('[data-reader-heading]');
@@ -822,6 +945,7 @@ window.MyBlogReader = (() => {
       const heading = document.getElementById(jump.dataset.readerHeading);
       if (!heading) return;
       scrollToHeading(heading);
+      if (mobileOutlineOpen) setMobileOutlineOpen(false);
     }
     if (event.target.closest('[data-reader-retry]')) retry?.();
   });
@@ -833,5 +957,5 @@ window.MyBlogReader = (() => {
   document.addEventListener('keydown', event => {
     if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) resumeReading();
   });
-  return { show, reset, suspend, setCatalog, setSection, scrollToHeading };
+  return { show, reset, suspend, setCatalog, setSection, scrollToHeading, closeOutline: (immediate = false) => setMobileOutlineOpen(false, immediate) };
 })();

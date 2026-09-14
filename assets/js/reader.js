@@ -1,10 +1,12 @@
 /* Markdown reader: local markdown-it, local KaTeX, and a small reader toolbar. */
 window.MyBlogReader = (() => {
+  const body = document.body;
   const languageAliases = {
     javascript: 'js', typescript: 'ts', jsx: 'jsx', tsx: 'tsx',
     python: 'python', py: 'python', shell: 'bash', sh: 'bash', zsh: 'bash',
     html: 'html', xml: 'html', svg: 'html', css: 'css',
-    yml: 'yaml', md: 'markdown', text: 'text', plaintext: 'text'
+    yml: 'yaml', md: 'markdown', text: 'text', plaintext: 'text',
+    'c++': 'cpp', cc: 'cpp', cxx: 'cpp', h: 'c', hpp: 'cpp'
   };
   const keywordSets = {
     js: new Set('as async await break case catch class const continue debugger default delete do else export extends finally for from function get if implements import in instanceof interface let new null of package private protected public return set static super switch this throw try typeof undefined var void while with yield true false'.split(' ')),
@@ -13,12 +15,28 @@ window.MyBlogReader = (() => {
     bash: new Set('case do done elif else esac fi for function if in select then time until while'.split(' ')),
     json: new Set('true false null'.split(' '))
   };
+  const shellCommands = new Set('alias awk cat cd chmod chown cp curl cut date echo env export find git grep head kill less ln ls make mkdir mv node npm printf pwd read rm rmdir sed sort tail tar touch tr true uname uniq wc which whoami xargs'.split(' '));
+  keywordSets.c = new Set('auto break case char const continue default do double else enum extern float for goto if inline int long register restrict return short signed sizeof static struct switch typedef union unsigned void volatile while _Bool _Atomic'.split(' '));
+  keywordSets.cpp = new Set([...keywordSets.c, ...'alignas alignof bool catch class concept constexpr consteval constinit decltype delete explicit false friend mutable namespace new noexcept nullptr operator override private protected public requires template this throw true try typename using virtual wchar_t'.split(' ')]);
+  keywordSets.java = new Set('abstract assert boolean break byte case catch char class const continue default do double else enum extends final finally float for if implements import instanceof int interface long native new null package private protected public record return short static strictfp super switch synchronized this throw throws transient true false try var void volatile while sealed permits yield'.split(' '));
+  keywordSets.sql = new Set('SELECT FROM WHERE JOIN INNER LEFT RIGHT FULL OUTER ON AS INSERT INTO VALUES UPDATE SET DELETE CREATE TABLE ALTER DROP INDEX PRIMARY KEY FOREIGN REFERENCES DISTINCT GROUP BY HAVING ORDER ASC DESC LIMIT OFFSET UNION ALL AND OR NOT NULL IS IN EXISTS BETWEEN LIKE CASE WHEN THEN ELSE END WITH COUNT SUM AVG MIN MAX TRUE FALSE'.split(' '));
+  keywordSets.yaml = new Set('true false null yes no on off'.split(' '));
+  const languageLabels = {
+    bash: 'Bash', css: 'CSS', html: 'HTML', js: 'JavaScript', json: 'JSON',
+    markdown: 'Markdown', python: 'Python', text: 'Text', ts: 'TypeScript',
+    yaml: 'YAML', jsx: 'JSX', tsx: 'TSX'
+  };
   const escCode = value => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const span = (className, value) => `<span class="tok-${className}">${escCode(value)}</span>`;
 
   function normalizedLanguage(info) {
     const raw = String(info || '').trim().toLowerCase().split(/[\s:]/)[0];
     return languageAliases[raw] || raw || 'text';
+  }
+
+  function languageLabel(info) {
+    const language = normalizedLanguage(info);
+    return languageLabels[language] || language.replace(/[-_]+/g, ' ').replace(/\b\w/g, letter => letter.toUpperCase());
   }
 
   function highlightMarkup(source) {
@@ -50,64 +68,98 @@ window.MyBlogReader = (() => {
     return html + escCode(source.slice(cursor));
   }
 
-  function highlightTokens(source, language) {
-    const keywords = keywordSets[language] || new Set();
-    const supportsHashComment = language === 'python' || language === 'bash' || language === 'yaml';
-    const isCss = language === 'css';
-    let html = '';
-    let index = 0;
-    while (index < source.length) {
-      const rest = source.slice(index);
-      const comment = rest.match(language === 'python' && rest.startsWith('###') ? /^###[\s\S]*?###/ : /^(?:\/\/[^\n]*|\/\*[\s\S]*?\*\/)/);
-      if (comment || (supportsHashComment && rest[0] === '#')) {
-        const value = comment ? comment[0] : rest.match(/^#[^\n]*/)[0];
-        html += span('comment', value);
-        index += value.length;
-        continue;
-      }
-      const quote = rest.match(/^(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)/);
-      if (quote) {
-        html += span('string', quote[0]);
-        index += quote[0].length;
-        continue;
-      }
-      const number = rest.match(/^(?:\b(?:0x[\da-f]+|0b[01]+|\d+(?:\.\d+)?)\b)/i);
-      if (number) {
-        html += span('number', number[0]);
-        index += number[0].length;
-        continue;
-      }
-      const word = rest.match(/^[A-Za-z_$][\w$]*/);
-      if (word) {
-        const value = word[0];
-        const after = rest.slice(value.length).match(/^\s*/)[0].length;
-        const next = rest.slice(value.length + after, value.length + after + 1);
-        let className = 'plain';
-        if (keywords.has(value)) className = 'keyword';
-        else if (next === '(') className = 'function';
-        else if (rest.slice(0, index).trimEnd().endsWith('.')) className = 'property';
-        else if (isCss && next === ':') className = 'property';
-        html += className === 'plain' ? escCode(value) : span(className, value);
-        index += value.length;
-        continue;
-      }
-      const operator = rest.match(/^(?:===|!==|=>|==|!=|<=|>=|&&|\|\||\+\+|--|\+=|-=|\*=|\/=|[+\-*\/%=!<>?:&|])/);
-      if (operator) {
-        html += span('operator', operator[0]);
-        index += operator[0].length;
-        continue;
-      }
-      html += escCode(source[index]);
-      index += 1;
-    }
-    return html;
-  }
 
   function highlightCode(source, info) {
     const language = normalizedLanguage(info);
     if (language === 'html') return highlightMarkup(source);
-    if (language === 'text' || language === 'markdown') return escCode(source);
-    return highlightTokens(source, language);
+    if (!['js', 'ts', 'jsx', 'tsx', 'css', 'json', 'yaml', 'bash', 'python', 'sql', 'c', 'cpp', 'java', 'markdown'].includes(language)) return escCode(source);
+    return renderLanguage(source, language);
+  }
+
+  // Match only the original source. Generated HTML is never tokenized again.
+  function renderLanguage(source, language) {
+    const base = language === 'jsx' ? 'js' : language === 'tsx' ? 'ts' : language;
+    const rules = [];
+    const add = (kind, pattern) => rules.push({ kind, pattern });
+    if (language === 'markdown') {
+      add('comment', /^<!--(?:[\s\S]*?-->|[\s\S]*$)/);
+      add('keyword', /^(?:#{1,6}(?=\s)|>(?=\s)|[-*+](?=\s)|\d+\.(?=\s))/);
+      add('string', /^!?(?:\[[^\]\n]*\]\([^\n)]*\))/);
+      add('string', /^`+[^`\n]*`+/);
+      add('keyword', /^(?:\*\*[^\n]*?\*\*|__[^\n]*?__|~~[^\n]*?~~|\*[^*\n]+\*)/);
+    } else {
+      if (['python', 'bash', 'yaml'].includes(base)) add('comment', /^#[^\n]*/);
+      if (base === 'sql') add('comment', /^--[^\n]*/);
+      if (['js', 'ts', 'c', 'cpp', 'java'].includes(base)) add('comment', /^\/\/[^\n]*/);
+      if (['js', 'ts', 'c', 'cpp', 'java', 'css', 'sql'].includes(base)) add('comment', /^\/\*(?:[\s\S]*?\*\/|[\s\S]*$)/);
+      if (['c', 'cpp'].includes(base)) add('keyword', /^#[ \t]*(?:include|define|undef|if|ifdef|ifndef|elif|else|endif|pragma|error|line)\b[^\n]*/);
+      if (base === 'python') add('string', /^(?:[rubf]{0,2})(?:"""[\s\S]*?(?:"""|$)|'''[\s\S]*?(?:'''|$))/i);
+      if (base === 'java') add('string', /^"""[\s\S]*?(?:"""|$)/);
+      if (['python', 'java'].includes(base)) add('attribute', /^@[A-Za-z_][\w.]*/);
+      if (base === 'json') add('property', /^"(?:\\.|[^"\\])*"(?=\s*:)/);
+      if (base === 'yaml') {
+        add('property', /^(?:[\w.-]+|"[^"\n]*"|'[^'\n]*')(?=\s*:)/);
+        add('attribute', /^[&*!][\w.-]+/);
+      }
+      if (base === 'bash') {
+        add('variable', /^\$(?:\{[^}\n]*\}|[A-Za-z_]\w*|[\d@#?$!*_-])/);
+        add('attribute', /^--?[A-Za-z][\w-]*/);
+      }
+      if (base === 'css') {
+        add('selector', /^[.#]?[A-Za-z_-][\w-]*(?=[^{};]*\{)/);
+        add('property', /^--?[\w-]+(?=\s*:)|^[A-Za-z][\w-]*(?=\s*:)/);
+        add('number', /^#[\da-f]{3,8}\b/i);
+      }
+      add('string', /^(?:"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*')/);
+      if (['js', 'ts', 'bash'].includes(base)) add('string', /^`(?:\\[\s\S]|[^`\\])*`/);
+      add('number', /^(?:0[xX][\da-fA-F]+|0[bB][01]+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)(?:px|rem|em|vh|vw|ms|s|%|[fFlLuU]+)?\b/);
+      add('word', /^[A-Za-z_$][\w$]*/);
+      add('operator', /^(?:===|!==|=>|==|!=|<=|>=|&&|\|\||\+\+|--|[+*\/%=!<>?:&|~-])/);
+    }
+    let output = '', index = 0;
+    while (index < source.length) {
+      const rest = source.slice(index);
+      // JSX tags are bounded before delegating expressions to the script grammar.
+      if (language === 'jsx' || language === 'tsx') {
+        const tag = rest.match(/^<\/?[A-Za-z][\w.:-]*(?:\s+[\w:-]+(?:=(?:"[^"]*"|'[^']*'|\{[^{}]*\}))?)*\s*\/?>|^<\/?\>/);
+        if (tag) {
+          let end = 0;
+          for (const part of tag[0].matchAll(/\{[^{}]*\}|"[^"]*"|'[^']*'|[A-Za-z_][\w.:-]*/g)) {
+            output += escCode(tag[0].slice(end, part.index));
+            const value = part[0];
+            output += value.startsWith('{') ? '{' + renderLanguage(value.slice(1, -1), base) + '}' : span(value.startsWith('"') || value.startsWith("'") ? 'string' : end === 0 ? 'tag' : 'attribute', value);
+            end = part.index + value.length;
+          }
+          output += escCode(tag[0].slice(end));
+          index += tag[0].length;
+          continue;
+        }
+      }
+      let matched = false;
+      for (const { kind, pattern } of rules) {
+        const match = rest.match(pattern);
+        if (!match) continue;
+        const value = match[0];
+        let token = kind;
+        if (kind === 'word') {
+          const next = rest.slice(value.length);
+          const before = source.slice(0, index);
+          token = 'plain';
+          if (keywordSets[base]?.has(base === 'sql' ? value.toUpperCase() : value)) token = 'keyword';
+          else if (base === 'bash' && /(?:^|[\n;|&])\s*$/.test(before) && shellCommands.has(value)) token = 'command';
+          else if (/^\s*\(/.test(next)) token = 'function';
+          else if (['js', 'ts', 'json', 'yaml'].includes(base) && /^\s*:/.test(next)) token = 'property';
+          else if (['js', 'ts', 'python', 'java', 'c', 'cpp'].includes(base) && /(?:class|interface|struct|enum|extends|implements|new)\s+$/.test(before)) token = 'type';
+          else if (base === 'ts' && /^(?:string|number|boolean|unknown|never|any)$/.test(value)) token = 'type';
+        }
+        output += token === 'plain' ? escCode(value) : span(token, value);
+        index += value.length;
+        matched = true;
+        break;
+      }
+      if (!matched) { output += escCode(source[index]); index++; }
+    }
+    return output;
   }
 
   const md = window.markdownit({ html: false, linkify: false, typographer: false, highlight: (source, info) => highlightCode(source, info) });
@@ -310,7 +362,7 @@ window.MyBlogReader = (() => {
     }
     outlineBackdrop?.setAttribute('aria-hidden', String(!mobileOutlineOpen));
     if (!outlineNarrow.matches || !mobileOutline || !outlineBackdrop) return;
-    if (mobileOutlineOpen && changed) {
+    if (mobileOutlineOpen && changed && !outlineReduced.matches) {
       const bounds = mobileOutline.getBoundingClientRect();
       [...mobileOutline.querySelectorAll('.chapter-index-heading, .reader-outline-list button, .outline-branch > summary')]
         .filter(node => { const rect = node.getBoundingClientRect(); return rect.height && rect.bottom > bounds.top && rect.top < bounds.bottom; })
@@ -731,7 +783,7 @@ window.MyBlogReader = (() => {
       const language = document.createElement('span');
       language.className = 'code-language';
       language.setAttribute('aria-hidden', 'true');
-      language.textContent = pre.dataset.language || code.dataset.language || 'text';
+      language.textContent = languageLabel(pre.dataset.language || code.dataset.language || 'text');
       const scroll = document.createElement('div');
       scroll.className = 'code-scroll';
       scroll.append(code);

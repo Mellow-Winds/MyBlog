@@ -201,10 +201,10 @@ body.course-page .course-context {
   overflow: hidden;
   margin: 24px 0;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, .16);
+  border: 1px solid rgba(255, 255, 255, .1);
   border-radius: 16px;
   background: rgba(27, 34, 45, .9);
-  box-shadow: 0 16px 30px rgba(20, 33, 43, .14), inset 0 1px 0 rgba(255, 255, 255, .12);
+  box-shadow: 0 18px 36px rgba(20, 20, 20, .18), inset 0 1px 0 rgba(255, 255, 255, .06);
   color: #dbe7f5;
   line-height: 1.7;
 }
@@ -223,6 +223,9 @@ body.course-page .course-context {
   padding: 0 8px 0 20px;
 }
 .code-language {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   min-width: 0;
   overflow: hidden;
   color: rgba(219, 231, 245, .58);
@@ -231,9 +234,19 @@ body.course-page .course-context {
   font-weight: 700;
   letter-spacing: .08em;
   line-height: 1.2;
-  text-overflow: ellipsis;
   text-transform: uppercase;
+  text-overflow: ellipsis;
   white-space: nowrap;
+}
+.code-language::before {
+  flex: 0 0 auto;
+  color: #f5f5f5;
+  content: none;
+  font-family: "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -.12em;
+  line-height: 1;
 }
 .code-scroll {
   min-width: 0;
@@ -245,21 +258,25 @@ body.course-page .course-context {
   min-width: max-content;
   color: inherit;
   background: transparent;
+  padding: 0;
+  border-radius: 0;
   font-size: 13px;
   line-height: inherit;
 }
-.prose pre .tok-comment { color: #7f9a91; }
-.prose pre .tok-keyword { color: #c792ea; }
-.prose pre .tok-string { color: #c3e88d; }
-.prose pre .tok-number { color: #f78c6c; }
-.prose pre .tok-function { color: #82aaff; }
-.prose pre .tok-property { color: #addbff; }
-.prose pre .tok-operator { color: #89ddff; }
-.prose pre .tok-tag { color: #f07178; }
-.prose pre .tok-attribute { color: #ffcb6b; }
-.prose pre .tok-selector { color: #82aaff; }
-.prose pre .tok-variable { color: #f07178; }
-.prose :not(pre) > code { background: rgba(249,249,255,.4); padding: 2px 4px; border-radius: 4px; font-size: 13px; line-height: 1.7; }
+.prose pre .tok-comment { color: #8b949e; }
+.prose pre .tok-keyword { color: #ff7b72; }
+.prose pre .tok-string { color: #a5d6ff; }
+.prose pre .tok-number { color: #79c0ff; }
+.prose pre .tok-function { color: #d2a8ff; }
+.prose pre .tok-property { color: #79c0ff; }
+.prose pre .tok-operator { color: #ff7b72; }
+.prose pre .tok-tag { color: #7ee787; }
+.prose pre .tok-attribute { color: #d2a8ff; }
+.prose pre .tok-selector { color: #d2a8ff; }
+.prose pre .tok-variable { color: #ffa657; }
+.prose pre .tok-command { color: #ff9966; }
+.prose pre .tok-type { color: #82aaff; }
+.prose :not(pre):not(.code-scroll) > code { background: rgba(249,249,255,.4); padding: 2px 4px; border-radius: 4px; font-size: 13px; line-height: 1.7; }
 .code-copy {
   position: relative;
   flex: 0 0 44px;
@@ -290,8 +307,8 @@ body.course-page .course-context {
 .code-copy:active { transform: scale(.94); }
 .code-copy:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .code-copy svg { position: relative; z-index: 1; width: 15px; height: 15px; }
-.code-copy[data-state="copied"] { color: #c3e88d; }
-.code-copy[data-state="copied"]::before { background: rgba(195, 232, 141, .18); opacity: 1; }
+.code-copy[data-state="copied"] { color: #b8f28b; }
+.code-copy[data-state="copied"]::before { background: rgba(184, 242, 139, .18); opacity: 1; }
 .code-copy[data-state="error"] { color: #f07178; }
 .code-copy[data-state="error"]::before { background: rgba(240, 113, 120, .16); opacity: 1; }
 .code-copy-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -500,11 +517,11 @@ body.course-page .sidebar { height: calc(100dvh - 48px - env(safe-area-inset-bot
   :is(.mobile-directory-toggle, .mobile-outline-toggle) svg { width: 24px; height: 24px; }
   :is(.mobile-directory-toggle, .mobile-outline-toggle):focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
   body.course-page .main-stage { padding-top: calc(80px + env(safe-area-inset-top, 0px)); }
-  body.course-page .sidebar.mobile-directory-panel {
+  body.course-page .sidebar.mobile-directory-panel,
+  body.course-page .mobile-outline-panel {
     display: flex;
     position: fixed;
     top: calc(72px + env(safe-area-inset-top, 0px));
-    left: calc(12px + env(safe-area-inset-left, 0px));
     width: min(360px, calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
     height: min(640px, calc(100dvh - 176px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
     padding: 0 12px 12px;
@@ -517,23 +534,14 @@ body.course-page .sidebar { height: calc(100dvh - 48px - env(safe-area-inset-bot
     visibility: visible;
     overscroll-behavior: contain;
   }
+  body.course-page .sidebar.mobile-directory-panel {
+    left: calc(12px + env(safe-area-inset-left, 0px));
+    transform-origin: 24px 0;
+  }
   body.course-page .mobile-outline-panel {
-    display: flex;
-    position: fixed;
-    top: calc(72px + env(safe-area-inset-top, 0px));
     right: calc(12px + env(safe-area-inset-right, 0px));
     left: auto;
-    width: min(360px, calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
-    height: min(640px, calc(100dvh - 176px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
-    padding: 0 12px 12px;
-    z-index: 60;
     transform-origin: calc(100% - 24px) 0;
-    border-radius: 24px;
-    background: var(--glass-highlight), rgba(249,249,255,.64);
-    backdrop-filter: blur(28px) saturate(145%);
-    -webkit-backdrop-filter: blur(28px) saturate(145%);
-    visibility: visible;
-    overscroll-behavior: contain;
   }
   body.course-page .sidebar.mobile-directory-panel[data-mobile-state="closed"],
   body.course-page .mobile-outline-panel[data-mobile-state="closed"] { visibility: hidden; pointer-events: none; }
@@ -545,7 +553,66 @@ body.course-page .sidebar { height: calc(100dvh - 48px - env(safe-area-inset-bot
     margin: 0 0 12px;
     border-bottom: 1px solid rgba(255,255,255,.54);
   }
-  .mobile-outline-panel .reader-outline-list { flex: 1; min-height: 0; padding: 0 2px 8px; }
+  /* .chapter-index has a horizontal mobile layout for ordinary pages. The
+     external reader panel is a file-browser-sized vertical sheet instead. */
+  body.course-page .mobile-outline-panel {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0;
+    height: auto;
+    max-height: min(640px, calc(100dvh - 176px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+    margin: 0;
+  }
+  .mobile-outline-panel .reader-outline-list {
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0 2px 8px;
+    max-height: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .mobile-outline-panel .outline-branch,
+  .mobile-outline-panel .outline-leaf { width: 100%; }
+  .mobile-outline-panel .outline-branch > summary {
+    min-height: 44px;
+    padding: 10px 12px;
+    gap: 10px;
+    border-radius: 12px;
+    line-height: 1.5;
+  }
+  .mobile-outline-panel .outline-branch > summary > button {
+    flex: 1 1 auto;
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: 13px;
+  }
+  .mobile-outline-panel .outline-branch > summary > svg {
+    box-sizing: content-box;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    flex: 0 0 20px;
+  }
+  .mobile-outline-panel .outline-leaf > button {
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 46px;
+    margin: 0 0 2px;
+    padding: 10px 8px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  .mobile-outline-panel .outline-branch > .study-children {
+    margin: 0 6px 0 10px;
+    padding-left: 4px;
+    border-left: 1px solid rgba(26,27,33,.1);
+  }
   body.course-page :is(.directory-backdrop, .outline-backdrop) {
     display: block;
     position: fixed;
@@ -565,6 +632,7 @@ body.course-page .sidebar { height: calc(100dvh - 48px - env(safe-area-inset-bot
 @media (max-width: 767px) {
   /* Keep live pages and snapshots in the same full-width coordinate system. */
   body { padding: 0; overflow: hidden; }
+  .prose pre { border-radius: 16px; }
 }
 @media (forced-colors: active) {
   body.course-page .sidebar.mobile-directory-panel,

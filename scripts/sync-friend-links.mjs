@@ -1,5 +1,5 @@
 import { readFile, writeFile, mkdir, stat } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { join, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 
@@ -41,20 +41,21 @@ async function saveIcon({ projectRoot, sourceUrl, siteUrl, fetcher }) {
   if (!extension || !bytes.length) throw new Error('Unsupported image response');
   const hash = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
   const filename = `${siteUrl.hostname.replace(/[^a-z0-9.-]/gi, '-')}-${hash}.${extension}`;
-  await mkdir(join(projectRoot, 'friend_url/icons'), { recursive: true });
-  await writeFile(join(projectRoot, 'friend_url/icons', filename), bytes);
+  await mkdir(join(projectRoot, 'home/friend_url/icons'), { recursive: true });
+  await writeFile(join(projectRoot, 'home/friend_url/icons', filename), bytes);
   return `./icons/${filename}`;
 }
 
 async function localIconExists(projectRoot, value) {
   if (typeof value !== 'string' || !value.startsWith('./icons/')) return false;
-  const target = resolve(projectRoot, 'friend_url', value.slice(2));
-  if (!target.startsWith(resolve(projectRoot, 'friend_url/icons') + '\\')) return false;
+  const target = resolve(projectRoot, 'home/friend_url', value.slice(2));
+  const within = relative(resolve(projectRoot, 'home/friend_url/icons'), target);
+  if (!within || within.startsWith('..') || within.includes(':')) return false;
   try { return (await stat(target)).isFile(); } catch { return false; }
 }
 
 export async function syncFriendLinks(projectRoot = root, { fetcher = fetch, warn = console.warn } = {}) {
-  const manifest = join(projectRoot, 'friend_url/fr_url.json');
+  const manifest = join(projectRoot, 'home/friend_url/fr_url.json');
   const original = await readFile(manifest, 'utf8');
   const entries = JSON.parse(original);
   if (!Array.isArray(entries)) throw new Error('fr_url.json must be an array');

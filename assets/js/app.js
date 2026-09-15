@@ -38,36 +38,13 @@ let renderedPage = null;
 let renderedCoursePage = false;
 let hasRendered = false;
 
-const personalInfo = [
-  { label: 'Email', value: 'mellowwinds@qq.com', icon: '<rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m4 7 8 6 8-6"></path>' },
-  { label: 'QQ', value: '2860339144', icon: '<path fill="currentColor" stroke="none" d="M21.395 15.035a40 40 0 0 0-.803-2.264l-1.079-2.695c.001-.032.014-.562.014-.836C19.526 4.632 17.351 0 12 0S4.474 4.632 4.474 9.241c0 .274.013.804.014.836l-1.08 2.695a39 39 0 0 0-.802 2.264c-1.021 3.283-.69 4.643-.438 4.673.54.065 2.103-2.472 2.103-2.472 0 1.469.756 3.387 2.394 4.771-.612.188-1.363.479-1.845.835-.434.32-.379.646-.301.778.343.578 5.883.369 7.482.189 1.6.18 7.14.389 7.483-.189.078-.132.132-.458-.301-.778-.483-.356-1.233-.646-1.846-.836 1.637-1.384 2.393-3.302 2.393-4.771 0 0 1.563 2.537 2.103 2.472.251-.03.581-1.39-.438-4.673"></path>' },
-  { label: '学校', value: '南京大学', icon: '<path d="m3 9 9-5 9 5-9 5-9-5Z"></path><path d="M6 11v5.5c3.5 2.2 8.5 2.2 12 0V11M21 9v7"></path>' },
-  { label: '专业', value: '软工经济', icon: '<rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h4"></path>' }
+const personalFields = [
+  { label: 'Email', key: 'email', icon: '<rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m4 7 8 6 8-6"></path>' },
+  { label: 'QQ', key: 'qq', icon: '<path fill="currentColor" stroke="none" d="M21.395 15.035a40 40 0 0 0-.803-2.264l-1.079-2.695c.001-.032.014-.562.014-.836C19.526 4.632 17.351 0 12 0S4.474 4.632 4.474 9.241c0 .274.013.804.014.836l-1.08 2.695a39 39 0 0 0-.802 2.264c-1.021 3.283-.69 4.643-.438 4.673.54.065 2.103-2.472 2.103-2.472 0 1.469.756 3.387 2.394 4.771-.612.188-1.363.479-1.845.835-.434.32-.379.646-.301.778.343.578 5.883.369 7.482.189 1.6.18 7.14.389 7.483-.189.078-.132.132-.458-.301-.778-.483-.356-1.233-.646-1.846-.836 1.637-1.384 2.393-3.302 2.393-4.771 0 0 1.563 2.537 2.103 2.472.251-.03.581-1.39-.438-4.673"></path>' },
+  { label: '学校', key: 'school', icon: '<path d="m3 9 9-5 9 5-9 5-9-5Z"></path><path d="M6 11v5.5c3.5 2.2 8.5 2.2 12 0V11M21 9v7"></path>' },
+  { label: '专业', key: 'major', icon: '<rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h4"></path>' }
 ];
 
-const featuredArticles = [
-  {
-    title: '二分查找的『红绿算法』',
-    source: '大一上-C Programming-算法',
-    grade: '大一上',
-    subject: 'C Programming',
-    path: '算法/二分查找的『红绿算法』.md'
-  },
-  {
-    title: '二位前缀和',
-    source: '大一上-C Programming-算法',
-    grade: '大一上',
-    subject: 'C Programming',
-    path: '算法/二位前缀和.md'
-  },
-  {
-    title: '知识点总结',
-    source: '大一下-软工I-期末复习',
-    grade: '大一下',
-    subject: '软工I',
-    path: '期末复习/知识点总结.md'
-  }
-];
 
 const mediaMatches = query => (
   typeof window.matchMedia === 'function' && window.matchMedia(query).matches
@@ -183,9 +160,6 @@ function encodeRoutePart(value) {
   return encodeURIComponent(value);
 }
 
-function articleRoute(article) {
-  return `#study/${[article.grade, article.subject, article.path].map(encodeRoutePart).join('/')}`;
-}
 
 function decodeRoutePart(value) {
   try {
@@ -290,6 +264,7 @@ function applyStudyCatalog(nextCatalog) {
   const nextSubjectIndex = currentGrade?.subjects.findIndex(subject => subject.name === currentSubjectName) ?? -1;
   contentState.study.item = nextSubjectIndex >= 0 ? nextSubjectIndex : 0;
 
+  window.MyBlogHome.refreshFeatured();
   if (currentRoute().page === 'study') syncActiveNav();
 }
 
@@ -305,6 +280,7 @@ async function loadStudyCatalog() {
       }] });
       if (catalogSignature(next) === catalogSignature(sectionCatalogs[page])) return;
       sectionCatalogs[page] = next;
+      window.MyBlogHome.refreshFeatured();
       if (currentRoute().page === page) syncActiveNav();
     } catch { /* Keep the last usable catalogue while a refresh is unavailable. */ }
   }));
@@ -333,40 +309,27 @@ function renderAbout() {
             <img src="icon/icon128.png" alt="头像">
           </div>
           <article class="personal-info-card glass-surface">
-            ${personalInfo.map(item => `
-              <div class="info-item" aria-label="${item.label}: ${item.value}">
+            ${personalFields.map(item => `
+              <div class="info-item" data-personal-row="${item.key}" aria-label="${item.label}" hidden>
                 <span class="info-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${item.icon}</svg>
                 </span>
-                <strong class="info-value">${item.value}</strong>
+                <strong class="info-value" data-personal="${item.key}"></strong>
               </div>
             `).join('')}
-            <p class="personal-introduction">Hello！你可以叫我Mellow，我是一名NJU软工经济在读大二学生。我喜欢追根究底，用逻辑、模型和反例理解问题。在理性之外，我同样珍视审美、想象力和人与人之间真诚的交流。喜欢辩论和一些看起来“没什么用”却足够有趣的探索。对我而言，大学不只是获得知识和学位的地方，更重要的是不断尝试、创造，并逐渐找到自己真正愿意长期投入的事情。</p>
+            <p class="personal-introduction" hidden></p>
           </article>
         </div>
       </section>
 
       <section class="home-section home-projects" aria-label="项目" data-home-reveal>
         <h2 class="home-section-title home-projects-title">最近项目</h2>
-        <div class="home-project-list">
-          <article class="home-project-card glass-surface">
-            <h3>NJU-Hub</h3>
-            <p>开发中：持续更新</p>
-            <a class="home-project-link glass-surface" href="https://github.com/Mellow-Winds/NJU-Hub" target="_blank" rel="noopener noreferrer" data-ripple>点击访问</a>
-          </article>
-          <p class="home-project-more">更多项目鬼点子生成中...</p>
-        </div>
+        <div class="home-project-list"></div>
+        <p class="home-project-more">轻触卡片即可访问项目，更多鬼点子生成中...</p>
       </section>
       <section class="home-section home-recent" aria-labelledby="featured-heading" data-home-reveal>
         <h2 class="home-section-title" id="featured-heading">文章精选</h2>
-        <div class="article-grid">
-          ${featuredArticles.map(article => `
-            <a class="article-card glass-surface" href="${articleRoute(article)}" data-ripple>
-              <h3>${escapeHtml(article.title)}</h3>
-              <p class="article-source">${escapeHtml(article.source)}</p>
-            </a>
-          `).join('')}
-        </div>
+        <div class="article-grid"></div>
       </section>
       <section class="home-section home-links" aria-labelledby="links-heading" data-home-reveal hidden>
         <h2 class="home-section-title home-links-title" id="links-heading">友情链接</h2>
@@ -411,7 +374,7 @@ function renderView(page, params = []) {
 
   if (page === 'home') {
     contentRoot.innerHTML = renderAbout();
-    window.MyBlogFriendLinks.mount(contentRoot);
+    window.MyBlogHome.mount(contentRoot);
     requestAnimationFrame(updateHomeMotion);
     return;
   }

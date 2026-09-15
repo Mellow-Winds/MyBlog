@@ -314,6 +314,28 @@ window.MyBlogReader = (() => {
     return [desktopOutline, mobileOutline].filter((view, index, views) => view && views.indexOf(view) === index);
   }
 
+  function restoreMobileOutline() {
+    setMobileOutlineOpen(false, true);
+    const available = outlineHeadings.length > 0;
+    if (outlineToggle) outlineToggle.hidden = !available;
+    if (!mobileOutline) return;
+    mobileOutline.hidden = !available;
+    mobileOutline.innerHTML = available
+      ? '<div class="chapter-index-heading"><strong>文件导航</strong></div><div class="reader-outline-list">' + renderOutlineTree(headingTree(outlineHeadings), 0, 'mobile') + '</div>'
+      : '';
+    mobileOutline.querySelectorAll('.outline-branch').forEach(node => {
+      setBranchOpen(node, node.open);
+      node.querySelector('summary').addEventListener('click', event => {
+        if (event.target.closest('[data-reader-heading]')) return;
+        event.preventDefault();
+        setBranchOpen(node, node.dataset.expanded !== 'true', true);
+      });
+    });
+    mobileOutline.querySelectorAll('[data-reader-heading]').forEach(button => {
+      button.setAttribute('aria-current', button.dataset.readerHeading === activeOutlineId ? 'location' : 'false');
+    });
+  }
+
   function getOutlineSpring() {
     if (!outlineSpring) outlineSpring = window.MyBlogRouteMotion?.createSpring?.();
     if (outlineSpring) outlineSpring.response = 16;
@@ -752,7 +774,7 @@ window.MyBlogReader = (() => {
           textarea.setAttribute('readonly', '');
           textarea.style.position = 'fixed';
           textarea.style.opacity = '0';
-          document.body.append(textarea);
+          (button.closest('dialog') || document.body).append(textarea);
           textarea.select();
           if (!document.execCommand?.('copy')) throw new Error('copy command failed');
         } finally {
@@ -792,6 +814,20 @@ window.MyBlogReader = (() => {
     });
   }
 
+  function mountMarkdown(article, source) {
+    article.innerHTML = renderMarkdown(source);
+    article.querySelectorAll('pre > code').forEach(code => {
+      const className = [...code.classList].find(name => name.startsWith('language-'));
+      const language = normalizedLanguage(className?.slice('language-'.length));
+      code.dataset.language = language;
+      code.parentElement.dataset.language = language;
+    });
+    setupCodeCopy(article);
+    article.querySelectorAll('.code-scroll').forEach(scroll => {
+      scroll.tabIndex = 0;
+      scroll.setAttribute('aria-label', '代码，可横向滚动');
+    });
+  }
   function animateArticle(article) {
     article.classList.remove('reader-content-enter');
     window.MyBlogMotion?.reveal(article.children);
@@ -812,7 +848,11 @@ window.MyBlogReader = (() => {
     view.dataset.grade = grade?.name || '';
     view.dataset.subject = subject?.name || '';
     const key = JSON.stringify([grade?.name, subject?.name, selected?.path, selected?.version, requestedPath && !selected, fileType(selected)]);
-    if (loadedKey === key) { window.MyBlogSearch?.articleReady(selected ? fileType(selected) : null); return; }
+    if (loadedKey === key) {
+      restoreMobileOutline();
+      window.MyBlogSearch?.articleReady(selected ? fileType(selected) : null);
+      return;
+    }
     const previousPath = loadedKey ? JSON.parse(loadedKey).slice(0, 3) : [];
     const sameFile = JSON.stringify(previousPath) === JSON.stringify([grade?.name, subject?.name, selected?.path]);
     loadedKey = key;
@@ -1011,5 +1051,5 @@ window.MyBlogReader = (() => {
   document.addEventListener('keydown', event => {
     if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key)) resumeReading();
   });
-  return { show, reset, suspend, setCatalog, setSection, scrollToHeading, closeOutline: (immediate = false) => setMobileOutlineOpen(false, immediate) };
+  return { show, reset, suspend, setCatalog, setSection, scrollToHeading, mountMarkdown, closeOutline: (immediate = false) => setMobileOutlineOpen(false, immediate) };
 })();

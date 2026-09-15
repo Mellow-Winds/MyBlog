@@ -441,6 +441,7 @@ function syncActiveNav(route = currentRoute()) {
 
   const currentLink = navLinks.find(link => link.dataset.navPage === route.page);
   const page = currentLink ? route.page : 'home';
+  document.title = readingSections[page]?.title || (page === 'home' ? 'MellowBlog' : pageMeta[page]?.title) || 'MellowBlog';
   const grade = studyCatalog.find(item => item.name === route.params[0]);
   const subject = grade?.subjects.find(item => item.name === route.params[1]);
   const isCoursePage = !!readingSections[page];

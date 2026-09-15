@@ -841,6 +841,8 @@ window.MyBlogReader = (() => {
     activeContext = { grade, subject, requestedPath, courseKey };
     renderToolState();
     const { selected } = renderFileList(grade, subject, requestedPath);
+    const articleTitle = selected?.path.split('/').pop().replace(/\.[^.]+$/, '');
+    if (articleTitle) document.title = articleTitle;
     const article = document.getElementById('markdown-content');
     const outline = document.querySelector('.course-view .reader-outline');
     const views = outlineViews(outline);
@@ -888,6 +890,10 @@ window.MyBlogReader = (() => {
     try {
       if (fileType(selected) === 'pdf') {
         article.innerHTML = `<iframe class="pdf-viewer" src="${esc(url.href)}#view=FitH" title="${esc(selected.name)}"></iframe><p class="pdf-fallback"><a href="${esc(url.href)}" target="_blank" rel="noopener">在新标签页打开 PDF</a></p>`;
+        const title = document.createElement('h1');
+        title.className = 'reader-article-title';
+        title.textContent = articleTitle;
+        article.prepend(title);
         if (!sameFile) animateArticle(article);
         if (sameFile) main.scrollTop = previousScroll;
         return;
@@ -897,6 +903,19 @@ window.MyBlogReader = (() => {
       const source = await response.text();
       if (signal.aborted) return;
       article.innerHTML = renderMarkdown(source);
+      const readable = article.cloneNode(true);
+      readable.querySelectorAll('.katex-mathml, script, style').forEach(node => node.remove());
+      const text = readable.textContent;
+      const characters = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/gu;
+      const words = (text.match(characters) || []).length + (text.replace(characters, ' ').match(/[\p{L}\p{N}]+/gu) || []).length;
+      const title = document.createElement('h1');
+      title.className = 'reader-article-title';
+      title.textContent = articleTitle;
+      const info = document.createElement('p');
+      info.className = 'reader-article-meta';
+      info.textContent = `字数：${words}　预计阅读：${Math.max(1, Math.ceil(words / 300))} 分钟`;
+      article.prepend(info);
+      article.prepend(title);
       article.querySelectorAll('pre > code').forEach(code => {
         const className = [...code.classList].find(name => name.startsWith('language-'));
         const language = normalizedLanguage(className?.slice('language-'.length));

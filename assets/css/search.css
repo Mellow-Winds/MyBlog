@@ -21,6 +21,8 @@ body.search-page-active .main-stage { width: 100%; margin: 0; }
 .search-empty { text-align: center; color: var(--muted); }
 .article-search { height: 48px; border-radius: 999px; margin-top: 16px; width: 100%; box-sizing: border-box; overflow: hidden; }
 .article-search[hidden] { display: none !important; }
+.course-view .reader-outline > .article-search { flex: 0 0 48px; min-height: 48px; }
+.course-view .reader-outline > .reader-outline-list { flex: 1 1 auto; }
 .article-search-content { display: flex; height: 100%; align-items: center; padding: 0 4px 0 14px; gap: 0; }
 .article-search input { width: 0; min-width: 0; flex: 1; border: 0; outline: none; background: transparent; color: var(--ink); font: inherit; font-size: 14px; padding: 0; }
 .article-search input::-webkit-search-cancel-button { display: none; }

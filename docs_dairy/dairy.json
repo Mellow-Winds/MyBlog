@@ -3,11 +3,83 @@
   "source": "dairy",
   "children": [
     {
+      "kind": "folder",
+      "name": "2025",
+      "folder": "2025",
+      "path": "2025",
+      "children": [
+        {
+          "kind": "file",
+          "name": "高考查分心路历程",
+          "path": "2025/高考查分心路历程.md",
+          "type": "md",
+          "version": "1789521135593.2393-896"
+        },
+        {
+          "kind": "file",
+          "name": "十九岁札记",
+          "path": "2025/十九岁札记.md",
+          "type": "md",
+          "version": "1789520814042.1033-2286"
+        },
+        {
+          "kind": "file",
+          "name": "晚自习",
+          "path": "2025/晚自习.md",
+          "type": "md",
+          "version": "1789521372388.6526-1224"
+        },
+        {
+          "kind": "file",
+          "name": "再见，我的高考之年",
+          "path": "2025/再见，我的高考之年.md",
+          "type": "md",
+          "version": "1789521474508.284-19806"
+        }
+      ]
+    },
+    {
+      "kind": "folder",
+      "name": "2026",
+      "folder": "2026",
+      "path": "2026",
+      "children": [
+        {
+          "kind": "file",
+          "name": "3月思考札记",
+          "path": "2026/3月思考札记.md",
+          "type": "md",
+          "version": "1789521282969.186-6083"
+        },
+        {
+          "kind": "file",
+          "name": "3月武汉旅记",
+          "path": "2026/3月武汉旅记.md",
+          "type": "md",
+          "version": "1789521987926.985-4846"
+        },
+        {
+          "kind": "file",
+          "name": "返校宣讲随笔",
+          "path": "2026/返校宣讲随笔.md",
+          "type": "md",
+          "version": "1789521185293.9683-7535"
+        },
+        {
+          "kind": "file",
+          "name": "留住春天",
+          "path": "2026/留住春天.md",
+          "type": "md",
+          "version": "1789521941748.3457-2167"
+        }
+      ]
+    },
+    {
       "kind": "file",
       "name": "一个普通人的自叙",
       "path": "一个普通人的自叙.md",
       "type": "md",
-      "version": "1789471511368.9424-13693"
+      "version": "1789520819092.8186-13692"
     },
     {
       "kind": "file",

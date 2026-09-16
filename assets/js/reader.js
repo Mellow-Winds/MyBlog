@@ -8,7 +8,7 @@ window.MyBlogReader = (() => {
     yml: 'yaml', md: 'markdown', text: 'text', plaintext: 'text',
     'c++': 'cpp', cc: 'cpp', cxx: 'cpp', h: 'c', hpp: 'cpp',
     'c#': 'csharp', cs: 'csharp', golang: 'go', rs: 'rust', kt: 'kotlin',
-    rb: 'ruby', regexp: 'regex', patch: 'diff', txt: 'text'
+    rb: 'ruby', regexp: 'regex', patch: 'diff', txt: 'text', tex: 'latex'
   };
   const keywordSets = {
     js: new Set('as async await break case catch class const continue debugger default delete do else export extends finally for from function get if implements import in instanceof interface let new null of package private protected public return set static super switch this throw try typeof undefined var void while with yield true false'.split(' ')),
@@ -38,7 +38,7 @@ window.MyBlogReader = (() => {
     markdown: 'Markdown', python: 'Python', text: 'Text', ts: 'TypeScript',
     yaml: 'YAML', jsx: 'JSX', tsx: 'TSX', c: 'C', cpp: 'C++', csharp: 'C#',
     go: 'Go', rust: 'Rust', kotlin: 'Kotlin', swift: 'Swift', php: 'PHP',
-    ruby: 'Ruby', diff: 'Diff', http: 'HTTP', regex: 'Regex', mermaid: 'Mermaid', sql: 'SQL'
+    ruby: 'Ruby', diff: 'Diff', http: 'HTTP', regex: 'Regex', mermaid: 'Mermaid', sql: 'SQL', latex: 'LaTeX'
   };
   const escCode = value => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const span = (className, value) => `<span class="tok-${className}">${escCode(value)}</span>`;
@@ -87,7 +87,7 @@ window.MyBlogReader = (() => {
     const language = normalizedLanguage(info);
     if (language === 'html') return highlightMarkup(source);
     if (['diff', 'http'].includes(language)) return highlightLines(source, language);
-    if (!['js', 'ts', 'jsx', 'tsx', 'css', 'json', 'yaml', 'bash', 'python', 'sql', 'c', 'cpp', 'java', 'markdown', 'regex', 'mermaid', ...Object.keys(extraKeywords)].includes(language)) return escCode(source);
+    if (!['js', 'ts', 'jsx', 'tsx', 'css', 'json', 'yaml', 'bash', 'python', 'sql', 'c', 'cpp', 'java', 'markdown', 'regex', 'mermaid', 'latex', ...Object.keys(extraKeywords)].includes(language)) return escCode(source);
     return renderLanguage(source, language);
   }
 
@@ -118,7 +118,14 @@ window.MyBlogReader = (() => {
     const base = language === 'jsx' ? 'js' : language === 'tsx' ? 'ts' : language;
     const rules = [];
     const add = (kind, pattern) => rules.push({ kind, pattern });
-    if (language === 'regex') {
+    if (language === 'latex') {
+      add('comment', /^%[^\n]*/);
+      add('keyword', /^\\(?:begin|end)\b/);
+      add('function', /^\\[A-Za-z@]+/);
+      add('string', /^\{[^{}\n]*\}/);
+      add('number', /^(?:\d+(?:\.\d*)?|\.\d+)/);
+      add('operator', /^(?:\\[,;:! ]|[=+*/^_&-])/);
+    } else if (language === 'regex') {
       add('variable', /^\\(?:[pP]\{[^}]*\}|[\s\S])/);
       add('string', /^\[(?:\\.|[^\]\\])*\]/);
       add('number', /^\{\d+(?:,\d*)?\}/);
@@ -369,6 +376,7 @@ window.MyBlogReader = (() => {
   let outlineFrame = 0;
   let outlinePrevious = 0;
   let outlineSpring;
+  let outlineRowAnimations = [];
 
   function outlineViews(desktopOutline = document.querySelector('.course-view .reader-outline')) {
     return [desktopOutline, mobileOutline].filter((view, index, views) => view && views.indexOf(view) === index);
@@ -376,6 +384,8 @@ window.MyBlogReader = (() => {
 
   function restoreMobileOutline() {
     setMobileOutlineOpen(false, true);
+    outlineRowAnimations.forEach(animation => animation.cancel());
+    outlineRowAnimations = [];
     const available = outlineHeadings.length > 0;
     if (outlineToggle) outlineToggle.hidden = !available;
     if (!mobileOutline) return;
@@ -410,6 +420,23 @@ window.MyBlogReader = (() => {
     outlineBackdrop.style.opacity = String(value);
   }
 
+  function revealMobileOutlineRows() {
+    outlineRowAnimations.forEach(animation => animation.cancel());
+    outlineRowAnimations = [];
+    if (!mobileOutline || outlineReduced.matches) return;
+    const bounds = mobileOutline.getBoundingClientRect();
+    const rows = [...mobileOutline.querySelectorAll(
+      '.chapter-index-heading, .reader-outline-list .outline-branch > summary, .reader-outline-list .outline-leaf > button'
+    )].filter(node => {
+      const rect = node.getBoundingClientRect();
+      return rect.height && rect.bottom > bounds.top && rect.top < bounds.bottom;
+    });
+    outlineRowAnimations = rows.map((node, index) => node.animate([
+      { opacity: 0, transform: 'translateY(-8px)' },
+      { opacity: 1, transform: 'translateY(0)' }
+    ], { duration: 1000, delay: Math.min(index, 10) * 65, easing: 'cubic-bezier(.2,0,0,1)', fill: 'backwards' }));
+  }
+
   function finishMobileOutline() {
     cancelAnimationFrame(outlineFrame);
     outlineFrame = 0;
@@ -433,6 +460,10 @@ window.MyBlogReader = (() => {
   function setMobileOutlineOpen(value, immediate = false) {
     value = Boolean(value && outlineNarrow.matches && body.classList.contains('course-page') && outlineHeadings.length && outlineToggle && !outlineToggle.hidden);
     const changed = value !== mobileOutlineOpen;
+    if (changed) {
+      outlineRowAnimations.forEach(animation => animation.cancel());
+      outlineRowAnimations = [];
+    }
     mobileOutlineOpen = value;
     if (value) window.MyBlogDirectory?.close?.(true);
     body.classList.toggle('outline-open', mobileOutlineOpen);
@@ -444,15 +475,7 @@ window.MyBlogReader = (() => {
     }
     outlineBackdrop?.setAttribute('aria-hidden', String(!mobileOutlineOpen));
     if (!outlineNarrow.matches || !mobileOutline || !outlineBackdrop) return;
-    if (mobileOutlineOpen && changed && !outlineReduced.matches) {
-      const bounds = mobileOutline.getBoundingClientRect();
-      [...mobileOutline.querySelectorAll('.chapter-index-heading, .reader-outline-list button, .outline-branch > summary')]
-        .filter(node => { const rect = node.getBoundingClientRect(); return rect.height && rect.bottom > bounds.top && rect.top < bounds.bottom; })
-        .forEach((node, index) => node.animate([
-          { opacity: 0, transform: 'translateY(-8px)' },
-          { opacity: 1, transform: 'translateY(0)' }
-        ], { duration: 1000, delay: Math.min(index, 10) * 65, easing: 'cubic-bezier(.2,0,0,1)', fill: 'backwards' }));
-    }
+    if (mobileOutlineOpen && changed) revealMobileOutlineRows();
     mobileOutline.dataset.mobileState = mobileOutlineOpen ? 'opening' : 'closing';
     const spring = getOutlineSpring();
     if (!spring) { finishMobileOutline(); return; }

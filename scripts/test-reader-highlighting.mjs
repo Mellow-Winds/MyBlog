@@ -29,7 +29,7 @@ for (const token of fences) {
   if (token.info !== 'text') assert.match(html, /<span class="tok-/, `${token.info}: syntax highlighted`);
   else assert.doesNotMatch(html, /<span/, 'plain text stays uncolored');
 }
-assert.equal(languages.size, 27, 'all guide languages covered');
+assert.equal(languages.size, 28, 'all guide languages covered');
 for (const [language, source, expected] of [
   ['csharp', 'using System;', /tok-keyword">using/],
   ['go', 'func main()', /tok-keyword">func/],
@@ -41,7 +41,8 @@ for (const [language, source, expected] of [
   ['diff', '- old\n+ new\n', /tok-inserted">\+ new/],
   ['http', 'GET / HTTP/1.1\nAccept: text/html\n', /tok-property">Accept/],
   ['regex', '^\\d+[a-z]{2,}$', /tok-number">\{2,\}/],
-  ['mermaid', 'flowchart LR\nA[中文] --> B[页面]', /tok-keyword">flowchart/]
+  ['mermaid', 'flowchart LR\nA[中文] --> B[页面]', /tok-keyword">flowchart/],
+  ['latex', '$$\\frac{a}{b}$$', /tok-function">\\frac/]
 ]) {
   assert.match(highlightCode(source, language), expected, language);
 }
@@ -54,6 +55,7 @@ for (const language of languages) {
 assert.equal(highlightCode('中文 <b>&</b>', 'unknown'), '中文 &lt;b&gt;&amp;&lt;/b&gt;');
 assert.equal(languageLabel('cs'), 'C#');
 assert.equal(languageLabel('cpp'), 'C++');
+assert.equal(languageLabel('tex'), 'LaTeX');
 assert.equal(highlightCode('func main()', 'golang'), highlightCode('func main()', 'go'));
 assert.equal(highlightCode('中文', 'plaintext'), '中文');
 console.log(`Reader highlighting passed: ${fences.length} guide blocks, ${languages.size} languages, token and escaping checks.`);

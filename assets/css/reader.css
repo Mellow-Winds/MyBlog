@@ -1,3 +1,27 @@
+/* Keep Latin fallback inside this face so a failed download cannot select NSimSun. */
+@font-face {
+  font-family: "MyBlog Code Latin";
+  src: url("../fonts/MapleMono-VF.woff2") format("woff2"), local("Cascadia Code"), local("JetBrains Mono"), local("SFMono-Regular"), local("Consolas");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-2E7F;
+}
+@font-face {
+  font-family: "MyBlog Code Latin";
+  src: url("../fonts/MapleMono-Italic-VF.woff2") format("woff2"), local("Cascadia Code Italic"), local("JetBrains Mono Italic"), local("SFMono-RegularItalic"), local("Consolas Italic");
+  font-weight: 100 800;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0000-2E7F;
+}
+@font-face {
+  font-family: "MyBlog Code CJK";
+  src: local("NSimSun"), local("新宋体");
+  font-display: swap;
+  unicode-range: U+2E80-303F, U+3100-312F, U+31A0-31BF, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+FE10-FE1F, U+FE30-FE4F, U+FF00-FFEF, U+20000-323AF;
+}
+
 /* Hide native scrollbars while preserving wheel, touch and keyboard scrolling. */
 * { scrollbar-width: none; }
 *::-webkit-scrollbar { display: none; width: 0; height: 0; }
@@ -209,7 +233,7 @@ body.course-page .course-context {
   line-height: 1.7;
 }
 .prose pre code, .prose :not(pre) > code {
-  font-family: "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Songti SC", "STSong", "SimSun", "Noto Serif CJK SC", monospace;
+  font-family: "MyBlog Code Latin", "MyBlog Code CJK", "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Songti SC", "STSong", "SimSun", "Noto Serif CJK SC", monospace;
   font-variant-ligatures: contextual;
 }
 .prose pre::before {
@@ -280,6 +304,12 @@ body.course-page .course-context {
 .prose :is(h1,h2,h3,h4,h5,h6) code { font-size: 1em; line-height: inherit; font-weight: inherit; }
 .prose pre .tok-inserted { color: #7ee787; }
 .prose pre .tok-deleted { color: #ff7b72; }
+.prose pre[data-language="latex"] .tok-comment { color: #8b949e; font-style: italic; }
+.prose pre[data-language="latex"] .tok-keyword { color: #d2a8ff; }
+.prose pre[data-language="latex"] .tok-function { color: #7ee787; }
+.prose pre[data-language="latex"] .tok-string { color: #a5d6ff; }
+.prose pre[data-language="latex"] .tok-number { color: #79c0ff; }
+.prose pre[data-language="latex"] .tok-operator { color: #ff7b72; }
 .code-copy {
   position: relative;
   flex: 0 0 44px;

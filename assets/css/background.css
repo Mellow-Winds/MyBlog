@@ -1,0 +1,79 @@
+:root {
+  --tone-a: #8EB7B0;
+  --tone-b: #91B8AA;
+  --tone-c: #92BAA9;
+  --theme-deep: #356B4B;
+  --theme-on-deep: #fff;
+  --theme-deep-soft: color-mix(in srgb, var(--theme-deep) 12%, #fff);
+  --primary: var(--theme-deep);
+  --container: var(--theme-deep-soft);
+  --background-a: color-mix(in srgb, var(--tone-a) 40%, white);
+  --background-b: color-mix(in srgb, var(--tone-b) 8%, white);
+  --background-c: color-mix(in srgb, var(--tone-c) 30%, white);
+}
+
+body {
+  background-color: #fff;
+  background-image:
+    radial-gradient(circle at 88% 10%, var(--background-a), transparent 58%),
+    radial-gradient(circle at 10% 88%, var(--background-c), transparent 60%),
+    linear-gradient(135deg, var(--background-a), var(--background-b) 54%, var(--background-c));
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+@supports (background: linear-gradient(135deg in oklch, red, blue)) {
+  body {
+    background-image:
+      radial-gradient(circle at 88% 10% in oklch, var(--background-a), transparent 58%),
+      radial-gradient(circle at 10% 88% in oklch, var(--background-c), transparent 60%),
+      linear-gradient(135deg in oklch, var(--background-a), var(--background-b) 54%, var(--background-c));
+  }
+}
+
+body::before { background: var(--background-a); }
+body::after { background: var(--background-c); }
+
+::selection { color: var(--theme-on-deep); background: var(--theme-deep); }
+mark[data-find] {
+  color: inherit;
+  background: transparent;
+  outline: 1px solid var(--theme-deep);
+  border-radius: 2px;
+}
+.search-card strong,
+.prose pre mark[data-find] {
+  color: var(--theme-deep);
+  background: var(--theme-deep-soft);
+  outline: none;
+}
+mark[data-find].is-current,
+.prose pre mark[data-find].is-current {
+  color: var(--theme-on-deep);
+  background: var(--theme-deep);
+  outline: 2px solid var(--theme-deep);
+  outline-offset: 0;
+}
+.search-card:focus-visible,
+.global-search button:focus-visible,
+.article-search button:focus-visible { outline-color: var(--theme-deep); }
+.prose blockquote { border-left-color: var(--theme-deep); background: var(--theme-deep-soft); }
+.prose a { color: var(--theme-deep); }
+.prose a:hover { text-decoration-thickness: 2px; }
+
+@media (prefers-contrast: more) {
+  body { background: var(--surface); }
+  body::before, body::after { display: none; }
+}
+
+@media (forced-colors: active) {
+  body { background: Canvas; }
+  body::before, body::after { display: none; }
+  mark[data-find] { color: inherit; background: transparent; outline-color: Highlight; }
+  .search-card strong, .prose pre mark[data-find] { color: CanvasText; background: Canvas; }
+  ::selection, mark[data-find].is-current, .prose pre mark[data-find].is-current { color: HighlightText; background: Highlight; outline-color: Highlight; }
+  .prose a { color: LinkText; }
+  .prose blockquote { border-left-color: CanvasText; background: Canvas; }
+  .search-card:focus-visible, .global-search button:focus-visible,
+  .article-search button:focus-visible { outline-color: Highlight; }
+}

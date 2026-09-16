@@ -6,11 +6,6 @@ const navLinks = [...document.querySelectorAll('[data-nav-page]')];
 const navPages = ['home', 'study', 'jinling', 'memories', 'articles'];
 const rippleDuration = 1000;
 const routeMotion = MyBlogRouteMotion.create(document.querySelector('.page-shell'));
-const liquidGlassBackground = [
-  'radial-gradient(circle at 88% 10%, rgba(74, 144, 217, .48), transparent 58%)',
-  'radial-gradient(circle at 10% 88%, rgba(211, 228, 253, .82), transparent 60%)',
-  'linear-gradient(148deg, rgba(211, 228, 253, .92), rgba(249, 249, 255, .96) 52%, rgba(74, 144, 217, .28))'
-].join(', ');
 
 const contentState = {
   study: { grade: 0, item: 0 },
@@ -49,35 +44,6 @@ const personalFields = [
 const mediaMatches = query => (
   typeof window.matchMedia === 'function' && window.matchMedia(query).matches
 );
-
-const shouldUseSolidMaterial = () => (
-  mediaMatches('(prefers-contrast: more)') ||
-  mediaMatches('(forced-colors: active)')
-);
-
-function paintLiquidBackground() {
-  if (shouldUseSolidMaterial()) {
-    body.style.removeProperty('background-image');
-    body.style.removeProperty('background-attachment');
-    return;
-  }
-
-  body.style.backgroundImage = liquidGlassBackground;
-  body.style.backgroundAttachment = 'fixed';
-}
-
-function watchPreference(query) {
-  if (typeof window.matchMedia !== 'function') return;
-
-  const mediaQuery = window.matchMedia(query);
-  const listener = () => paintLiquidBackground();
-
-  if (typeof mediaQuery.addEventListener === 'function') {
-    mediaQuery.addEventListener('change', listener);
-  } else if (typeof mediaQuery.addListener === 'function') {
-    mediaQuery.addListener(listener);
-  }
-}
 
 function escapeHtml(value) {
   return String(value)
@@ -336,6 +302,12 @@ function renderAbout() {
         <div class="home-links-grid">
         </div>
       </section>
+      <footer class="home-uptime" data-uptime>${window.MyBlogUptime.format()}</footer>
+      <div class="home-site-info" aria-label="站点信息">
+        <p class="home-site-meta"><span>© <span data-copyright-year></span> MellowBlog</span></span>Ver 1.2.1</span><time data-site-date></time><a href="home/color.html">点击查看色彩语言</a></p>
+        <p>HTML · CSS · JavaScript · 本站由 GitHub Pages 静态托管</p>
+        <p>本站由作者维护，部分页面设计、代码实现与测试由 AI 辅助完成</p>
+      </div>
       </div>
     </section>`;
 }
@@ -366,6 +338,7 @@ function renderIndexedPage(page, title, indexTitle, items) {
 
 function renderView(page, params = []) {
   if (!contentRoot) return;
+  window.MyBlogUptime.unmount();
   window.MyBlogSearch.leave();
   if (page === 'articles') {
     window.MyBlogSearch.mount(contentRoot);
@@ -375,6 +348,8 @@ function renderView(page, params = []) {
   if (page === 'home') {
     contentRoot.innerHTML = renderAbout();
     window.MyBlogHome.mount(contentRoot);
+    window.MyBlogUptime.mount(contentRoot);
+    window.MyBlogFooter.updateDate();
     requestAnimationFrame(updateHomeMotion);
     return;
   }
@@ -590,9 +565,7 @@ function rippleAt(event) {
 }
 
 body.dataset.materialMode = 'liquid-glass';
-paintLiquidBackground();
-watchPreference('(prefers-contrast: more)');
-watchPreference('(forced-colors: active)');
+window.MyBlogBackground.start();
 
 document.addEventListener('pointerdown', event => {
   if (event.button === 0) rippleAt(event);

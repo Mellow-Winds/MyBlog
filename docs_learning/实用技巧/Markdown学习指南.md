@@ -1,6 +1,6 @@
 ## 项目约定
 
-本项目使用 Markdown-it 渲染 Markdown，公式使用 KaTeX，原始 HTML 不作为页面结构执行。
+本项目使用 Markdown-it 渲染 Markdown，公式使用 $KaTeX$ ，原始 HTML 不作为页面结构执行。
 
 项目文档应使用：
 

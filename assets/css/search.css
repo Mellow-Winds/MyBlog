@@ -40,8 +40,8 @@ body.search-page-active .main-stage { width: 100%; margin: 0; }
 .article-search:focus-within, .global-search input:focus, .global-search input:focus-visible { outline: none; }
 .global-search button, .article-search button { position: relative; isolation: isolate; overflow: hidden; -webkit-tap-highlight-color: transparent; }
 .global-search button .ripple, .article-search button .ripple { z-index: 0; }
-mark[data-find] { color: inherit; background: color-mix(in srgb, var(--container) 65%, transparent); font-weight: 700; }
-mark[data-find].is-current { background: var(--container); outline: 2px solid var(--primary); border-radius: 3px; }
+mark[data-find] { font-weight: 700; }
+mark[data-find].is-current { outline: 2px solid; border-radius: 3px; }
 .search-card:focus-visible, .global-search button:focus-visible, .article-search button:focus-visible { outline: 2px solid var(--ink); outline-offset: -3px; }
 @media (max-width: 1200px) {
   .article-search { position: fixed; z-index: 66; top: calc(12px + env(safe-area-inset-top, 0px)); right: calc(72px + env(safe-area-inset-right, 0px)); margin: 0; width: var(--find-width,48px); border-radius: 999px; }

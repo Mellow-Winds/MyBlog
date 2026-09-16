@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="light">
+    <title>色彩语言 · MellowBlog</title>
+    <link rel="icon" href="../icon/icon128.png">
+    <style>
+      :root {
+        --surface: #F9F9FF;
+        --ink: #1A1B21;
+        --muted: rgba(26, 27, 33, .66);
+        --glass: rgba(249, 249, 255, .48);
+        --glass-edge: rgba(255, 255, 255, .72);
+        --shadow: 0 18px 42px rgba(20, 33, 43, .16),
+          inset 0 1px 0 rgba(255, 255, 255, .78),
+          inset 1px 0 0 rgba(255, 255, 255, .22);
+        --ease: cubic-bezier(.2, 0, 0, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-height: 100%;
+        background: var(--surface);
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        padding: clamp(20px, 4vw, 56px);
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 10% 8%, rgba(211, 228, 253, .78), transparent 36%),
+          radial-gradient(circle at 92% 92%, rgba(232, 166, 176, .2), transparent 34%),
+          linear-gradient(135deg, #EEF4FF, var(--surface) 54%, #F4F1FF);
+        background-attachment: fixed;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      main {
+        width: min(1160px, 100%);
+        margin: 0 auto;
+      }
+
+
+
+
+      .season-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+      }
+
+      .season-card {
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid var(--glass-edge);
+        border-radius: 30px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, .34), transparent 46%, rgba(255, 255, 255, .08)), var(--glass);
+        box-shadow: var(--shadow);
+        -webkit-backdrop-filter: blur(24px) saturate(145%);
+        backdrop-filter: blur(24px) saturate(145%);
+      }
+
+      .season-header {
+        display: flex;
+        align-items: start;
+        justify-content: center;
+        gap: 16px;
+        padding: 24px 24px 18px;
+      }
+
+      .season-header h2 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+        letter-spacing: -.04em;
+      }
+
+      .season-header h2 span {
+        margin-left: 8px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: .02em;
+      }
+
+
+
+
+      .season-preview {
+        position: relative;
+        display: grid;
+        min-height: 230px;
+        margin: 0 16px;
+        padding: 24px;
+        align-items: end;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, .42);
+        border-radius: 24px;
+        color: rgba(255, 255, 255, .96);
+        background: linear-gradient(135deg, var(--tone-a), var(--tone-b) 54%, var(--tone-c));
+        background: linear-gradient(135deg in oklch, var(--tone-a), var(--tone-b) 54%, var(--tone-c));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 10px 24px rgba(20, 33, 43, .1);
+        isolation: isolate;
+        transition: background 420ms var(--ease), transform 240ms var(--ease);
+      }
+
+      .season-preview::before,
+      .season-preview::after {
+        position: absolute;
+        z-index: -1;
+        width: 62%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        content: "";
+        filter: blur(18px);
+        opacity: .32;
+      }
+
+      .season-preview::before {
+        top: -38%;
+        left: -12%;
+        background: rgba(255, 255, 255, .72);
+      }
+
+      .season-preview::after {
+        right: -18%;
+        bottom: -48%;
+        background: rgba(26, 27, 33, .24);
+      }
+
+      .preview-copy {
+        display: grid;
+        gap: 6px;
+        margin: 18px 16px 6px;
+        text-align: center;
+      }
+
+      .preview-copy strong {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+
+      .subthemes {
+        display: grid;
+        gap: 18px;
+        padding: 22px 24px 28px;
+      }
+
+      .subtheme {
+        display: grid;
+        gap: 10px;
+      }
+
+      .subtheme-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 12px;
+      }
+
+      .subtheme-header strong {
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .swatch {
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        color: var(--ink);
+        background: transparent;
+        cursor: pointer;
+        font: inherit;
+        text-align: center;
+        transition: transform 180ms var(--ease);
+      }
+
+      .swatch:hover {
+        transform: translateY(-2px);
+      }
+
+      .swatch:focus-visible {
+        outline: 2px solid var(--ink);
+        outline-offset: 3px;
+      }
+
+      .swatch.is-selected {
+        transform: translateY(-2px);
+      }
+
+      .swatch-color {
+        display: grid;
+        height: 82px;
+        padding: 8px;
+        align-items: end;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, .62);
+        border-radius: 16px;
+        color: var(--swatch-ink, rgba(255, 255, 255, .94));
+        background: var(--swatch-color);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .24), 0 6px 14px rgba(20, 33, 43, .1);
+        font: 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        text-shadow: var(--swatch-shadow, 0 1px 5px rgba(26, 27, 33, .42));
+        transition: box-shadow 180ms var(--ease), outline-color 180ms var(--ease);
+      }
+
+      .swatch:hover .swatch-color {
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .34), 0 10px 18px rgba(20, 33, 43, .16);
+      }
+
+      .swatch.is-selected .swatch-color {
+        outline: 2px solid var(--ink);
+        outline-offset: 2px;
+      }
+
+      .swatch.is-deep .swatch-color {
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, .24), 0 8px 16px rgba(20, 33, 43, .16);
+      }
+
+      .swatch-name,
+      .swatch-hex {
+        display: block;
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+
+      .swatch-name {
+        margin-top: 9px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .swatch-hex {
+        margin-top: 3px;
+        text-align: center;
+        color: var(--muted);
+        font: 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      @media (max-width: 700px) {
+        body {
+          padding: 20px 16px 32px;
+        }
+
+  
+  
+        .season-grid {
+          grid-template-columns: 1fr;
+          gap: 18px;
+        }
+
+        .swatches {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 360px) {
+        .season-header {
+          padding-inline: 18px;
+        }
+
+        .season-preview {
+          min-height: 200px;
+          margin-inline: 12px;
+          padding: 18px;
+        }
+
+        .subthemes {
+          padding-inline: 18px;
+        }
+
+        .swatches {
+          gap: 16px 12px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .season-preview,
+        .swatch {
+          transition: none;
+        }
+      }
+      .page-nav { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+      .page-nav h1 { min-width: 0; margin: 0; font-size: clamp(20px, 3vw, 30px); font-weight: 600; line-height: 1.4; }
+      .page-nav a { flex-shrink: 0; }
+      .color-introduction { max-width: 960px; margin: 0 auto 36px; text-align: center; font-size: clamp(14px, 1.5vw, 16px); line-height: 2; overflow-wrap: anywhere; }
+      .color-introduction p { margin: 0; }
+      .color-introduction p + p { margin-top: 16px; }
+      .page-nav a { position: relative; z-index: 1; display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; overflow: hidden; border: 1px solid var(--glass-edge); border-radius: 50%; color: inherit; background: linear-gradient(135deg, rgba(255, 255, 255, .34), transparent 46%, rgba(255, 255, 255, .08)), var(--glass); box-shadow: var(--shadow); -webkit-backdrop-filter: blur(24px) saturate(145%); backdrop-filter: blur(24px) saturate(145%); transition: transform 180ms var(--ease), background 180ms var(--ease), color 180ms var(--ease); }
+      .page-nav svg { width: 34px; height: 34px; }
+      .page-nav a:hover { color: var(--ink); background: linear-gradient(135deg, rgba(255, 255, 255, .48), transparent 46%, rgba(255, 255, 255, .14)), rgba(249, 249, 255, .62); }
+      .page-nav a:active { transform: scale(.94); }
+      .page-nav a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+      .accent-swatches { grid-template-columns: minmax(0, 108px); justify-content: center; }
+      .season-header { text-align: center; }
+      @media (prefers-contrast: more), (forced-colors: active) {
+        .season-card { background: Canvas; color: CanvasText; border-color: CanvasText; backdrop-filter: none; -webkit-backdrop-filter: none; }
+        .season-header h2 span, .swatch-hex { color: CanvasText; }
+        .season-preview, .swatch-color { forced-color-adjust: none; }
+        .swatch.is-selected { outline: 2px solid CanvasText; outline-offset: 4px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="page-nav">
+        <a href="../index.html#home" data-back aria-label="返回首页" title="返回首页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H5"/><path d="m11.5 6-6 6 6 6"/></svg></a>
+        <h1>颜色设计语言展示</h1>
+      </header>
+      <div class="color-introduction">
+        <p>本站使用由二十四节气启发而来的「96 色季节语言」。每个节气拥有四种不同的色彩：春色渐青，夏意转蓝，秋光染金，冬暮入紫。相邻的颜色彼此衔接，让四季在色彩里缓缓流逝。今天和昨天，或许只差一点点颜色，可当许多“一点点”悄然累积，回头再看，又是一年。</p>
+        <p>岁月大抵也是如此。许多珍贵的时刻，并不会在发生时提醒我们它们有多珍贵。风、花、晚霞......普通的日子，也终会成为再也回不去的美好。愿我们在四季流转里，抓住眼前的渐变色彩，珍惜流逝的岁月时光，把握美好的青春年华。</p>
+      </div>
+      <section class="season-grid" data-season-grid aria-label="四季渐变背景预览"></section>
+      <noscript>请启用 JavaScript 查看色彩。</noscript>
+    </main>
+
+    <script src="../assets/js/background.js?v=1"></script>
+    <script>
+      const { palettes, gradient, getTheme } = window.MyBlogBackground;
+
+      function relativeLuminance(hex) {
+        const channels = hex.match(/[0-9A-Fa-f]{2}/g).map(channel => parseInt(channel, 16) / 255);
+        const linear = channels.map(channel => channel <= .03928 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4);
+        return .2126 * linear[0] + .7152 * linear[1] + .0722 * linear[2];
+      }
+
+      function makeNode(tag, className, value) {
+        const node = document.createElement(tag);
+        node.className = className;
+        if (value !== undefined) node.textContent = value;
+        return node;
+      }
+
+      function setPreview(card, palette, index, source) {
+        const isDeep = index === 'deep';
+        let first;
+        let second;
+        let third;
+
+        if (isDeep) {
+          first = palette.deep.color;
+          second = palette.deep.color;
+          third = palette.deep.color;
+        } else {
+          const active = palette.subthemes
+            .flatMap(subtheme => subtheme.colors)
+            .find(variant => variant.index === index);
+          [first, second, third] = gradient(active.globalIndex);
+        }
+        const preview = card.querySelector('[data-preview]');
+        const variant = card.querySelector('[data-variant]');
+        preview.style.setProperty('--tone-a', first);
+        preview.style.setProperty('--tone-b', second);
+        preview.style.setProperty('--tone-c', third);
+        preview.setAttribute('aria-label', `${palette.name} ${source === 'daily' ? '今日' : '当前'}渐变：${first}、${second}、${third}`);
+        variant.textContent = isDeep
+          ? `当前 · ${first}`
+          : `当前 ${String(palette.subthemes.flatMap(group => group.colors).find(color => color.index === index).globalIndex + 1).padStart(2, '0')} · ${second}`;
+        card.querySelectorAll('.swatch').forEach(swatch => {
+          const selected = swatch.dataset.variantIndex === String(index);
+          swatch.classList.toggle('is-selected', selected);
+          swatch.setAttribute('aria-pressed', String(selected));
+        });
+      }
+
+      function renderPalette(palette, today, paletteIndex) {
+        const card = makeNode('article', 'season-card');
+        const header = makeNode('header', 'season-header');
+        const title = makeNode('h2', '', palette.name);
+        title.append(makeNode('span', '', palette.english));
+        const details = makeNode('div', 'season-details');
+        details.append(title);
+        header.append(details);
+
+        const preview = makeNode('div', 'season-preview');
+        preview.dataset.preview = '';
+        const previewCopy = makeNode('div', 'preview-copy');
+        const variant = makeNode('strong', '', '');
+        variant.dataset.variant = '';
+        previewCopy.append(variant);
+        variant.setAttribute('aria-live', 'polite');
+
+        const subthemes = makeNode('div', 'subthemes');
+        const displaySubthemes = palette.subthemes;
+        displaySubthemes.forEach(subtheme => {
+          const subthemeSection = makeNode('section', 'subtheme');
+          const subthemeHeader = makeNode('div', 'subtheme-header');
+          subthemeHeader.append(makeNode('strong', '', subtheme.term));
+          const swatches = makeNode('div', 'swatches');
+          swatches.setAttribute('role', 'group');
+          swatches.setAttribute('aria-label', `${palette.name}${subtheme.term}色彩变种`);
+          subtheme.colors.forEach(variant => {
+            const swatch = makeNode('button', 'swatch');
+            swatch.type = 'button';
+            swatch.dataset.variantIndex = String(variant.index);
+            const colorSample = makeNode('span', 'swatch-color', String(variant.globalIndex + 1).padStart(2, '0'));
+            colorSample.style.setProperty('--swatch-color', variant.color);
+            const ink = relativeLuminance(variant.color) > .42 ? 'rgba(26, 27, 33, .82)' : 'rgba(255, 255, 255, .94)';
+            colorSample.style.setProperty('--swatch-ink', ink);
+            colorSample.style.setProperty('--swatch-shadow', ink.startsWith('rgba(26') ? '0 1px 5px rgba(255, 255, 255, .22)' : '0 1px 5px rgba(26, 27, 33, .42)');
+            swatch.title = `${variant.name} · ${variant.color}`;
+            swatch.setAttribute('aria-label', `${palette.name}${subtheme.name}${variant.name} ${variant.color}`);
+            swatch.append(colorSample, makeNode('strong', 'swatch-name', variant.name), makeNode('code', 'swatch-hex', variant.color));
+            swatch.addEventListener('click', () => setPreview(card, palette, variant.index, 'manual'));
+            swatches.append(swatch);
+          });
+          subthemeSection.append(subthemeHeader, swatches);
+          subthemes.append(subthemeSection);
+        });
+
+        const deepSwatch = makeNode('button', 'swatch is-deep');
+        deepSwatch.type = 'button';
+        deepSwatch.dataset.variantIndex = 'deep';
+        const deepSample = makeNode('span', 'swatch-color', '');
+        deepSample.style.setProperty('--swatch-color', palette.deep.color);
+        deepSample.style.setProperty('--swatch-ink', 'rgba(255, 255, 255, .94)');
+        deepSwatch.title = `${palette.deep.name} · 主题色 · ${palette.deep.color}`;
+        deepSwatch.setAttribute('aria-label', `${palette.name}${palette.deep.name}主题色 ${palette.deep.color}`);
+        deepSwatch.append(deepSample, makeNode('strong', 'swatch-name', palette.deep.name), makeNode('code', 'swatch-hex', palette.deep.color));
+        deepSwatch.addEventListener('click', () => setPreview(card, palette, 'deep', 'manual'));
+        const accentSection = makeNode('section', 'subtheme');
+        const accentHeader = makeNode('div', 'subtheme-header');
+        accentHeader.append(makeNode('strong', '', '主题色'));
+        const accentSwatches = makeNode('div', 'swatches accent-swatches');
+        accentSwatches.setAttribute('role', 'group');
+        accentSwatches.append(deepSwatch);
+        accentSection.append(accentHeader, accentSwatches);
+        subthemes.append(accentSection);
+
+        card.append(header, preview, previewCopy, subthemes);
+        const isCurrentSeason = paletteIndex === today.seasonIndex;
+        const defaultIndex = isCurrentSeason ? today.globalIndex % 24 : 0;
+        setPreview(card, palette, defaultIndex, isCurrentSeason ? 'daily' : 'manual');
+        return card;
+      }
+
+      const today = getTheme();
+      const grid = document.querySelector('[data-season-grid]');
+      palettes.forEach((palette, index) => grid.append(renderPalette(palette, today, index)));
+    </script>
+    <script>
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+      const animations = new Set();
+      function animate(element, frames, options) {
+        if (reduced.matches || !element.animate) return null;
+        const animation = element.animate(frames, options);
+        animations.add(animation);
+        animation.finished.then(() => animations.delete(animation), () => animations.delete(animation));
+        return animation;
+      }
+      // Reveal each row when it enters the viewport, including the lower seasons.
+      const observer = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
+        let delay = 0;
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          observer.unobserve(entry.target);
+          animate(entry.target, [
+            { opacity: 0, transform: 'translateY(-24px)' },
+            { opacity: 1, transform: 'translateY(0)' }
+          ], { duration: 560, delay, easing: 'cubic-bezier(.2,0,0,1)', fill: 'backwards' });
+          delay += 100;
+        });
+      }, { threshold: 0 }) : null;
+      document.querySelectorAll('.season-card').forEach(card => observer?.observe(card));
+      reduced.addEventListener('change', () => {
+        if (reduced.matches) animations.forEach(animation => animation.cancel());
+      });
+      let leaving = false;
+      document.querySelector('[data-back]').addEventListener('click', async event => {
+        if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
+        event.preventDefault();
+        if (leaving) return;
+        leaving = true;
+        animations.forEach(animation => animation.cancel());
+        const exit = animate(document.querySelector('main'), [
+          { opacity: 1, transform: 'translateY(0)' },
+          { opacity: 0, transform: 'translateY(-16px)' }
+        ], { duration: 200, easing: 'ease-in' });
+        if (exit) await exit.finished.catch(() => {});
+        const home = new URL('../index.html', location.href);
+        const from = document.referrer ? new URL(document.referrer) : null;
+        if (from && from.origin === home.origin &&
+            [home.pathname, home.pathname.replace(/index\.html$/, '')].includes(from.pathname) &&
+            history.length > 1) history.back();
+        else location.href = home.href + '#home';
+      });
+      window.addEventListener('pageshow', () => { leaving = false; });
+    </script>
+  </body>
+</html>

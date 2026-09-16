@@ -214,7 +214,7 @@ body.course-page .course-context {
 .prose p { margin: 16px 0; }
 .prose li { margin: 8px 0; }
 .prose ul, .prose ol { padding-left: 24px; }
-.prose blockquote { margin: 24px 0; padding: 4px 20px; border-left: 3px solid var(--primary); background: rgba(249,249,255,.25); }
+.prose blockquote { margin: 24px 0; padding: 4px 20px; border-left: 3px solid; }
 .prose table { display: block; overflow: auto; width: 100%; border-collapse: collapse; font-size: 14px; }
 .prose td, .prose th { border: 1px solid rgba(26,27,33,.18); padding: 12px; text-align: left; min-width: 112px; }
 .prose th { background: rgba(249,249,255,.3); }
@@ -374,7 +374,7 @@ body.course-page .course-context {
 .prose img { max-width: 100%; height: auto; }
 .prose img[data-local-image] { display: block; margin: 24px auto; border-radius: 12px; }
 .reader-image-error { display: block; padding: 20px; border: 1px dashed var(--muted); border-radius: 12px; color: var(--muted); font-size: var(--text-sm); }
-.prose a { color: #215d99; text-decoration: underline; text-underline-offset: 3px; }
+.prose a { text-decoration: underline; text-underline-offset: 3px; }
 .math-block { margin: 24px 0; overflow-x: auto; text-align: center; }
 .math-inline { white-space: nowrap; }
 .math-fallback { font-family: "Cambria Math", "STIX Two Math", serif; }

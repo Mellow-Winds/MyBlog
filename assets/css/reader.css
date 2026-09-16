@@ -209,7 +209,7 @@ body.course-page .course-context {
   line-height: 1.7;
 }
 .prose pre code, .prose :not(pre) > code {
-  font-family: "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  font-family: "Cascadia Code", "JetBrains Mono", "SFMono-Regular", Consolas, "Songti SC", "STSong", "SimSun", "Noto Serif CJK SC", monospace;
   font-variant-ligatures: contextual;
 }
 .prose pre::before {
@@ -276,7 +276,10 @@ body.course-page .course-context {
 .prose pre .tok-variable { color: #ffa657; }
 .prose pre .tok-command { color: #ff9966; }
 .prose pre .tok-type { color: #82aaff; }
-.prose :not(pre):not(.code-scroll) > code { background: rgba(249,249,255,.4); padding: 2px 4px; border-radius: 4px; font-size: 13px; line-height: 1.7; }
+.prose :where(:not(pre):not(.code-scroll)) > code { background: rgba(249,249,255,.4); padding: 2px 4px; border-radius: 4px; font-size: 13px; line-height: 1.7; }
+.prose :is(h1,h2,h3,h4,h5,h6) code { font-size: 1em; line-height: inherit; font-weight: inherit; }
+.prose pre .tok-inserted { color: #7ee787; }
+.prose pre .tok-deleted { color: #ff7b72; }
 .code-copy {
   position: relative;
   flex: 0 0 44px;

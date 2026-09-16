@@ -6,7 +6,9 @@ window.MyBlogReader = (() => {
     python: 'python', py: 'python', shell: 'bash', sh: 'bash', zsh: 'bash',
     html: 'html', xml: 'html', svg: 'html', css: 'css',
     yml: 'yaml', md: 'markdown', text: 'text', plaintext: 'text',
-    'c++': 'cpp', cc: 'cpp', cxx: 'cpp', h: 'c', hpp: 'cpp'
+    'c++': 'cpp', cc: 'cpp', cxx: 'cpp', h: 'c', hpp: 'cpp',
+    'c#': 'csharp', cs: 'csharp', golang: 'go', rs: 'rust', kt: 'kotlin',
+    rb: 'ruby', regexp: 'regex', patch: 'diff', txt: 'text'
   };
   const keywordSets = {
     js: new Set('as async await break case catch class const continue debugger default delete do else export extends finally for from function get if implements import in instanceof interface let new null of package private protected public return set static super switch this throw try typeof undefined var void while with yield true false'.split(' ')),
@@ -21,10 +23,22 @@ window.MyBlogReader = (() => {
   keywordSets.java = new Set('abstract assert boolean break byte case catch char class const continue default do double else enum extends final finally float for if implements import instanceof int interface long native new null package private protected public record return short static strictfp super switch synchronized this throw throws transient true false try var void volatile while sealed permits yield'.split(' '));
   keywordSets.sql = new Set('SELECT FROM WHERE JOIN INNER LEFT RIGHT FULL OUTER ON AS INSERT INTO VALUES UPDATE SET DELETE CREATE TABLE ALTER DROP INDEX PRIMARY KEY FOREIGN REFERENCES DISTINCT GROUP BY HAVING ORDER ASC DESC LIMIT OFFSET UNION ALL AND OR NOT NULL IS IN EXISTS BETWEEN LIKE CASE WHEN THEN ELSE END WITH COUNT SUM AVG MIN MAX TRUE FALSE'.split(' '));
   keywordSets.yaml = new Set('true false null yes no on off'.split(' '));
+  const extraKeywords = {
+    csharp: 'using namespace class struct interface enum public private protected internal static readonly sealed abstract virtual override new void string int bool double decimal var const return if else switch case break continue for foreach in while do try catch finally throw async await yield out ref is as get set init record true false null',
+    go: 'package import func type struct interface map chan var const range go defer select case default switch if else for break continue return fallthrough goto true false nil',
+    rust: 'as async await break const continue crate dyn else enum extern false fn for if impl in let loop match mod move mut pub ref return self Self static struct super trait true type unsafe use where while',
+    kotlin: 'fun val var class interface object data sealed open override private public protected internal companion import package return if else when for in while do break continue try catch finally throw is as this super null true false suspend inline reified',
+    swift: 'let var func class struct enum protocol extension import return if else guard switch case default for in while repeat break continue do try catch throw throws public private internal static override init deinit self Self nil true false async await',
+    php: 'php echo print function class interface trait namespace use public private protected static final abstract extends implements new return if else elseif switch case break continue for foreach as while do try catch finally throw true false null',
+    ruby: 'def end class module require include extend attr_reader attr_writer attr_accessor puts print return if else elsif unless case when then while until for in do begin rescue ensure raise yield self super nil true false and or not'
+  };
+  for (const [language, words] of Object.entries(extraKeywords)) keywordSets[language] = new Set(words.split(' '));
   const languageLabels = {
     bash: 'Bash', css: 'CSS', html: 'HTML', js: 'JavaScript', json: 'JSON',
     markdown: 'Markdown', python: 'Python', text: 'Text', ts: 'TypeScript',
-    yaml: 'YAML', jsx: 'JSX', tsx: 'TSX'
+    yaml: 'YAML', jsx: 'JSX', tsx: 'TSX', c: 'C', cpp: 'C++', csharp: 'C#',
+    go: 'Go', rust: 'Rust', kotlin: 'Kotlin', swift: 'Swift', php: 'PHP',
+    ruby: 'Ruby', diff: 'Diff', http: 'HTTP', regex: 'Regex', mermaid: 'Mermaid', sql: 'SQL'
   };
   const escCode = value => String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const span = (className, value) => `<span class="tok-${className}">${escCode(value)}</span>`;
@@ -72,8 +86,31 @@ window.MyBlogReader = (() => {
   function highlightCode(source, info) {
     const language = normalizedLanguage(info);
     if (language === 'html') return highlightMarkup(source);
-    if (!['js', 'ts', 'jsx', 'tsx', 'css', 'json', 'yaml', 'bash', 'python', 'sql', 'c', 'cpp', 'java', 'markdown'].includes(language)) return escCode(source);
+    if (['diff', 'http'].includes(language)) return highlightLines(source, language);
+    if (!['js', 'ts', 'jsx', 'tsx', 'css', 'json', 'yaml', 'bash', 'python', 'sql', 'c', 'cpp', 'java', 'markdown', 'regex', 'mermaid', ...Object.keys(extraKeywords)].includes(language)) return escCode(source);
     return renderLanguage(source, language);
+  }
+
+  function highlightLines(source, language) {
+    // Keep line separators intact so copying returns the original source.
+    let httpHeaders = true;
+    return source.split(/(\r?\n)/).map(line => {
+      if (/^\r?\n$/.test(line)) return line;
+      if (language === 'diff') {
+        if (/^(?:@@|diff\b|index\b|---|\+\+\+)/.test(line)) return span('comment', line);
+        if (line.startsWith('+')) return span('inserted', line);
+        if (line.startsWith('-')) return span('deleted', line);
+      } else {
+        if (!line) httpHeaders = false;
+        const request = line.match(/^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS|CONNECT|TRACE)(\s+)(\S+)(\s+)(HTTP\/\d(?:\.\d)?)$/);
+        if (request) return span('keyword', request[1]) + request[2] + span('string', request[3]) + request[4] + span('type', request[5]);
+        const response = line.match(/^(HTTP\/\d(?:\.\d)?)(\s+)(\d{3})(.*)$/);
+        if (response) return span('type', response[1]) + response[2] + span('number', response[3]) + escCode(response[4]);
+        const header = httpHeaders && line.match(/^([\w-]+)(:\s*)(.*)$/);
+        if (header) return span('property', header[1]) + escCode(header[2]) + span('string', header[3]);
+      }
+      return escCode(line);
+    }).join('');
   }
 
   // Match only the original source. Generated HTML is never tokenized again.
@@ -81,20 +118,43 @@ window.MyBlogReader = (() => {
     const base = language === 'jsx' ? 'js' : language === 'tsx' ? 'ts' : language;
     const rules = [];
     const add = (kind, pattern) => rules.push({ kind, pattern });
-    if (language === 'markdown') {
+    if (language === 'regex') {
+      add('variable', /^\\(?:[pP]\{[^}]*\}|[\s\S])/);
+      add('string', /^\[(?:\\.|[^\]\\])*\]/);
+      add('number', /^\{\d+(?:,\d*)?\}/);
+      add('keyword', /^(?:\(\?(?:[:=!]|<[=!])|[\^$])/);
+      add('operator', /^[.*+?()|]/);
+    } else if (language === 'mermaid') {
+      add('comment', /^%%[^\n]*/);
+      add('keyword', /^(?:flowchart|graph|subgraph|end|direction|sequenceDiagram|classDiagram|stateDiagram(?:-v2)?|erDiagram|gantt|pie|journey|participant|actor|classDef|class|style|click|LR|RL|TB|TD|BT)\b/);
+      add('operator', /^(?:-->|---|==>|-\.->|-->>|->>|--|[<>|])/);
+      add('string', /^(?:\[[^\]\n]*\]|\([^\n)]*\)|\{[^}\n]*\}|"[^"\n]*")/);
+      add('word', /^[A-Za-z_][\w-]*/);
+    } else if (language === 'markdown') {
       add('comment', /^<!--(?:[\s\S]*?-->|[\s\S]*$)/);
+      add('string', /^%%[^\n]*?%%/);
+      add('keyword', /^(?:-{3,}|\*{3,}|_{3,})(?=\r?$|\r?\n)/);
+      add('variable', /^(?:\\[()[\]]|\${1,2}|\\[A-Za-z]+)/);
+      add('keyword', /^`{3,}[^\n]*/);
       add('keyword', /^(?:#{1,6}(?=\s)|>(?=\s)|[-*+](?=\s)|\d+\.(?=\s))/);
       add('string', /^!?(?:\[[^\]\n]*\]\([^\n)]*\))/);
       add('string', /^`+[^`\n]*`+/);
       add('keyword', /^(?:\*\*[^\n]*?\*\*|__[^\n]*?__|~~[^\n]*?~~|\*[^*\n]+\*)/);
     } else {
-      if (['python', 'bash', 'yaml'].includes(base)) add('comment', /^#[^\n]*/);
+      if (['python', 'bash', 'yaml', 'ruby', 'php'].includes(base)) add('comment', /^#[^\n]*/);
       if (base === 'sql') add('comment', /^--[^\n]*/);
-      if (['js', 'ts', 'c', 'cpp', 'java'].includes(base)) add('comment', /^\/\/[^\n]*/);
-      if (['js', 'ts', 'c', 'cpp', 'java', 'css', 'sql'].includes(base)) add('comment', /^\/\*(?:[\s\S]*?\*\/|[\s\S]*$)/);
+      if (['js', 'ts', 'c', 'cpp', 'java', 'csharp', 'go', 'rust', 'kotlin', 'swift', 'php'].includes(base)) add('comment', /^\/\/[^\n]*/);
+      if (['js', 'ts', 'c', 'cpp', 'java', 'css', 'sql', 'csharp', 'go', 'rust', 'kotlin', 'swift', 'php'].includes(base)) add('comment', /^\/\*(?:[\s\S]*?\*\/|[\s\S]*$)/);
+      if (base === 'php') {
+        add('keyword', /^<\?(?:php|=)?|^\?>/);
+        add('variable', /^\$[A-Za-z_]\w*/);
+      }
+      if (base === 'ruby') add('variable', /^(?:@@?|\$)[A-Za-z_]\w*/);
+      if (base === 'rust') add('function', /^[A-Za-z_]\w*!(?=\s*[(\[{])/);
+      if (base === 'csharp') add('string', /^(?:\$@|@\$|@)"(?:""|[^"])*"/);
       if (['c', 'cpp'].includes(base)) add('keyword', /^#[ \t]*(?:include|define|undef|if|ifdef|ifndef|elif|else|endif|pragma|error|line)\b[^\n]*/);
       if (base === 'python') add('string', /^(?:[rubf]{0,2})(?:"""[\s\S]*?(?:"""|$)|'''[\s\S]*?(?:'''|$))/i);
-      if (base === 'java') add('string', /^"""[\s\S]*?(?:"""|$)/);
+      if (['java', 'kotlin', 'swift', 'csharp'].includes(base)) add('string', /^"""[\s\S]*?(?:"""|$)/);
       if (['python', 'java'].includes(base)) add('attribute', /^@[A-Za-z_][\w.]*/);
       if (base === 'json') add('property', /^"(?:\\.|[^"\\])*"(?=\s*:)/);
       if (base === 'yaml') {
@@ -111,7 +171,7 @@ window.MyBlogReader = (() => {
         add('number', /^#[\da-f]{3,8}\b/i);
       }
       add('string', /^(?:"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*')/);
-      if (['js', 'ts', 'bash'].includes(base)) add('string', /^`(?:\\[\s\S]|[^`\\])*`/);
+      if (['js', 'ts', 'bash', 'go'].includes(base)) add('string', /^`(?:\\[\s\S]|[^`\\])*`/);
       add('number', /^(?:0[xX][\da-fA-F]+|0[bB][01]+|\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)(?:px|rem|em|vh|vw|ms|s|%|[fFlLuU]+)?\b/);
       add('word', /^[A-Za-z_$][\w$]*/);
       add('operator', /^(?:===|!==|=>|==|!=|<=|>=|&&|\|\||\+\+|--|[+*\/%=!<>?:&|~-])/);

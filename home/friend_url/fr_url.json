@@ -10,5 +10,11 @@
     "description": "记录技术思考、项目经验和学习成长",
     "icon": "./icons/mingshuo.org-1d3209dc5a86.jpg",
     "url": "https://mingshuo.org/"
+  },
+  {
+    "name": "JHY's Blog",
+    "description": "",
+    "icon": "./icons/imjhy.com-5054ae299e63.ico",
+    "url": "https://imjhy.com/"
   }
 ]

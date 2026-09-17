@@ -16,5 +16,11 @@
     "description": "",
     "icon": "./icons/imjhy.com-5054ae299e63.ico",
     "url": "https://imjhy.com/"
-  }
+  },
+  {
+  "name": "不驚茶坊",
+  "description": "不驚醴的个人茶坊：记录学习、写作、软件与日常观察。",
+  "icon": "./icons/buluchaf.jpg",
+  "url": "https://jingtine.github.io/jingtine-agent-site/"
+}
 ]

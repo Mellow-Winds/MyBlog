@@ -22,6 +22,13 @@
             },
             {
               "kind": "file",
+              "name": "马原期末复习",
+              "path": "马原期末复习.pdf",
+              "type": "pdf",
+              "version": "1789652904176.071-385893"
+            },
+            {
+              "kind": "file",
               "name": "马原知识点模拟1",
               "path": "马原知识点模拟1.md",
               "type": "md",
@@ -41,6 +48,12 @@
               "path": "马原模拟题答案.md",
               "type": "md",
               "version": "1767622520007.0984-9144"
+            },
+            {
+              "name": "马原期末复习",
+              "path": "马原期末复习.pdf",
+              "type": "pdf",
+              "version": "1789652904176.071-385893"
             },
             {
               "name": "马原知识点模拟1",
@@ -131,6 +144,13 @@
               "path": "微观经济学-名词解释.md",
               "type": "md",
               "version": "1789267865083.636-9024"
+            },
+            {
+              "kind": "file",
+              "name": "我自己的微经复习",
+              "path": "我自己的微经复习.pdf",
+              "type": "pdf",
+              "version": "1789653084907.9255-78562356"
             }
           ],
           "files": [
@@ -187,6 +207,12 @@
               "path": "微观经济学-名词解释.md",
               "type": "md",
               "version": "1789267865083.636-9024"
+            },
+            {
+              "name": "我自己的微经复习",
+              "path": "我自己的微经复习.pdf",
+              "type": "pdf",
+              "version": "1789653084907.9255-78562356"
             }
           ]
         },
@@ -517,6 +543,13 @@
           "children": [
             {
               "kind": "file",
+              "name": "大一政治经济学期末复习（重点版）",
+              "path": "大一政治经济学期末复习（重点版）.pdf",
+              "type": "pdf",
+              "version": "1789652802276.0881-643040"
+            },
+            {
+              "kind": "file",
               "name": "政治经济学期末模拟试卷（A）",
               "path": "政治经济学期末模拟试卷（A）.md",
               "type": "md",
@@ -542,10 +575,23 @@
               "path": "政治经济学期末模拟试卷（D）.md",
               "type": "md",
               "version": "1767347916931.447-8197"
+            },
+            {
+              "kind": "file",
+              "name": "政治经济学知识点复习",
+              "path": "政治经济学知识点复习.pdf",
+              "type": "pdf",
+              "version": "1788006532706.6387-251501"
             }
           ],
           "files": [
             {
+              "name": "大一政治经济学期末复习（重点版）",
+              "path": "大一政治经济学期末复习（重点版）.pdf",
+              "type": "pdf",
+              "version": "1789652802276.0881-643040"
+            },
+            {
               "name": "政治经济学期末模拟试卷（A）",
               "path": "政治经济学期末模拟试卷（A）.md",
               "type": "md",
@@ -568,6 +614,12 @@
               "path": "政治经济学期末模拟试卷（D）.md",
               "type": "md",
               "version": "1767347916931.447-8197"
+            },
+            {
+              "name": "政治经济学知识点复习",
+              "path": "政治经济学知识点复习.pdf",
+              "type": "pdf",
+              "version": "1788006532706.6387-251501"
             }
           ]
         },
@@ -894,6 +946,13 @@
               "children": [
                 {
                   "kind": "file",
+                  "name": "习题",
+                  "path": "课件/习题.pdf",
+                  "type": "pdf",
+                  "version": "1789653390271.9626-3406877"
+                },
+                {
+                  "kind": "file",
                   "name": "lecture1A_Data_GDP",
                   "path": "课件/lecture1A_Data_GDP.pdf",
                   "type": "pdf",
@@ -933,8 +992,43 @@
                   "path": "课件/lecture2C_Classical_open.pdf",
                   "type": "pdf",
                   "version": "1777986393286.4807-2266813"
+                },
+                {
+                  "kind": "file",
+                  "name": "lecture3_Growth",
+                  "path": "课件/lecture3_Growth.pdf",
+                  "type": "pdf",
+                  "version": "1789653406000-4369343"
+                },
+                {
+                  "kind": "file",
+                  "name": "lecture4A_BC_ISLM",
+                  "path": "课件/lecture4A_BC_ISLM.pdf",
+                  "type": "pdf",
+                  "version": "1789653408000-4282046"
+                },
+                {
+                  "kind": "file",
+                  "name": "lecture4B_BC_OpenISLM",
+                  "path": "课件/lecture4B_BC_OpenISLM.pdf",
+                  "type": "pdf",
+                  "version": "1789653408000-5487139"
+                },
+                {
+                  "kind": "file",
+                  "name": "lecture4C_BC_ASAD",
+                  "path": "课件/lecture4C_BC_ASAD.pdf",
+                  "type": "pdf",
+                  "version": "1789653408000-3344910"
                 }
               ]
+            },
+            {
+              "kind": "file",
+              "name": "宏经期末复习",
+              "path": "宏经期末复习.pdf",
+              "type": "pdf",
+              "version": "1789653334433.36-33992919"
             },
             {
               "kind": "file",
@@ -966,6 +1060,12 @@
             }
           ],
           "files": [
+            {
+              "name": "习题",
+              "path": "课件/习题.pdf",
+              "type": "pdf",
+              "version": "1789653390271.9626-3406877"
+            },
             {
               "name": "lecture1A_Data_GDP",
               "path": "课件/lecture1A_Data_GDP.pdf",
@@ -1003,6 +1103,36 @@
               "version": "1777986393286.4807-2266813"
             },
             {
+              "name": "lecture3_Growth",
+              "path": "课件/lecture3_Growth.pdf",
+              "type": "pdf",
+              "version": "1789653406000-4369343"
+            },
+            {
+              "name": "lecture4A_BC_ISLM",
+              "path": "课件/lecture4A_BC_ISLM.pdf",
+              "type": "pdf",
+              "version": "1789653408000-4282046"
+            },
+            {
+              "name": "lecture4B_BC_OpenISLM",
+              "path": "课件/lecture4B_BC_OpenISLM.pdf",
+              "type": "pdf",
+              "version": "1789653408000-5487139"
+            },
+            {
+              "name": "lecture4C_BC_ASAD",
+              "path": "课件/lecture4C_BC_ASAD.pdf",
+              "type": "pdf",
+              "version": "1789653408000-3344910"
+            },
+            {
+              "name": "宏经期末复习",
+              "path": "宏经期末复习.pdf",
+              "type": "pdf",
+              "version": "1789653334433.36-33992919"
+            },
+            {
               "name": "Lecture 1-宏观经济数据的衡量",
               "path": "Lecture 1-宏观经济数据的衡量.md",
               "type": "md",
@@ -1025,6 +1155,28 @@
               "path": "Lecture 2C-古典开放经济模型.md",
               "type": "md",
               "version": "1778207802097.9434-7796"
+            }
+          ]
+        },
+        {
+          "name": "离散数学",
+          "folder": "离散数学",
+          "teacher": "xxx",
+          "children": [
+            {
+              "kind": "file",
+              "name": "离散期末复习",
+              "path": "离散期末复习.pdf",
+              "type": "pdf",
+              "version": "1789653296119.6743-85363205"
+            }
+          ],
+          "files": [
+            {
+              "name": "离散期末复习",
+              "path": "离散期末复习.pdf",
+              "type": "pdf",
+              "version": "1789653296119.6743-85363205"
             }
           ]
         },
@@ -2040,6 +2192,20 @@
               "path": "微积分二教材答案.pdf",
               "type": "pdf",
               "version": "1739638289000-32656334"
+            },
+            {
+              "kind": "file",
+              "name": "微II-期末复习",
+              "path": "微II-期末复习.pdf",
+              "type": "pdf",
+              "version": "1789653490189.969-40868665"
+            },
+            {
+              "kind": "file",
+              "name": "微II-期中复习",
+              "path": "微II-期中复习.pdf",
+              "type": "pdf",
+              "version": "1789653535191.6526-16464016"
             }
           ],
           "files": [
@@ -2192,6 +2358,18 @@
               "path": "微积分二教材答案.pdf",
               "type": "pdf",
               "version": "1739638289000-32656334"
+            },
+            {
+              "name": "微II-期末复习",
+              "path": "微II-期末复习.pdf",
+              "type": "pdf",
+              "version": "1789653490189.969-40868665"
+            },
+            {
+              "name": "微II-期中复习",
+              "path": "微II-期中复习.pdf",
+              "type": "pdf",
+              "version": "1789653535191.6526-16464016"
             }
           ]
         },
@@ -2201,64 +2379,56 @@
           "teacher": "xxx",
           "children": [
             {
-              "kind": "folder",
-              "name": "期末复习",
-              "folder": "期末复习",
-              "path": "期末复习",
-              "children": [
-                {
-                  "kind": "file",
-                  "name": "复习（2026版）",
-                  "path": "期末复习/复习（2026版）.pdf",
-                  "type": "pdf",
-                  "version": "1782621657705.7993-3254404"
-                },
-                {
-                  "kind": "file",
-                  "name": "面向往年题的需求总结",
-                  "path": "期末复习/面向往年题的需求总结.md",
-                  "type": "md",
-                  "version": "1782567836269.1345-10447"
-                },
-                {
-                  "kind": "file",
-                  "name": "需求考点分析（2020-2024）",
-                  "path": "期末复习/需求考点分析（2020-2024）.md",
-                  "type": "md",
-                  "version": "1789471511364.4292-15638"
-                },
-                {
-                  "kind": "file",
-                  "name": "需求期末2020-2024",
-                  "path": "期末复习/需求期末2020-2024.md",
-                  "type": "md",
-                  "version": "1782574750916.1462-10373"
-                }
-              ]
-            }
-          ],
-          "files": [
-            {
-              "name": "复习（2026版）",
-              "path": "期末复习/复习（2026版）.pdf",
-              "type": "pdf",
-              "version": "1782621657705.7993-3254404"
-            },
-            {
+              "kind": "file",
               "name": "面向往年题的需求总结",
-              "path": "期末复习/面向往年题的需求总结.md",
+              "path": "面向往年题的需求总结.md",
               "type": "md",
               "version": "1782567836269.1345-10447"
             },
             {
-              "name": "需求考点分析（2020-2024）",
-              "path": "期末复习/需求考点分析（2020-2024）.md",
+              "kind": "file",
+              "name": "期末考点分析（2020-2024）",
+              "path": "期末考点分析（2020-2024）.md",
               "type": "md",
               "version": "1789471511364.4292-15638"
             },
             {
+              "kind": "file",
+              "name": "我的期末复习（2026版）",
+              "path": "我的期末复习（2026版）.pdf",
+              "type": "pdf",
+              "version": "1782621657705.7993-3254404"
+            },
+            {
+              "kind": "file",
               "name": "需求期末2020-2024",
-              "path": "期末复习/需求期末2020-2024.md",
+              "path": "需求期末2020-2024.md",
+              "type": "md",
+              "version": "1782574750916.1462-10373"
+            }
+          ],
+          "files": [
+            {
+              "name": "面向往年题的需求总结",
+              "path": "面向往年题的需求总结.md",
+              "type": "md",
+              "version": "1782567836269.1345-10447"
+            },
+            {
+              "name": "期末考点分析（2020-2024）",
+              "path": "期末考点分析（2020-2024）.md",
+              "type": "md",
+              "version": "1789471511364.4292-15638"
+            },
+            {
+              "name": "我的期末复习（2026版）",
+              "path": "我的期末复习（2026版）.pdf",
+              "type": "pdf",
+              "version": "1782621657705.7993-3254404"
+            },
+            {
+              "name": "需求期末2020-2024",
+              "path": "需求期末2020-2024.md",
               "type": "md",
               "version": "1782574750916.1462-10373"
             }

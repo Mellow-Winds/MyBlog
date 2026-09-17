@@ -6,6 +6,7 @@ const root = new URL('../', import.meta.url);
 const read = async path => JSON.parse(await readFile(new URL(path, root), 'utf8'));
 const app = await readFile(new URL('assets/js/app.js', root), 'utf8');
 const home = await readFile(new URL('assets/js/home.js', root), 'utf8');
+const router = await readFile(new URL('assets/js/router.js', root), 'utf8');
 const normalize = vm.runInNewContext(app.slice(app.indexOf('function catalogFromLearningJson'), app.indexOf('function catalogSignature')) + ';catalogFromLearningJson');
 const learning = await read('docs_learning/learning.json');
 const featured = await read('home/featured.json');
@@ -39,7 +40,7 @@ let data = {
 const warnings = [];
 let delay;
 const context = vm.createContext({
-  window: { MyBlogFriendLinks: { mount() {} }, MyBlogMotion: { updateHome() {} } },
+  window: { MyBlogQuotes: { mount() {} }, MyBlogFriendLinks: { mount() {} }, MyBlogMotion: { updateHome() {} } },
   document: { baseURI: 'https://example.org/MyBlog/', createElement: tag => Object.assign(new Node(), { tagName: tag }) },
   URL, console: { warn: (...args) => warnings.push(args) },
   readingSections: { study: { root: 'docs_learning', title: '学在南雍' }, memories: { root: 'docs_dairy', title: '南雍杂忆' }, jinling: { root: 'docs_travelling', title: '玩在金陵' } },
@@ -52,6 +53,7 @@ const context = vm.createContext({
     return { ok: true, json: async () => data[name] };
   }
 });
+vm.runInContext(router, context);
 vm.runInContext(home, context);
 const api = context.window.MyBlogHome;
 const first = view();
@@ -79,7 +81,7 @@ assert.equal(first.nodes['.personal-introduction'].textContent, '第一行\n第�
 for (const entry of featured) {
   const resolved = api.resolveArticle(entry.source);
   const page = entry.source.startsWith('docs_learning/') ? 'study' : entry.source.startsWith('docs_dairy/') ? 'memories' : 'jinling';
-  assert.ok(resolved?.route.startsWith('#' + page + '/'));
+  assert.ok(resolved?.route.startsWith('/' + page + '/'));
 }
 assert.equal(api.resolveArticle('../outside.md'), null);
 assert.equal(api.resolveArticle('docs_learning/missing.md'), null);

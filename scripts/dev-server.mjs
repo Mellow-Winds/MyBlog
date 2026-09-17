@@ -8,6 +8,7 @@ import { syncFriendLinks } from './sync-friend-links.mjs';
 const projectRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const learningJsonPath = join(projectRoot, 'docs_learning', 'learning.json');
 const port = Number(process.env.MYBLOG_PORT || 4173);
+const appRoutes = new Set(['home', 'study', 'jinling', 'memories', 'articles']);
 let syncing = null;
 function refreshContent() {
   if (!syncing) syncing = syncAllContent(projectRoot).finally(() => { syncing = null; });
@@ -58,13 +59,16 @@ const server = createServer(async (request, response) => {
       return;
     }
 
-    const fileInfo = await stat(target);
-    if (!fileInfo.isFile()) throw new Error('Not a file');
+    // Real files win; otherwise hand app routes to the SPA, mirroring the GitHub Pages 404.html fallback.
+    const fileInfo = await stat(target).catch(() => null);
+    const routeFallback = !fileInfo?.isFile() && isAppRoute(requestUrl.pathname);
+    if (!fileInfo?.isFile() && !routeFallback) throw new Error('Not a file');
+    const file = routeFallback ? join(projectRoot, 'index.html') : target;
     response.writeHead(200, {
       'Cache-Control': 'no-store',
-      'Content-Type': contentTypes[extname(target).toLowerCase()] || 'application/octet-stream'
+      'Content-Type': contentTypes[extname(file).toLowerCase()] || 'application/octet-stream'
     });
-    response.end(await readFile(target));
+    response.end(await readFile(file));
   } catch {
     response.writeHead(404);
     response.end('Not found');
@@ -98,6 +102,11 @@ async function start() {
   }
   server.listen(activePort, '127.0.0.1');
   setInterval(() => refreshContent().catch(error => console.error(error.message)), 1500).unref();
+}
+
+function isAppRoute(urlPath) {
+  const first = urlPath.replace(/^\/+/, '').split('/')[0] || 'home';
+  return appRoutes.has(first);
 }
 
 start();

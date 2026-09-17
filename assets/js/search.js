@@ -3,6 +3,7 @@ window.MyBlogSearch = (() => {
   const searchIcon = svg('<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/>');
   const up = svg('<path d="m6 14 6-6 6 6"/>');
   const down = svg('<path d="m6 10 6 6 6-6"/>');
+  const closeIcon = svg('<path d="m6 6 12 12M18 6 6 18"/>');
   const esc = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const bold = (value, q) => q ? value.split(q).map(esc).join(`<strong>${esc(q)}</strong>`) : esc(value);
   const main = document.querySelector('.main-stage');
@@ -36,11 +37,15 @@ window.MyBlogSearch = (() => {
   }
   function mount(root) {
     document.body.classList.add('search-page-active');
-    const params = new URLSearchParams(location.hash.split('?')[1] || '');
+    const params = new URLSearchParams(window.MyBlogRouter.current().search);
     const query = params.get('q') || '';
-    root.innerHTML = `<section class="search-page${query ? ' has-query' : ''}"><header class="search-header"><h1>${query ? '文章检索' : '检索'}</h1><form class="global-search" role="search"><input aria-label="检索" placeholder=" " value="${esc(query)}" class="glass-surface" type="search"><button class="glass-surface" aria-label="搜索">${searchIcon}</button></form></header><div class="search-results" aria-live="polite"></div></section>`;
+    root.innerHTML = `<section class="search-page${query ? ' has-query' : ''}"><header class="search-header"><h1>${query ? '文章检索' : '检索'}</h1><form class="global-search" role="search"><div class="global-search-field glass-surface"><input aria-label="检索" placeholder=" " value="${esc(query)}" type="search"><button type="button" class="search-clear" aria-label="清空检索" hidden>${closeIcon}</button></div><button type="submit" class="glass-surface" aria-label="搜索">${searchIcon}</button></form></header><div class="search-results" aria-live="polite"></div></section>`;
     const page = root.firstElementChild, form = page.querySelector('form'), results = page.querySelector('.search-results');
-    form.querySelector('button').setAttribute('data-ripple', '');
+    form.querySelectorAll('button').forEach(button => button.setAttribute('data-ripple', ''));
+    const input = form.querySelector('input'), clear = form.querySelector('.search-clear');
+    const updateClear = () => { clear.hidden = !input.value; };
+    input.addEventListener('input', updateClear);
+    updateClear();
     const run = async q => {
       const ticket = ++generation;
       if (!q) { page.classList.remove('has-query'); page.querySelector('h1').textContent = '检索'; results.replaceChildren(); return; }
@@ -64,10 +69,18 @@ window.MyBlogSearch = (() => {
         results.firstElementChild.onclick = () => run(q);
       }
     };
+    clear.addEventListener('click', () => {
+      input.value = '';
+      updateClear();
+      history.replaceState(null, '', window.MyBlogRouter.href('articles'));
+      savedScroll = 0; main.scrollTop = 0;
+      run('');
+      input.focus({ preventScroll: true });
+    });
     form.addEventListener('submit', event => {
       event.preventDefault();
       const q = form.querySelector('input').value.trim();
-      history.replaceState(null, '', '#articles' + (q ? '?q=' + encodeURIComponent(q) : ''));
+      history.replaceState(null, '', window.MyBlogRouter.href('articles', [], q ? '?q=' + encodeURIComponent(q) : ''));
       savedScroll = 0; main.scrollTop = 0;
       run(q);
     });
@@ -170,9 +183,10 @@ window.MyBlogSearch = (() => {
     if (type !== 'md' || !document.querySelector('#markdown-content')?.textContent) { leave(); return; }
     if (!control) makeControl();
     article = document.getElementById('markdown-content');
-    articleKey = location.hash.split('?')[0];
+    const route = window.MyBlogRouter.current();
+    articleKey = window.MyBlogRouter.href(route.page, route.params);
     const state = states.get(articleKey);
-    const q = new URLSearchParams(location.hash.split('?')[1] || '').get('find') ?? state?.q ?? '';
+    const q = new URLSearchParams(route.search).get('find') ?? state?.q ?? '';
     control.hidden = false;
     const outline = document.querySelector('.course-view .reader-outline');
     if (outline) outline.hidden = false;

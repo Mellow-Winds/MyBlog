@@ -250,7 +250,7 @@ window.MyBlogReader = (() => {
   const esc = text => md.utils.escapeHtml(String(text));
   let section = 'study', contentRootPath = 'docs_learning';
   const sectionStates = new Map();
-  const routeFor = (grade, subject, file) => '#' + section + '/' + (section === 'study' ? [grade, subject, file] : file.split('/')).map(encodeURIComponent).join('/');
+  const routeFor = (grade, subject, file) => window.MyBlogRouter.href(section, section === 'study' ? [grade, subject, ...file.split('/')] : file.split('/'));
   const fileUrl = (grade, subject, path) => new URL([contentRootPath, ...(section === 'study' ? [grade.folder || grade.name, ...(subject.root ? [] : [subject.folder || subject.name])] : []), ...path.split('/')].map(encodeURIComponent).join('/'), document.baseURI);
 
   let request;
@@ -964,7 +964,10 @@ window.MyBlogReader = (() => {
     if (!sameFile) main.scrollTop = 0;
     if (!selected) {
       if (requestedPath) article.innerHTML = '<p role="status">文件不存在或已移除。</p>';
-      else article.innerHTML = '<p role="status">在左侧打开文件</p>';
+      else {
+        article.innerHTML = '<div class="reader-welcome"><p class="reader-quote"></p><p role="status">在左侧打开一篇文章</p></div>';
+        window.MyBlogQuotes.mount(article.querySelector('.reader-quote'), 'pages_quote', value => `『${value}』`);
+      }
       return;
     }
     if (!requestedPath) history.replaceState(null, '', routeFor(grade.name, subject.name, selected.path));

@@ -25,8 +25,10 @@ window.MyBlogFriendLinks = (() => {
     dialog.addEventListener('pointerdown', event => { backdropDown = outside(event); });
     dialog.addEventListener('click', event => { if (backdropDown && outside(event)) dialog.close(); backdropDown = false; });
     const closeOnRoute = () => dialog.close();
+    window.addEventListener('popstate', closeOnRoute);
     window.addEventListener('hashchange', closeOnRoute);
     dialog.addEventListener('close', () => {
+      window.removeEventListener('popstate', closeOnRoute);
       window.removeEventListener('hashchange', closeOnRoute);
       dialog.remove();
       if (trigger.isConnected) trigger.focus({ preventScroll: true });

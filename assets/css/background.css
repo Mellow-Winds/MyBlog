@@ -7,9 +7,9 @@
   --theme-deep-soft: color-mix(in srgb, var(--theme-deep) 12%, #fff);
   --primary: var(--theme-deep);
   --container: var(--theme-deep-soft);
-  --background-a: color-mix(in srgb, var(--tone-a) 40%, white);
-  --background-b: color-mix(in srgb, var(--tone-b) 8%, white);
-  --background-c: color-mix(in srgb, var(--tone-c) 30%, white);
+  --background-a: color-mix(in srgb, var(--tone-a) 65%, white);
+  --background-b: color-mix(in srgb, var(--tone-b) 40%, white);
+  --background-c: color-mix(in srgb, var(--tone-c) 60%, white);
 }
 
 body {

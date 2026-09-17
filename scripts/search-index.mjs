@@ -21,7 +21,7 @@ export async function buildSearchIndex(root) {
       const body = type === 'md' ? plainText(await readFile(join(root, sourcePath), 'utf8')) : '';
       documents.push({ id: sourcePath, name: node.path.split('/').at(-1), type, body,
         source: [...context, ...node.path.split('/').slice(0, -1)].filter(Boolean).join('-'),
-        route: '#' + section + '/' + [...routeParts, node.path].map(encodeURIComponent).join('/') });
+        route: '/' + [section, ...routeParts, ...node.path.split('/')].map(encodeURIComponent).join('/') });
     }
   };
   const learning = JSON.parse(await readFile(join(root, 'docs_learning/learning.json'), 'utf8'));

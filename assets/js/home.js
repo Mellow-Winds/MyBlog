@@ -72,7 +72,7 @@ window.MyBlogHome = (() => {
         const parts = [config.root, ...(page === 'study' ? [grade.folder, ...(subject.root ? [] : [subject.folder])] : []), file.path];
         if (parts.join('/') !== path) continue;
         const routeParts = page === 'study' ? [grade.name, subject.name, file.path] : file.path.split('/');
-        return { title: file.name, route: `#${page}/${routeParts.map(encodeURIComponent).join('/')}`, source: [config.title, ...path.split('/').slice(1, -1)].join(' / ') };
+        return { title: file.name, route: window.MyBlogRouter.href(page, routeParts), source: [config.title, ...path.split('/').slice(1, -1)].join(' / ') };
       }
     }
     return null;
@@ -101,6 +101,7 @@ window.MyBlogHome = (() => {
   async function mount(root) {
     const view = root.querySelector('.home-view');
     mounted = view;
+    window.MyBlogQuotes.mount(view.querySelector('[data-home-quote]'), 'quote', value => value, 'is-ready');
     window.MyBlogFriendLinks.mount(view);
     await Promise.all(Object.entries({ personal, projects, featured }).map(async ([name, render]) => {
       if (cache.has(name)) render(view, cache.get(name));

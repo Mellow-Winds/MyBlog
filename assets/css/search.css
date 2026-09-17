@@ -5,7 +5,11 @@ body.search-page-active .main-stage { width: 100%; margin: 0; }
 .search-header { display: flex; flex-direction: column; align-items: center; padding-top: max(40px, calc(35dvh - 100px)); transition: padding-top 420ms cubic-bezier(.2,0,0,1); gap: 24px; }
 .search-header h1 { font-size: 64px; font-weight: 600; margin: 0; line-height: 1.2; }
 .global-search { display: flex; gap: 12px; width: min(100%, 580px); align-items: center; }
-.global-search input { flex: 1; min-width: 0; border-radius: 999px; height: 56px; padding: 0 24px; font: inherit; color: var(--ink); }
+.global-search-field { display: flex; align-items: center; flex: 1; min-width: 0; border-radius: 999px; padding-right: 6px; }
+.global-search input { flex: 1; width: 0; min-width: 0; border: 0; background: transparent; border-radius: 999px; height: 56px; padding: 0 24px; font: inherit; color: var(--ink); }
+.global-search input::-webkit-search-cancel-button { display: none; -webkit-appearance: none; }
+.global-search .search-clear { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 44px; padding: 0; border: 0; background: transparent; color: var(--ink); }
+.global-search .search-clear[hidden] { display: none; }
 .global-search button { border-radius: 50%; width: 56px; height: 56px; flex: 0 0 56px; color: var(--ink); cursor: pointer; }
 .global-search svg, .article-search svg { width: 22px; height: 22px; vertical-align: middle; }
 .has-query .search-header { padding-top: 0; flex-direction: row; gap: 24px; }

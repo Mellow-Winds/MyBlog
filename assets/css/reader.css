@@ -431,6 +431,9 @@ body.course-page #content-root { max-width: 1144px; }
 .course-view .reader-outline[hidden] + .prose { grid-column: 1; }
 .reader-outline button { border-radius: 12px; font-size: var(--text-sm); text-align: left; overflow-wrap: anywhere; }
 .course-view .reader-empty { min-height: calc(100dvh - 220px); display: grid; place-items: center; color: var(--muted); font-size: 14px; }
+.reader-welcome { text-align: center; max-width: 100%; }
+.reader-welcome .reader-quote { white-space: pre-line; overflow-wrap: anywhere; color: var(--ink); font-size: clamp(20px, 2.5vw, 30px); line-height: 1.8; }
+.reader-quote:empty { display: none; }
 .study-branch > summary { list-style: none; display: flex; align-items: center; gap: 10px; justify-content: space-between; cursor: pointer; min-height: 44px; padding: 10px 12px; border-radius: 12px; line-height: 1.5; }
 .study-branch > summary::-webkit-details-marker { display: none; }
 .study-branch > summary > span { min-width: 0; overflow-wrap: anywhere; }

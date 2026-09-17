@@ -321,7 +321,7 @@
   <body>
     <main>
       <header class="page-nav">
-        <a href="../index.html#home" data-back aria-label="返回首页" title="返回首页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H5"/><path d="m11.5 6-6 6 6 6"/></svg></a>
+        <a href="/home" data-back aria-label="返回首页" title="返回首页"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H5"/><path d="m11.5 6-6 6 6 6"/></svg></a>
         <h1>颜色设计语言展示</h1>
       </header>
       <div class="color-introduction">
@@ -498,9 +498,9 @@
         const home = new URL('../index.html', location.href);
         const from = document.referrer ? new URL(document.referrer) : null;
         if (from && from.origin === home.origin &&
-            [home.pathname, home.pathname.replace(/index\.html$/, '')].includes(from.pathname) &&
+            [home.pathname, home.pathname.replace(/index\.html$/, ''), '/home'].includes(from.pathname) &&
             history.length > 1) history.back();
-        else location.href = home.href + '#home';
+        else location.href = new URL('/home', home.origin).href;
       });
       window.addEventListener('pageshow', () => { leaving = false; });
     </script>

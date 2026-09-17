@@ -574,7 +574,13 @@ body.home-page .main-stage {
   letter-spacing: -.035em;
 }
 
-.home-hero h1 span { display: block; }
+.home-hero h1 { white-space: pre-line; overflow-wrap: anywhere; }
+.home-hero-copy { opacity: 0; transform: translateY(12px); transition: opacity 1500ms var(--ease), transform 1500ms var(--ease); }
+.home-hero-copy.is-ready { opacity: 1; transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-copy { opacity: 1; transform: none; transition: none; }
+}
 
 .home-hero p {
   margin: 28px 0 0;

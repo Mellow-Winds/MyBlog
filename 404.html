@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MellowBlog</title>
+  </head>
+  <body>
+    <script>
+      const route = location.pathname + location.search + location.hash;
+      location.replace('/index.html?__myblog_route=' + encodeURIComponent(route));
+    </script>
+  </body>
+</html>

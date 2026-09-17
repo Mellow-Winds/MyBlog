@@ -136,17 +136,8 @@ function decodeRoutePart(value) {
 }
 
 function currentRoute() {
-  const parts = (window.location.hash || '#home')
-    .slice(1).split('?')[0]
-    .split('/')
-    .filter(Boolean)
-    .map(decodeRoutePart);
-
-  const requestedPage = parts[0] || 'home';
-  return {
-    page: requestedPage === 'about' ? 'home' : requestedPage,
-    params: parts.slice(1)
-  };
+  const route = window.MyBlogRouter.current();
+  return { page: route.page, params: route.params };
 }
 
 function isLocalServer() {
@@ -261,8 +252,8 @@ function renderAbout() {
     <section class="content-view home-view" data-page-view="home">
       <header class="home-hero">
         <div class="home-hero-copy">
-          <h1><span>遇事不怒，吃饱睡足</span><span>读万卷书，行万里路</span></h1>
-          <p>欢迎来到Mellow的Blog。<wbr>与我一起，在风与歌中成长吧~</p>
+          <h1 data-home-quote></h1>
+          <p>欢迎来到MellowBlog</p>
         </div>
         <button class="home-down" type="button" aria-label="向下浏览个人资料" data-home-down>
           <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 12 9 9 9-9"/></svg>
@@ -368,7 +359,7 @@ function renderView(page, params = []) {
     window.MyBlogReader.setCatalog(catalog);
     const selectedGrade = page === 'study' ? catalog.find(item => item.name === params[0]) : catalog[0];
     const selectedSubject = page === 'study' ? selectedGrade?.subjects.find(item => item.name === params[1]) : selectedGrade?.subjects[0];
-    window.MyBlogReader.show(selectedGrade, selectedSubject, page === 'study' ? params[2] : params.join('/'));
+    window.MyBlogReader.show(selectedGrade, selectedSubject, page === 'study' ? params.slice(2).join('/') : params.join('/'));
     return;
   }
 
@@ -440,11 +431,11 @@ function syncActiveNav(route = currentRoute()) {
     document.querySelector('.reader-back').hidden = true;
     document.querySelector('.file-tools').hidden = !isCoursePage;
     document.querySelector('.course-files').hidden = !isCoursePage;
-    if (page === 'study' && subject?.files.some(file => file.path === route.params[2])) {
-      navLinks.find(link => link.dataset.navPage === 'study').href = '#study/' + route.params.map(encodeRoutePart).join('/');
+    if (page === 'study' && subject?.files.some(file => file.path === route.params.slice(2).join('/'))) {
+      navLinks.find(link => link.dataset.navPage === 'study').href = window.MyBlogRouter.href('study', route.params);
     }
     if (page !== 'study' && isCoursePage && sectionCatalogs[page][0]?.subjects[0]?.files.some(file => file.path === route.params.join('/'))) {
-      navLinks.find(link => link.dataset.navPage === page).href = '#' + page + '/' + route.params.map(encodeRoutePart).join('/');
+      navLinks.find(link => link.dataset.navPage === page).href = window.MyBlogRouter.href(page, route.params);
     }
     if (isCoursePage && grade) contentState.study.grade = studyCatalog.indexOf(grade);
     if (courseContext) {
@@ -506,6 +497,12 @@ function updateHomeMotion() {
   const main = document.querySelector('.main-stage');
   const progress = Math.min(1, main.scrollTop / Math.max(1, hero.offsetHeight));
   const copy = hero.querySelector('.home-hero-copy');
+  if (!copy.classList.contains('is-ready') && !reducedMotion()) {
+    copy.style.removeProperty('opacity');
+    copy.style.removeProperty('transform');
+    hero.classList.toggle('has-scrolled', main.scrollTop > 24);
+    return;
+  }
   copy.style.opacity = String(reducedMotion() ? 1 : Math.max(0, 1 - progress * 1.4));
   copy.style.transform = reducedMotion() ? 'none' : `translateY(${-progress * 36}px)`;
   hero.classList.toggle('has-scrolled', main.scrollTop > 24);
@@ -572,6 +569,22 @@ document.addEventListener('pointerdown', event => {
 });
 
 document.addEventListener('click', event => {
+  const routeLink = event.target.closest('a[href]');
+  if (routeLink && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && !routeLink.target && !routeLink.hasAttribute('download')) {
+    const target = new URL(routeLink.href, location.href);
+    if (target.origin === location.origin && window.MyBlogRouter.isAppPath(target.pathname)) {
+      event.preventDefault();
+      const next = target.pathname + target.search;
+      const current = location.pathname + location.search;
+      if (next !== current) {
+        history.pushState(null, '', next);
+        syncActiveNav();
+      } else if (currentRoute().page === 'home') {
+        document.querySelector('.main-stage').scrollTo({ top: 0, behavior: reducedMotion() ? 'instant' : 'smooth' });
+      }
+      return;
+    }
+  }
   if (event.target.closest('[data-home-down]')) {
     const main = document.querySelector('.main-stage');
     main.scrollTo({ top: contentRoot.querySelector('.home-hero').offsetHeight, behavior: reducedMotion() ? 'instant' : 'smooth' });
@@ -583,7 +596,9 @@ document.addEventListener('click', event => {
   const pointNavLink = directNavLink || navLinkAtPoint(event);
   if (pointNavLink && !directNavLink) {
     event.preventDefault();
-    window.location.hash = pointNavLink.getAttribute('href');
+    const target = new URL(pointNavLink.href, location.href);
+    history.pushState(null, '', target.pathname + target.search);
+    syncActiveNav();
     return;
   }
 
@@ -592,7 +607,8 @@ document.addEventListener('click', event => {
 
   const studyBack = event.target.closest('[data-study-back]');
   if (studyBack) {
-    window.location.hash = '#study';
+    history.pushState(null, '', window.MyBlogRouter.href('study'));
+    syncActiveNav();
     return;
   }
 
@@ -609,12 +625,17 @@ document.addEventListener('click', event => {
   }
 });
 
-window.addEventListener('hashchange', () => syncActiveNav());
+window.addEventListener('popstate', () => syncActiveNav());
+window.addEventListener('hashchange', () => {
+  window.MyBlogRouter.canonicalize();
+  syncActiveNav();
+});
 window.addEventListener('resize', () => {
   const active = navLinks.find(link => link.classList.contains('is-active'));
   updateNavIndicator(active, true);
   updateStudyVisibility();
 });
+window.MyBlogRouter.canonicalize();
 syncActiveNav();
 loadStudyCatalog();
 window.setInterval(loadStudyCatalog, isLocalServer() ? 1000 : 60000);

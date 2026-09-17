@@ -101,7 +101,7 @@ window.MyBlogHome = (() => {
   async function mount(root) {
     const view = root.querySelector('.home-view');
     mounted = view;
-    window.MyBlogQuotes.mount(view.querySelector('[data-home-quote]'), 'quote', value => value, 'is-ready');
+    window.MyBlogQuotes.mount(view.querySelector('[data-home-quote]'), 'quote', value => value, 'is-ready', 'home-hero-line');
     window.MyBlogFriendLinks.mount(view);
     await Promise.all(Object.entries({ personal, projects, featured }).map(async ([name, render]) => {
       if (cache.has(name)) render(view, cache.get(name));

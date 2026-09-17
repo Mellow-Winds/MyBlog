@@ -37,8 +37,12 @@ window.MyBlogRouter = (() => {
     return path(route.page || 'home', route.params || []) + (route.search || '');
   }
   function isAppPath(pathname) {
-    const first = pathname.replace(/^\/+/, '').split('/')[0] || 'home';
-    return first === 'index.html' || pages.has(first);
+    const parts = pathname.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+    const first = parts[0] || 'home';
+    if (first === 'index.html') return true;
+    // `/home/...` always resolves to a real file under the home/ directory, never an app route.
+    if (first === 'home') return parts.length <= 1;
+    return pages.has(first);
   }
   function canonicalize() {
     const route = current();

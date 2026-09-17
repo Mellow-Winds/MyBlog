@@ -575,11 +575,15 @@ body.home-page .main-stage {
 }
 
 .home-hero h1 { white-space: pre-line; overflow-wrap: anywhere; }
-.home-hero-copy { opacity: 0; transform: translateY(12px); transition: opacity 1500ms var(--ease), transform 1500ms var(--ease); }
-.home-hero-copy.is-ready { opacity: 1; transform: translateY(0); }
+.home-hero-line { display: block; }
+.home-hero-line, .home-hero-copy > p { opacity: 0; transform: translateY(14px); transition: opacity 900ms var(--ease), transform 900ms var(--ease); }
+.home-hero-copy.is-ready .home-hero-line,
+.home-hero-copy.is-ready > p { opacity: 1; transform: translateY(0); }
+.home-hero-copy.is-ready .home-hero-line { transition-delay: calc(var(--quote-index, 0) * 150ms); }
+.home-hero-copy.is-ready > p { transition-delay: calc(var(--quote-lines, 1) * 150ms); }
 
 @media (prefers-reduced-motion: reduce) {
-  .home-hero-copy { opacity: 1; transform: none; transition: none; }
+  .home-hero-line, .home-hero-copy > p { opacity: 1; transform: none; transition: none; }
 }
 
 .home-hero p {

@@ -331,6 +331,10 @@ function renderView(page, params = []) {
   if (!contentRoot) return;
   window.MyBlogUptime.unmount();
   window.MyBlogSearch.leave();
+  if (page !== 'home') {
+    homeRevealObserver?.disconnect();
+    homeRevealObserver = null;
+  }
   if (page === 'articles') {
     window.MyBlogSearch.mount(contentRoot);
     return;
@@ -491,28 +495,36 @@ document.querySelector('.main-stage').addEventListener('wheel', event => {
   event.preventDefault();
   main.scrollTo({ top: fromCover ? boundary : 0, behavior: reducedMotion() ? 'instant' : 'smooth' });
 }, { passive: false });
+let homeRevealObserver = null;
+const observedHomeSections = new WeakSet();
+
+// Each block fades in once, the first time it enters the viewport; scrolling back never replays it.
+function observeHomeReveals() {
+  const sections = contentRoot.querySelectorAll('[data-home-reveal]');
+  if (!sections.length || reducedMotion() || !('IntersectionObserver' in window)) return;
+  homeRevealObserver ||= new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting || entry.target.dataset.homeRevealed !== undefined) return;
+      observer.unobserve(entry.target);
+      entry.target.dataset.homeRevealed = '';
+      entry.target.animate([
+        { opacity: 0, transform: 'translateY(24px)' },
+        { opacity: 1, transform: 'translateY(0)' }
+      ], { duration: 900, easing: 'cubic-bezier(.2, 0, 0, 1)', fill: 'both' });
+    });
+  }, { threshold: 0 });
+  sections.forEach(section => {
+    if (observedHomeSections.has(section)) return;
+    observedHomeSections.add(section);
+    homeRevealObserver.observe(section);
+  });
+}
+
 function updateHomeMotion() {
   const hero = contentRoot.querySelector('.home-hero');
-  if (!hero) return;
   const main = document.querySelector('.main-stage');
-  const progress = Math.min(1, main.scrollTop / Math.max(1, hero.offsetHeight));
-  const copy = hero.querySelector('.home-hero-copy');
-  if (!copy.classList.contains('is-ready') && !reducedMotion()) {
-    copy.style.removeProperty('opacity');
-    copy.style.removeProperty('transform');
-    hero.classList.toggle('has-scrolled', main.scrollTop > 24);
-    return;
-  }
-  copy.style.opacity = String(reducedMotion() ? 1 : Math.max(0, 1 - progress * 1.4));
-  copy.style.transform = reducedMotion() ? 'none' : `translateY(${-progress * 36}px)`;
-  hero.classList.toggle('has-scrolled', main.scrollTop > 24);
-  const bounds = main.getBoundingClientRect();
-  contentRoot.querySelectorAll('[data-home-reveal]').forEach(section => {
-    const distance = bounds.bottom - section.getBoundingClientRect().top;
-    const amount = reducedMotion() ? 1 : Math.max(0, Math.min(1, distance / Math.min(220, bounds.height * .3)));
-    section.style.opacity = String(amount);
-    section.style.transform = `translateY(${(1 - amount) * 24}px)`;
-  });
+  if (hero && main) hero.classList.toggle('has-scrolled', main.scrollTop > 24);
+  observeHomeReveals();
 }
 window.addEventListener?.('resize', updateHomeMotion);
 window.matchMedia?.('(prefers-reduced-motion: reduce)').addEventListener?.('change', updateHomeMotion);

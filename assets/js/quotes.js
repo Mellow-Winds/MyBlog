@@ -44,18 +44,36 @@ window.MyBlogQuotes = (() => {
     const entries = await pending.get(name);
     return readQueue(name, entries);
   }
-  async function mount(node, name, decorate = value => value, readyClass = '') {
-    const reveal = () => {
+  async function mount(node, name, decorate = value => value, readyClass = '', lineClass = '') {
+    const reveal = lineCount => {
       const target = node?.closest?.('.home-hero-copy') || node;
+      // Anything sequenced after the lines follows however many actually rendered, not a fixed guess.
+      if (lineCount && target?.style) target.style.setProperty('--quote-lines', String(lineCount));
       if (readyClass && target?.classList) requestAnimationFrame(() => {
         if (target.isConnected) target.classList.add(readyClass);
       });
     };
+    // With a line class, each `\n`-separated line becomes its own element so they can fade in in sequence.
+    const fill = text => {
+      if (!lineClass) {
+        node.textContent = text;
+        return 0;
+      }
+      const lines = String(text).split('\n');
+      node.replaceChildren(...lines.map((line, index) => {
+        const span = document.createElement('span');
+        span.className = lineClass;
+        span.textContent = line;
+        // Stagger is derived from the position, so any number of lines sequences correctly.
+        span.style.setProperty('--quote-index', String(index));
+        return span;
+      }));
+      return lines.length;
+    };
     try {
       const value = await pick(name);
       if (node.isConnected) {
-        node.textContent = decorate(value);
-        reveal();
+        reveal(fill(decorate(value)));
       }
     } catch (error) {
       console.warn(`Unable to load home/${name}.json:`, error);

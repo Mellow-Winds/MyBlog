@@ -32,10 +32,11 @@ function view() {
   node.querySelectorAll = () => node.fields;
   return node;
 }
+const projectStatuses = ['开发中', '不再维护', ' 暂时维护中 ', '暂时不再维护', '   ', '<b>'];
 let data = {
   personal: { email: '<b>literal</b>', description: '第一行\n第二行' },
   featured: [...featured, { ...featured[0], title: '自定义标题' }],
-  projects: Array.from({ length: 6 }, (_, i) => ({ name: '项目' + i, status: '开发中', description: '<script>literal</script>', url: i ? 'https://example.org/' : 'javascript:alert(1)' }))
+  projects: projectStatuses.map((status, i) => ({ name: '项目' + i, status, description: '<script>literal</script>', url: i ? 'https://example.org/' : 'javascript:alert(1)' }))
 };
 const warnings = [];
 let delay;
@@ -60,6 +61,11 @@ const first = view();
 await api.mount(first);
 assert.equal(first.nodes['.home-project-list'].childElementCount, 6);
 assert.equal(first.nodes['.home-project-list']['--project-count'], 5);
+['开发中', '不再维护', '暂时维护中', '待定', undefined, '<b>'].forEach((status, index) => {
+  const header = first.nodes['.home-project-list'].children[index].children[0];
+  assert.equal(header.children[1]?.textContent, status, 'project status length, trimming and literal text');
+  assert.equal(header.children.length, status === undefined ? 1 : 2, 'blank status omitted');
+});
 assert.equal(first.nodes['.home-project-list'].children[0].children.length, 2, 'unsafe link omitted');
 assert.equal(first.nodes['.home-project-list'].children[0].tagName, 'article');
 assert.equal(first.nodes['.home-project-list'].children[0].href, undefined);

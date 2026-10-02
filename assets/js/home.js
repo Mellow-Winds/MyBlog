@@ -55,7 +55,7 @@ window.MyBlogHome = (() => {
       const header = element('div', 'home-project-header');
       header.append(element('h3', '', entry.name));
       const status = text(entry.status).trim();
-      if (status) header.append(element('span', 'home-project-status', [...status].length === 3 ? status : '开发中'));
+      if (status) header.append(element('span', 'home-project-status', [...status].length <= 5 ? status : '待定'));
       card.append(header);
       if (text(entry.description).trim()) card.append(element('p', 'home-project-description', entry.description));
       grid.append(card);

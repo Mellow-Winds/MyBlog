@@ -4,5 +4,23 @@
     "status": "开发中",
     "description": "NJU多场景增强插件，功能丰富，提升体验",
     "url": "https://github.com/Mellow-Winds/NJU-Hub"
+  },
+  {
+    "name": "课搭子",
+    "status": "不再维护",
+    "description": "面向大学生的同课程学习互助平台，目前已废弃",
+    "url": "https://github.com/Mellow-Winds/LessonHelper"
+  },
+  {
+    "name": "设计语言",
+    "status": "开发中",
+    "description": "展示我比较喜欢的网站的设计语言，仅作参考",
+    "url": "https://github.com/Mellow-Winds/MyDesign"
+  },
+  {
+    "name": "WhoAreYou",
+    "status": "即将完成",
+    "description": "用于整理亲人关系的云图",
+    "url": "https://github.com/Mellow-Winds/WhoAreYou"
   }
 ]
